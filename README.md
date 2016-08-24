@@ -19,15 +19,30 @@ $> brew update
 $> brew upgrade swiftlint
 ```
 
-### Integrate it in the project
+### Integrate it into the project
 
-Go to the the projects `Build Phases` configuration and add a `New Run Script Phase` calles "SwiftLint".
+**Make sure that `.swiftlint.yml` is added to the gitignore file as the this default SwiftLint configuration file be automtically copied from the repo into the projects base folder.**
+
+Go to the the projects `Build Phases` configuration and add a `New Run Script Phase` called "SwiftLint".
 
 The script should look like:
 
 ```
+cp Submodules/SMF-iOS-CommonProjectSetupFiles/SwiftLint/.swiftlint.yml ./
+
 if which swiftlint >/dev/null; then
-swiftlint lint --config Submodules/SMF-iOS-CommonProjectSetupFiles/SwiftLint/.swiftlint.yml
+swiftlint
+else
+echo "SwiftLint does not exist, download from https://github.com/realm/SwiftLint"
+fi
+```
+The default SwiftLint configuration is copied to the base project folder and called from there. This makes it possible to add a project specific SwiftLint configuration which is processed with a higher priority.
+
+```
+cp Submodules/SMF-iOS-CommonProjectSetupFiles/SwiftLint/.swiftlint.yml ./
+
+if which swiftlint >/dev/null; then
+swiftlint lint --config .custom_swiftlint.yml
 else
 echo "SwiftLint does not exist, download from https://github.com/realm/SwiftLint"
 fi
