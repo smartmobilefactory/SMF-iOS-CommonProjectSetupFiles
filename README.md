@@ -36,7 +36,12 @@ else
 echo "SwiftLint does not exist, download from https://github.com/realm/SwiftLint"
 fi
 ```
-The default SwiftLint configuration is copied to the base project folder and called from there. This makes it possible to add a project specific SwiftLint configuration which is processed with a higher priority.
+The default SwiftLint configuration is copied to the base project folder and called from there. 
+
+#### Use an additional project specific SwiftLint config
+If you have to modify the SwiftLint configuration for a specific project only you can create a new `.yml` file. By declaring this file during the swiftlint call it will be processed with a higher priority before the default ".swiftlint.yml" configuration is processed. 
+
+The adjusted script should look like this then:
 
 ```
 cp Submodules/SMF-iOS-CommonProjectSetupFiles/SwiftLint/.swiftlint.yml ./
