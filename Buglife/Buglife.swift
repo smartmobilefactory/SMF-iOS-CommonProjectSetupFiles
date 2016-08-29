@@ -19,8 +19,11 @@ struct BuglifeSDKHelper {
 	- parameter invocationOptions: The `LIFEInvocationOptions` to determine which invocation option should be used to trigger Buglife. The default is `.Shake`.
 	*/
 	static func setup(invocationOptions: LIFEInvocationOptions = .Shake) {
-		let identifier = NSBundle.mainBundle().entryInPListForKey(IdentifierKey)
-		Buglife.sharedBuglife().startWithAPIKey(identifier)
-		Buglife.sharedBuglife().invocationOptions = invocationOptions
+		if let _identifier = NSBundle.mainBundle().objectForInfoDictionaryKey(IdentifierKey) as? String {
+			Buglife.sharedBuglife().startWithAPIKey(_identifier)
+			Buglife.sharedBuglife().invocationOptions = invocationOptions
+		} else {
+			print("Warning: You have to the set the `BuglifeId` key in the info plist.")
+		}
 	}
 }
