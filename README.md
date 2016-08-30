@@ -21,7 +21,7 @@ $> brew upgrade swiftlint
 
 ### Integrate it into the project
 
-**Make sure that `.swiftlint.yml` is added to the gitignore file as the this default SwiftLint configuration file be automtically copied from the repo into the projects base folder.**
+**Make sure that `/.swiftlint.yml` is added to the gitignore file as the this default SwiftLint configuration file be automtically copied from the repo into the projects base folder.**
 
 Go to the the projects `Build Phases` configuration and add a `New Run Script Phase` called "SwiftLint".
 
