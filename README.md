@@ -27,7 +27,7 @@ $> brew upgrade swiftlint
 
 ### Integrate it into the project
 
-**Make sure that `.swiftlint.yml` is added to the gitignore file as the this default SwiftLint configuration file be automatically copied from the repo into the projects base folder.**
+**Make sure that `/.swiftlint.yml` is added to the gitignore file as the this default SwiftLint configuration file be automatically copied from the repo into the projects base folder.**
 
 Go to the the projects `Build Phases` configuration and add a `New Run Script Phase` called "SwiftLint".
 
@@ -58,6 +58,7 @@ else
 echo "SwiftLint does not exist, download from https://github.com/realm/SwiftLint"
 fi
 ```
+<<<<<<< HEAD
 
 ##HockeyApp SDK
 
@@ -128,3 +129,5 @@ If all former steps are completed you can call the `BuglifeSDK.setup()` method d
 	}
 ```
 
+=======
+>>>>>>> 0f3a68c4156673b1b594d1e9d8c9e35264fdbacb

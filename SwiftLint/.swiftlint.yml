@@ -42,6 +42,11 @@ opt_in_rules:
   - force_unwrapping
 
 custom_rules:
+  empty_commented_line:
+    name: "Empty Commented Out Line"
+    regex: "(\t+| +)//\n"
+    message: "Remove useless comment lines or use /* format */"
+    severity: warning
   comments_space:
     name: "Space After Comment"
     regex: "(^ *//\w+)"
@@ -79,7 +84,7 @@ custom_rules:
     severity: warning
   missing_brackets:
     name: "Missing brackets"
-    regex: "(^ *if (((?!(let|var|\())).)*\{)"
+    regex: "(^(\t| )*(if|\} else if) (((?!(let|var|\())).)*\{)"
     message: "If statements should be surrounded by rounded brackets"
     severity: warning
   empty_closure_params:
@@ -116,6 +121,11 @@ custom_rules:
     name: "Missing TODO Link"
     regex: "(?i-s)((//|\*)[\s]*?(TODO|FIXME)((?!https://smartmobilefactory.atlassian.net).)*$)"
     message: "Missing Link to Jira for TODO"
+    severity: warning
+  missing_brackets_unwrap:
+    name: "Missing rounded brackets around ??"
+    regex: "(\?\?[^)]*$)"
+    message: "Missing rounded brackets around ??"
     severity: warning
 
 ####### enabled rules #######
