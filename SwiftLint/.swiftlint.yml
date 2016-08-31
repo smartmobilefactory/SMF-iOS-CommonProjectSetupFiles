@@ -14,6 +14,7 @@ excluded: # paths to ignore during linting. overridden by `included`.
   - Carthage
   - Pods
   - External
+  - Submodules
 
 # rule parameters
 cyclomatic_complexity:
