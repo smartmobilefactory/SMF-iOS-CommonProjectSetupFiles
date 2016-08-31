@@ -84,7 +84,7 @@ custom_rules:
     severity: warning
   missing_brackets:
     name: "Missing brackets"
-    regex: "(^ *if (((?!(let|var|\())).)*\{)"
+    regex: "(^(\t| )*(if|\} else if) (((?!(let|var|\())).)*\{)"
     message: "If statements should be surrounded by rounded brackets"
     severity: warning
   empty_closure_params:
