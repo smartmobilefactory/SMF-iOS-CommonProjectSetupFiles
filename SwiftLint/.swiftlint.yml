@@ -42,6 +42,11 @@ opt_in_rules:
   - force_unwrapping
 
 custom_rules:
+  empty_commented_line:
+    name: "Empty Commented Out Line"
+    regex: "(\t+| +)//\n"
+    message: "Remove useless comment lines or use /* format */"
+    severity: warning
   comments_space:
     name: "Space After Comment"
     regex: "(^ *//\w+)"
