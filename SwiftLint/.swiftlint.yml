@@ -121,6 +121,11 @@ custom_rules:
     regex: "(?i-s)((//|\*)[\s]*?(TODO|FIXME)((?!https://smartmobilefactory.atlassian.net).)*$)"
     message: "Missing Link to Jira for TODO"
     severity: warning
+  missing_brackets_unwrap:
+    name: "Missing rounded brackets around ??"
+    regex: "( \?\?[^)]+\n)"
+    message: "Missing rounded brackets around ??"
+    severity: warning
 
 ####### enabled rules #######
 #  - comma # k,v >> k, v
