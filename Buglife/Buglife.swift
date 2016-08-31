@@ -23,7 +23,7 @@ struct BuglifeSDKHelper {
 			Buglife.sharedBuglife().startWithAPIKey(_identifier)
 			Buglife.sharedBuglife().invocationOptions = invocationOptions
 		} else {
-			print("Warning: You have to the set the `BuglifeId` key in the info plist.")
+			print("Warning: You have to the set the `\(IdentifierKey)` key in the info plist.")
 		}
 	}
 }

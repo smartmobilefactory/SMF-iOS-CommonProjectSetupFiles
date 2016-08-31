@@ -27,7 +27,7 @@ struct HockeySDK {
 				BITHockeyManager.sharedHockeyManager().crashManager.crashManagerStatus = .AutoSend
 			#endif
 		} else {
-			print("Warning: You have to set the `HockeyAppId` key in the info plist.")
+			print("Warning: You have to set the `\(IdentifierKey)` key in the info plist.")
 		}
 	}
 }
