@@ -52,6 +52,6 @@ struct HockeySDK {
 	- Warning: The app has to be build with the RELEASE build type or `configureHockeyAppAlsoForNonReleaseBuildTypes` set to `true` and no debugger can be attached in order the receive crash reports on HockeyApp.
 	*/
 	static func performTestCrash() {
-		fatalError("test crash")
+		fatalError("This is a test crash to trigger a crash report in the HockeyApp")
 	}
 }
