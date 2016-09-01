@@ -77,6 +77,11 @@ custom_rules:
     regex: "((?:\s*\n){3,})"
     message: "There are too many empty lines"
     severity: warning
+  unnecessary_leading_void_in:
+    name: "Unnecessary -> Void in at the end of the line"
+    regex: "(-> (Void|\(\)) in$)"
+    message: "Unnecessary '-> Void in' at the end of the line. Use only 'in'"
+    severity: warning
   unnecessary_type:
     name: "Unnecessary Type"
     regex: "(?sm)[ \ta-zA-Z0-9]?(?:let|var){1} [ \ta-zA-Z0-9]+?:[ \t]+?([a-zA-Z0-9]+?)[\t ]+?=[\t ]?\1"
