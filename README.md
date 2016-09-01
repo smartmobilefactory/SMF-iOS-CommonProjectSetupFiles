@@ -58,9 +58,7 @@ else
 echo "SwiftLint does not exist, download from https://github.com/realm/SwiftLint"
 fi
 ```
-<<<<<<< HEAD
-
-##HockeyApp SDK
+## HockeyApp SDK
 
 This repo contains the `HockeySDK` helper struct which takes care of the default HockeyApp SDK setup. The SDK will be initialized with the App ID and the Crash Manager started.
 
@@ -76,6 +74,7 @@ The helper struct will automatically read the App IDs from the info plists. It's
 ```
 
 #### Add the HockeySDK.swift file to the project
+
 Once the SDK is properly integrated and the App IDs set you have to add the `HockeySDK.swift` file to the Xcode project:
 
 ```
@@ -95,7 +94,7 @@ If all former steps are completed you can call the `HockeySDK.setup()` method du
 ```
 
 
-##Buglife SDK
+## Buglife SDK
 
 This repo contains the `BuglifeSDK` helper struct which takes care of the default Buglife SDK setup with `Shake` as default invocation option to trigger the Buglife view controller.
 
@@ -111,6 +110,7 @@ The helper struct will automatically read the IDs from the info plists. It's man
 ```
 
 #### Add the BuglifeSDK.swift file to the project
+
 Once the SDK is properly integrated and the Buglife ID set you have to add the `BuglifeSDK .swift` file to the Xcode project:
 
 ```
@@ -128,6 +128,3 @@ If all former steps are completed you can call the `BuglifeSDK.setup()` method d
 		return true
 	}
 ```
-
-=======
->>>>>>> 0f3a68c4156673b1b594d1e9d8c9e35264fdbacb
