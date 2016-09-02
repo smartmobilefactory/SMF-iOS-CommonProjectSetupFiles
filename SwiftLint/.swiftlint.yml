@@ -43,6 +43,26 @@ opt_in_rules:
   - force_unwrapping
 
 custom_rules:
+  extra_whitespace:
+    name: "Extra whitespaces"
+    regex: "([a-zA-Z0-9=?.\(\),><!'\"][ ]{2,}[a-zA-Z0-9?.\(\),><!'\"])"
+    message: "Remove extra whitespaces"
+    severity: warning
+  unnecessary_datatype:
+    name: "Unnecessary Datatype"
+    regex: "(: \[+(\w|:| |\t)+\]+\s*=\s*\[:*\])"
+    message: "Unnecessary datatype. Use '= [DataType]()' instead of ': [DataType] = []'"
+    severity: warning
+  missing_parameter_name:
+    name: "Missing parameter name"
+    regex: "(_( |\t|:|\))( |\t|=)(?! try).*)"
+    message: "Variable named '_' should be avoided. Please use a valid name."
+    severity: warning
+  missing_closure_name:
+    name: "Missing closure name"
+    regex: "^\s*\}\) \{.*"
+    message: "Add the missing closure name"
+    severity: warning
   empty_commented_line:
     name: "Empty Commented Out Line"
     regex: "(\t+| +)//\n"
