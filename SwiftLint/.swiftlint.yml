@@ -15,6 +15,7 @@ excluded: # paths to ignore during linting. overridden by `included`.
   - Pods
   - External
   - Submodules
+  - Generated
 
 # rule parameters
 cyclomatic_complexity:
