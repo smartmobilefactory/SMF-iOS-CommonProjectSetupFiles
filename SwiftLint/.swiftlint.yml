@@ -42,6 +42,11 @@ opt_in_rules:
   - force_unwrapping
 
 custom_rules:
+  missing_parameter_name:
+    name: "Missing parameter name"
+    regex: "(_( |\t|:|\))( |\t|=)(?! try).*)"
+    message: "Variable named '_' should be avoided. Please use a valid name."
+    severity: warning
   missing_closure_name:
     name: "Missing closure name"
     regex: "^\s*\}\) \{.*"
