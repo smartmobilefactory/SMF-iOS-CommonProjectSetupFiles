@@ -42,6 +42,11 @@ opt_in_rules:
   - force_unwrapping
 
 custom_rules:
+  unnecessary_datatype:
+    name: "Unnecessary Datatype"
+    regex: "(: \[+(\w|:| |\t)+\]+\s*=\s*\[:*\])"
+    message: "Unnecessary datatype. Use '= [DataType]()' instead of ': [DataType] = []'"
+    severity: warning
   missing_parameter_name:
     name: "Missing parameter name"
     regex: "(_( |\t|:|\))( |\t|=)(?! try).*)"
