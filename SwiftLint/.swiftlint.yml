@@ -50,7 +50,7 @@ custom_rules:
     severity: warning
   unnecessary_datatype:
     name: "Unnecessary Datatype"
-    regex: "(: \[+(\w|:| |\t)+\]+\s*=\s*\[:*\])"
+    regex: "(?m-s)(let|var).*(:\s\[+(\w|:| |\t)+\]+\s*=\s*\[:*\])"
     message: "Unnecessary datatype. Use '= [DataType]()' instead of ': [DataType] = []'"
     severity: warning
   missing_parameter_name:
