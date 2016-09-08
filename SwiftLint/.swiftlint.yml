@@ -75,7 +75,7 @@ custom_rules:
     severity: warning
   comments_capitalized_ignore_possible_code:
     name: "Capitalize First Word In Comment"
-    regex: "(^ +// +(?!swiftlint)[a-z]+)"
+    regex: "(\s??// +(?!swiftlint)[a-z]+)"
     message: "The first word of a comment should be capitalized"
     severity: warning
   empty_first_line:
@@ -147,6 +147,11 @@ custom_rules:
     name: "Missing TODO Link"
     regex: "(?i-s)((//|\*)[\s]*?(TODO|FIXME)((?!https://smartmobilefactory.atlassian.net).)*$)"
     message: "Missing Link to Jira for TODO"
+    severity: warning
+  missing_todo_message:
+    name: "Missing TODO Message"
+    regex: "(?i-s)(//|\*)[\s]*?(TODO|FIXME)[:\s]+https://smartmobilefactory.atlassian.net"
+    message: "Missing TODO description"
     severity: warning
   missing_brackets_unwrap:
     name: "Missing rounded brackets around ??"
