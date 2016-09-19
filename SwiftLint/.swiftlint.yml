@@ -16,6 +16,7 @@ excluded: # paths to ignore during linting. overridden by `included`.
   - External
   - Submodules
   - Generated
+  - Core/Model/CoreData
 
 # rule parameters
 cyclomatic_complexity:
