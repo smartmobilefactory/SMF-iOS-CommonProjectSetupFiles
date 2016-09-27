@@ -13,12 +13,12 @@ struct HockeySDK {
 
 	// MARK: - Public Properties
 
-	static let IdentifierKey	= "HockeyAppId"
+	static let identifierKey	= "HockeyAppId"
 
 	// MARK: - Private Properties
 
-	private static var isReleaseBuild: Bool {
-		#if RELEASE
+	fileprivate static var isDebugBuild: Bool {
+		#if DEBUG
 			return true
 		#else
 			return false
@@ -31,18 +31,18 @@ struct HockeySDK {
 	This will setup the HockeySDK with the common base configuration. Crashes will be detected if the app is build with the release build type and the `HockeyAppId` token taken from the info plists.
 
 	- parameter crashManagerStatus: The `BITCrashManagerStatus` which determines whether crashes should be send to HockeyApp and whether it should be done automatically or manually by the user. The default value is `AutoSend`.
-	- parameter configureHockeyAppAlsoForNonReleaseBuildTypes: `Bool` which determines whether the HockeySDK should also be setup if the app is not build with the `RELEASE` type. The Default value is `false`.
+	- parameter configureHockeyAppAlsoForDebugBuildTypes: `Bool` which determines whether the HockeySDK should also be setup if the app is build with the `DEBUG` type. The Default value is `false`.
 	*/
-	static func setup(crashManagerStatus: BITCrashManagerStatus = .AutoSend, configureHockeyAppAlsoForNonReleaseBuildTypes: Bool = false) {
-		if let _identifier = NSBundle.mainBundle().objectForInfoDictionaryKey(IdentifierKey) as? String {
-			if (configureHockeyAppAlsoForNonReleaseBuildTypes == true || self.isReleaseBuild == true) {
-				BITHockeyManager.sharedHockeyManager().configureWithIdentifier(_identifier)
-				BITHockeyManager.sharedHockeyManager().startManager()
-				BITHockeyManager.sharedHockeyManager().authenticator.authenticateInstallation()
-				BITHockeyManager.sharedHockeyManager().crashManager.crashManagerStatus = crashManagerStatus
+	static func setup(withStatus crashManagerStatus: BITCrashManagerStatus = .autoSend, configureHockeyAppAlsoForDebugBuildTypes: Bool = false) {
+		if let _identifier = Bundle.main.object(forInfoDictionaryKey: identifierKey) as? String {
+			if (configureHockeyAppAlsoForDebugBuildTypes == true || self.isDebugBuild == false) {
+				BITHockeyManager.shared().configure(withIdentifier: _identifier)
+				BITHockeyManager.shared().start()
+				BITHockeyManager.shared().authenticator.authenticateInstallation()
+				BITHockeyManager.shared().crashManager.crashManagerStatus = crashManagerStatus
 			}
 		} else {
-			print("Warning: You have to set the `\(IdentifierKey)` key in the info plist.")
+			print("Warning: You have to set the `\(identifierKey)` key in the info plist.")
 		}
 	}
 
