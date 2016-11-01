@@ -162,6 +162,11 @@ custom_rules:
     regex: "(\?\?[^)]*$)"
     message: "Missing rounded brackets around ??"
     severity: warning
+  unnecessary_space:
+    name: "Unnecessary Space"
+    regex: "(\[[a-zA-Z]+? {1}: {1}[a-zA-Z]+?\])"
+    message: "Unnecessary space. use [DataType: DataType]."
+    severity: warning
 
 ####### enabled rules #######
 #  - comma # k,v >> k, v
