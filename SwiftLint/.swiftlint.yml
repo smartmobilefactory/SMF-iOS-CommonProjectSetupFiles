@@ -42,6 +42,9 @@ opt_in_rules:
   - conditional_returns_on_newline
   - private_outlet
   - vertical_whitespace
+  - closure_spacing
+  - explicit_init
+  - redundant_nil_coalesing
 
 custom_rules:
   extra_whitespace:
