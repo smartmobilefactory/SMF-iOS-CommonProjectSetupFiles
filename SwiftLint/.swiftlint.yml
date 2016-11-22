@@ -1,6 +1,6 @@
 ###
 # Swiftlint configuration file.
-# Latest version supported: 0.12.0
+# Latest version supported: 0.13.0
 # Any newer version hasn't been checked yet and might not follow the style guide.
 ###
 
@@ -42,6 +42,9 @@ opt_in_rules:
   - conditional_returns_on_newline
   - private_outlet
   - vertical_whitespace
+  - closure_spacing
+  - explicit_init
+  - redundant_nil_coalesing
 
 custom_rules:
   extra_whitespace:
