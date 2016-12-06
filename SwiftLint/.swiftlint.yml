@@ -167,6 +167,11 @@ custom_rules:
     regex: "(\[[a-zA-Z]+? {1}: {1}[a-zA-Z]+?\])"
     message: "Unnecessary space. use [DataType: DataType]."
     severity: warning
+  missing_space:
+    name: "Missing Space"
+    regex: "(\[[a-zA-Z]+?:[a-zA-Z]+?\])"
+    message: "Missing space. use [DataType: DataType]."
+    severity: warning
 
 ####### enabled rules #######
 #  - comma # k,v >> k, v
