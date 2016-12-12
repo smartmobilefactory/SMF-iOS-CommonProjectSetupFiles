@@ -1,6 +1,6 @@
 ###
 # Swiftlint configuration file.
-# Latest version supported: 0.12.0
+# Latest version supported: 0.13.2
 # Any newer version hasn't been checked yet and might not follow the style guide.
 ###
 
@@ -9,6 +9,7 @@ disabled_rules: # rule identifiers to exclude from running
   - control_statement # no rounded brackets around conditions. we would need this the other way around
   - todo # TODO can be written in the code but should be linked to a ticket on JIRA.
   - nesting # func nesting max 1 level
+  - cyclomatic_complexity # limit the number of entries inside an enum or struct.
 
 excluded: # paths to ignore during linting. overridden by `included`.
   - Carthage
@@ -19,10 +20,6 @@ excluded: # paths to ignore during linting. overridden by `included`.
   - Core/Model/CoreData
 
 # rule parameters
-cyclomatic_complexity:
-  - 20 #warning
-  - 35 #error
-
 file_length:
   - 600 #warning
   - 800 #error
@@ -45,6 +42,9 @@ opt_in_rules:
   - conditional_returns_on_newline
   - private_outlet
   - vertical_whitespace
+  - closure_spacing
+  - explicit_init
+  - redundant_nil_coalescing
 
 custom_rules:
   extra_whitespace:
@@ -162,6 +162,16 @@ custom_rules:
     regex: "(\?\?[^)]*$)"
     message: "Missing rounded brackets around ??"
     severity: warning
+  unnecessary_space:
+    name: "Unnecessary Space"
+    regex: "(\[[a-zA-Z]+? {1}: {1}[a-zA-Z]+?\])"
+    message: "Unnecessary space. use [DataType: DataType]."
+    severity: warning
+  missing_space:
+    name: "Missing Space"
+    regex: "(\[[a-zA-Z]+?:[a-zA-Z]+?\])"
+    message: "Missing space. use [DataType: DataType]."
+    severity: warning
 
 ####### enabled rules #######
 #  - comma # k,v >> k, v
@@ -184,4 +194,3 @@ custom_rules:
 #  - valid_docs # docs should match the method signature
 #  - variable_name_min_length # variables should have a 3 letter minimum name and 40 maximum.
 #  - variable_name # variables should start with a lower case character or a capitalized one if `static`.
-#  - cyclomatic_complexity # limit the number of entries inside an enum or struct.
