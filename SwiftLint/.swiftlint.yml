@@ -172,6 +172,17 @@ custom_rules:
     regex: "(\[[a-zA-Z]+?:[a-zA-Z]+?\])"
     message: "Missing space. use [DataType: DataType]."
     severity: warning
+  missing_empty_line:
+    name: "Missing Empty Line"
+    regex: "(\}\n{1}[^\n\t\s/}#])"
+    message: "Missing empty line."
+    severity: warning
+  missing_empty_line:
+    name: "Missing Empty Line"
+    regex: "(\}\n{1}[^\n\t\s/}#])"
+    message: "Missing empty line."
+    severity: warning
+
 
 ####### enabled rules #######
 #  - comma # k,v >> k, v
