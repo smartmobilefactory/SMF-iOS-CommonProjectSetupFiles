@@ -17,7 +17,7 @@ readonly metaJSONFilename=".meta.json"
 readonly scriptBaseFolderPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 #
-# Constants
+# Variables
 #
 
 callSwiftlint=true
