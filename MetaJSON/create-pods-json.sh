@@ -8,7 +8,7 @@
 #
 # File output is eg:
 # {
-# 	"syntax": "1",
+# 	"syntax_version": "1",
 # 	"version": "1.0.1",
 # 	"acknowledgement": false,
 # 	"pods": [{
@@ -24,7 +24,7 @@
 #
 # Author Hans Seiffert
 #
-# Last revised 12/12/2016
+# Last revised 21/12/2016
 
 #
 # Constants
@@ -43,15 +43,19 @@ readonly acknowledgementKey="acknowledgement"
 readonly usedPodsKey="pods"
 readonly usedPodsNameKey="name"
 readonly usedPodsVersionKey="version"
+readonly syntaxVersionKey="syntax_version"
 
-readonly missingFilenameExitCode=1
+readonly wrongArgumentsExitCode=1
 readonly missingFilesExitCode=2
+
+readonly scriptBaseFolderPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 #
 # Variables
 #
 
 targetFilename="$1"
+projectDir="$2"
 podNamesArray[0]=""
 jsonString=""
 
@@ -60,8 +64,8 @@ jsonString=""
 #
 
 function display_usage () { 
-	echo "This script expects the output filename as argument" 
-	echo -e "\nUsage:\n$ $0 FILENAME\n" 
+	echo "This script expects the output filename as argument. You can pass the projects base folder path if needed. Otherwise the scripts parent folder path is used." 
+	echo -e "\nUsage:\n$ $0 FILENAME PROJECT_BASE_DIR FILENAME\n" 
 } 
 
 function array_contains () { 
@@ -85,7 +89,7 @@ function append_pods_version_to_json () {
 		    # Get the Pods name
 		    versionString+="\"${BASH_REMATCH[2]}\""
 		fi
-	done  < "$podfileLockFilename"
+	done  < "$projectDir/$podfileLockFilename"
 
 	jsonString+="$versionString,\n\t"
 
@@ -95,7 +99,7 @@ function append_pods_version_to_json () {
 function append_acknowledgment_to_json () {
 	local acknowledgementString="\"$acknowledgementKey\": "
 	# Extract if the acknowledgement plist is used and not commented out
-	if grep -q "^\ *[^#]*FileUtils\.cp\_.*-acknowledgements\.plist" "$podfileFilename"; then
+	if grep -q "^\ *[^#]*FileUtils\.cp\_.*-acknowledgements\.plist" "$projectDir/$podfileFilename"; then
  		acknowledgementString+="true"
  	else
  		acknowledgementString+="false"
@@ -122,7 +126,7 @@ function extract_used_pods () {
 		    # Increment the index
 		   	((index++))
 		fi
-	done  < "$podfileLockFilename"
+	done  < "$projectDir/$podfileLockFilename"
 
 	return 0
 }
@@ -157,7 +161,7 @@ function append_used_pods_to_json () {
 				jsonString+=$currentPodString
 			fi
 		fi
-	done  < "$podfileLockFilename"
+	done  < "$projectDir/$podfileLockFilename"
 
 	jsonString+=']\n'
 
@@ -169,28 +173,36 @@ function append_used_pods_to_json () {
 #
 
 # Check if filename is provided
-if [ $# -ne 1 ]; then
+if [  -z "$targetFilename" ]; then
    	display_usage
-	exit $missingFilenameExitCode
+	exit $wrongArgumentsExitCode
+fi
+
+# Check if project dir is provided. If not: Use the scripts base directory
+if [  -z "$projectDir" ]; then
+	projectDir="$scriptBaseFolderPath"
 fi
 
 # Check if Podfile exists
-if [ ! -f $podfileFilename ]; then
+if [ ! -f "$projectDir/$podfileFilename" ]; then
     echo "Error: There is no \"$podfileFilename\" in this folder!"
     exit $missingFilesExitCode
 fi
 
 # Check if Podfile.lock exists
-if [ ! -f $podfileLockFilename ]; then
+if [ ! -f "$projectDir/$podfileLockFilename" ]; then
     echo "Error: There is no \"$podfileLockFilename\" in this folder! You may have to run \"$ pod install\" first."
     exit $missingFilesExitCode
 fi
+
+# Go the folder which contains this script
+cd "$scriptBaseFolderPath"
 
 #
 # Logic
 #
 
-jsonString+="{\n\t\"syntax\": \"$syntaxVersion\",\n\t"
+jsonString+="{\n\t\"$syntaxVersionKey\": \"$syntaxVersion\",\n\t"
 
 append_pods_version_to_json
 append_acknowledgment_to_json
@@ -199,6 +211,6 @@ append_used_pods_to_json
 jsonString+="}"
 
 # Write the json string to the file
-echo -e $jsonString > $targetFilename
+echo "$jsonString" > "$projectDir/$targetFilename"
 
 exit 0

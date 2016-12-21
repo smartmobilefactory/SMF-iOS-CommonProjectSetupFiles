@@ -12,26 +12,29 @@
 readonly noSwiftlintFlag="--no-swiftlint"
 readonly noMetaJSONFlag="--no-metajson"
 
+readonly metaJSONFilename=".meta.json"
+
+readonly scriptBaseFolderPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 #
 # Constants
 #
 
-call_swiftlint=true
-call_metaJSON=true
+callSwiftlint=true
+callMetaJSON=true
+projectDir="$scriptBaseFolderPath"
 
 #
 # Methods
 #
 
 function display_usage () { 
-	echo "This script performs all common project setup scripts by default. Exceptions can be declared with the flags:" 
-	echo -e "\n$noSwiftlintFlag" 
-	echo -e "\n$noMetaJSONFlag" 
+	echo "This script performs all common project setup scripts by default. You can optionally pass the projects base directory path as argument. Exceptions can be declared with the flags:" 
+	echo -e "$noSwiftlintFlag" 
+	echo -e "$noMetaJSONFlag" 
 	echo -e "\nUsage:\n$ $0 $noMetaJSONFlag\n" 
+	echo -e "or:\n$ $0 $noMetaJSONFlag /Code/Project/Test\n" 
 } 
-
-# Go the folder which contains this script
-cd "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 #
 # Read flags
@@ -40,32 +43,40 @@ cd "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 while test $# -gt 0; do
 	case "$1" in
 		$noSwiftlintFlag)
-			call_swiftlint=false
+			callSwiftlint=false
 			shift
 			# break
 			;;
 		$noMetaJSONFlag)
-			call_metaJSON=false
+			callMetaJSON=false
 			shift
 			# break
 			;;
+		-*)
+			display_usage
+			shift
+			;;
 		*)
-			echo "unkown option $1"
+			# This is the project directory
+			projectDir="$1"
 			shift
 			;;
 	esac
 done
 
+# Go the folder which contains this script
+cd "$scriptBaseFolderPath"
+
 #
 # Call scripts
 #
 
-if [ $call_swiftlint = true ]; then
-	sh ./SwiftLint/copy-swiftlint-config.sh
+if [ $callSwiftlint = true ]; then
+	./SwiftLint/copy-swiftlint-config.sh "$projectDir"
 fi
 
-if [ $call_metaJSON = true ]; then
-	sh ./MetaJSON/create-pods-metajson.sh Pods.json
+if [ $callMetaJSON = true ]; then
+	./MetaJSON/create-meta-json.sh "$metaJSONFilename" "$projectDir"
 fi
 
 exit 0
