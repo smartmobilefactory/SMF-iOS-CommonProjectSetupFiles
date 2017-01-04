@@ -179,7 +179,7 @@ custom_rules:
     severity: warning
   missing_empty_line:
     name: "Missing Empty Line"
-    regex: "(\}\n{1}[^\n\t\s/)}#])"
+    regex: "(?-smxi)(\}\n)([ \t]*?)([^\n\}\t ])"
     message: "Missing empty line."
     severity: warning
 
