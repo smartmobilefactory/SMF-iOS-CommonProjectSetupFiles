@@ -211,6 +211,6 @@ append_used_pods_to_json
 jsonString+="}"
 
 # Write the json string to the file
-echo "$jsonString" > "$projectDir/$targetFilename"
+echo -e "$jsonString" > "$projectDir/$targetFilename"
 
 exit 0
