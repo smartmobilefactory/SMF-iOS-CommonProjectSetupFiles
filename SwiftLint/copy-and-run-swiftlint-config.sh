@@ -36,4 +36,15 @@ cd "$scriptBaseFolderPath"
 # Copy the Swiftlint file to the projects base folder
 cp swiftlint.yml "$projectDir/.swiftlint.yml"
 
+# Go to the project folder and run swiftlint from there
+
+cd "$projectDir"
+
+if which swiftlint >/dev/null; then
+	swiftlint
+else
+	echo "SwiftLint does not exist, download from https://github.com/realm/SwiftLint"
+	exit 1
+fi
+
 exit 0

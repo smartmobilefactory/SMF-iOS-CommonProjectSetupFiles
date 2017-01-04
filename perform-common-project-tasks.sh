@@ -80,8 +80,7 @@ cd "$scriptBaseFolderPath"
 #
 
 if [ $callSwiftlint = true ]; then
-	./SwiftLint/copy-swiftlint-config.sh "$projectDir"
-	./SwiftLint/perform-swiftlint.sh
+	./SwiftLint/copy-and-run-swiftlint-config.sh "$projectDir"
 fi
 
 if [ $callCodebeat = true ]; then
