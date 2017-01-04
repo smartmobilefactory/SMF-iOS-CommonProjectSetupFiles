@@ -11,6 +11,9 @@ disabled_rules: # rule identifiers to exclude from running
   - nesting # func nesting max 1 level
   - cyclomatic_complexity # limit the number of entries inside an enum or struct.
   - unused_closure_parameter
+  - empty_parentheses_with_trailing_closure
+  - closure_parameter_position
+  - redundant_string_enum_value
 
 excluded: # paths to ignore during linting. overridden by `included`.
   - Carthage
@@ -47,6 +50,7 @@ opt_in_rules:
   - closure_spacing
   - explicit_init
   - redundant_nil_coalescing
+  - nimble_operator
 
 custom_rules:
   extra_whitespace:
@@ -176,7 +180,7 @@ custom_rules:
     severity: warning
   missing_empty_line:
     name: "Missing Empty Line"
-    regex: "(\}\n{1}[^\n\t\s/)}#])"
+    regex: "(?-smxi)(\}\n)([ \t]*?)([^\n\}\t ])"
     message: "Missing empty line."
     severity: warning
 
