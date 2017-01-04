@@ -10,6 +10,7 @@
 #
 
 readonly noSwiftlintFlag="--no-swiftlint"
+readonly noCodebeatFlag="--no-codebeat"
 readonly noMetaJSONFlag="--no-metajson"
 
 readonly metaJSONFilename=".meta.json"
@@ -21,6 +22,7 @@ readonly scriptBaseFolderPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 #
 
 callSwiftlint=true
+callCodebeat=true
 callMetaJSON=true
 projectDir="$(pwd)"
 
@@ -31,6 +33,7 @@ projectDir="$(pwd)"
 function display_usage () { 
 	echo "This script performs all common project setup scripts by default. You can optionally pass the projects base directory path as argument. Exceptions can be declared with the flags:" 
 	echo -e "$noSwiftlintFlag" 
+	echo -e "$noCodebeatFlag" 
 	echo -e "$noMetaJSONFlag" 
 	echo -e "\nUsage:\n$ $0 $noMetaJSONFlag\n" 
 	echo -e "or:\n$ $0 $noMetaJSONFlag /Code/Project/Test\n" 
@@ -44,6 +47,11 @@ while test $# -gt 0; do
 	case "$1" in
 		$noSwiftlintFlag)
 			callSwiftlint=false
+			shift
+			# break
+			;;
+		$noCodebeatFlag)
+			callCodebeat=false
 			shift
 			# break
 			;;
@@ -73,6 +81,11 @@ cd "$scriptBaseFolderPath"
 
 if [ $callSwiftlint = true ]; then
 	./SwiftLint/copy-swiftlint-config.sh "$projectDir"
+	./SwiftLint/perform-swiftlint.sh
+fi
+
+if [ $callCodebeat = true ]; then
+	./Codebeat/copy-codebeat-config.sh "$projectDir"
 fi
 
 if [ $callMetaJSON = true ]; then
