@@ -1,8 +1,8 @@
-TestCoverage
-Carthage
-Pods
-External
-Submodules
-Generated
-Core/Model/CoreData
-fastlane
+TestCoverage/**
+Carthage/**
+Pods/**
+External/**
+Submodules/**
+Generated/**
+Core/Model/CoreData/**
+fastlane/**
