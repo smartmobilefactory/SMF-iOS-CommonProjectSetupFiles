@@ -1,6 +1,6 @@
 ###
 # Swiftlint configuration file.
-# Latest version supported: 0.13.2
+# Latest version supported: 0.15.0
 # Any newer version hasn't been checked yet and might not follow the style guide.
 ###
 
@@ -10,6 +10,7 @@ disabled_rules: # rule identifiers to exclude from running
   - todo # TODO can be written in the code but should be linked to a ticket on JIRA.
   - nesting # func nesting max 1 level
   - cyclomatic_complexity # limit the number of entries inside an enum or struct.
+  - unused_closure_parameter
 
 excluded: # paths to ignore during linting. overridden by `included`.
   - Carthage
@@ -18,6 +19,7 @@ excluded: # paths to ignore during linting. overridden by `included`.
   - Submodules
   - Generated
   - Core/Model/CoreData
+  - fastlane
 
 # rule parameters
 file_length:
@@ -171,6 +173,11 @@ custom_rules:
     name: "Missing Space"
     regex: "(\[[a-zA-Z]+?:[a-zA-Z]+?\])"
     message: "Missing space. use [DataType: DataType]."
+    severity: warning
+  missing_empty_line:
+    name: "Missing Empty Line"
+    regex: "(\}\n{1}[^\n\t\s/)}#])"
+    message: "Missing empty line."
     severity: warning
 
 ####### enabled rules #######
