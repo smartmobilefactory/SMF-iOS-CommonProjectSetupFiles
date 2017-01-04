@@ -22,7 +22,7 @@ readonly scriptBaseFolderPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 callSwiftlint=true
 callMetaJSON=true
-projectDir="$scriptBaseFolderPath"
+projectDir="$(pwd)"
 
 #
 # Methods
