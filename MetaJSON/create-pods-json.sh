@@ -55,7 +55,8 @@ readonly scriptBaseFolderPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 #
 
 targetFilename="$1"
-projectDir="$2"
+metaJSONFolderName="$2"
+projectDir="$3"
 podNamesArray[0]=""
 jsonString=""
 
@@ -64,8 +65,8 @@ jsonString=""
 #
 
 function display_usage () { 
-	echo "This script expects the output filename as argument. You can pass the projects base folder path if needed. Otherwise the scripts parent folder path is used." 
-	echo -e "\nUsage:\n$ $0 FILENAME PROJECT_BASE_DIR FILENAME\n" 
+	echo "This script expects the output filename and fildername of the metaJSON folder as argument. You can pass the projects base folder path if needed. Otherwise the scripts parent folder path is used." 
+	echo -e "\nUsage:\n$ $0 FILENAME META_JSON_DIR_NAME PROJECT_BASE_DIR FILENAME\n" 
 } 
 
 function array_contains () { 
@@ -178,6 +179,12 @@ if [  -z "$targetFilename" ]; then
 	exit $wrongArgumentsExitCode
 fi
 
+# Check if the metaJSON folder name is provided
+if [  -z "$metaJSONFolderName" ]; then
+   	display_usage
+	exit $wrongArgumentsExitCode
+fi
+
 # Check if project dir is provided. If not: Use the scripts base directory
 if [  -z "$projectDir" ]; then
 	projectDir="$scriptBaseFolderPath"
@@ -211,4 +218,4 @@ append_used_pods_to_json
 jsonString+="}"
 
 # Write the json string to the file
-echo -e "$jsonString" > "$projectDir/$targetFilename"
+echo -e "$jsonString" > "$projectDir/$metaJSONFolderName/$targetFilename"
