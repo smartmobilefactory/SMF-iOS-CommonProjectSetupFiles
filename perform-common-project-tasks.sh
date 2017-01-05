@@ -3,7 +3,7 @@
 #
 # Author Hans Seiffert
 #
-# Last revised 12/12/2016
+# Last revised 05/01/2017
 
 #
 # Constants
@@ -90,5 +90,3 @@ fi
 if [ $callMetaJSON = true ]; then
 	./MetaJSON/create-meta-json.sh "$metaJSONFilename" "$projectDir"
 fi
-
-exit 0

@@ -3,7 +3,7 @@
 #
 # Author Hans Seiffert
 #
-# Last revised 03/01/2017
+# Last revised 05/01/2017
 
 #
 # Constants
@@ -36,5 +36,3 @@ cd "$scriptBaseFolderPath"
 # Copy the Codebeat files to the projects base folder
 cp codebeatignore "$projectDir/.codebeatignore"
 cp codebeatsettings "$projectDir/.codebeatsettings"
-
-exit 0

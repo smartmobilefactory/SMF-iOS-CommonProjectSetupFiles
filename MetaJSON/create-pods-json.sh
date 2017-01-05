@@ -24,7 +24,7 @@
 #
 # Author Hans Seiffert
 #
-# Last revised 21/12/2016
+# Last revised 05/01/2017
 
 #
 # Constants
@@ -212,5 +212,3 @@ jsonString+="}"
 
 # Write the json string to the file
 echo -e "$jsonString" > "$projectDir/$targetFilename"
-
-exit 0

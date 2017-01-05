@@ -3,7 +3,7 @@
 #
 # Author Hans Seiffert
 #
-# Last revised 22/12/2016
+# Last revised 05/01/2017
 
 #
 # Constants
@@ -46,5 +46,3 @@ else
 	echo "SwiftLint does not exist, download from https://github.com/realm/SwiftLint"
 	exit 1
 fi
-
-exit 0
