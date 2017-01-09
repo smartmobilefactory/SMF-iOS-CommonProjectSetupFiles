@@ -11,19 +11,19 @@ import Buglife
 
 struct BuglifeSDK {
 
-	static let IdentifierKey	= "BuglifeId"
+	static let identifierKey	= "BuglifeId"
 
 	/**
 	This will setup the Buglife SDK with the common base configuration.
 
 	- parameter invocationOptions: The `LIFEInvocationOptions` to determine which invocation option should be used to trigger Buglife. The default is `.Shake`.
 	*/
-	static func setup(invocationOptions: LIFEInvocationOptions = .Shake) {
-		if let _identifier = NSBundle.mainBundle().objectForInfoDictionaryKey(IdentifierKey) as? String {
-			Buglife.sharedBuglife().startWithAPIKey(_identifier)
-			Buglife.sharedBuglife().invocationOptions = invocationOptions
+	static func setup(withOption invocationOptions: LIFEInvocationOptions = .shake) {
+		if let _identifier = Bundle.main.object(forInfoDictionaryKey: identifierKey) as? String {
+			Buglife.shared().start(withAPIKey: _identifier)
+			Buglife.shared().invocationOptions = invocationOptions
 		} else {
-			print("Warning: You have to the set the `\(IdentifierKey)` key in the info plist.")
+			print("Warning: You have to the set the `\(identifierKey)` key in the info plist.")
 		}
 	}
 }
