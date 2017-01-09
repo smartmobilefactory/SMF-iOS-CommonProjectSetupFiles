@@ -9,6 +9,7 @@
 # Constants
 #
 
+readonly metaJSONFolderName=".MetaJSON"
 readonly commitMessage="Update MetaJSONs"
 
 readonly scriptBaseFolderPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -39,7 +40,7 @@ cd "$projectDir"
 
 if [ "$?" = "0" ]; then
 	git pull
-	git add .
+	git add "$metaJSONFolderName"
 	git commit -m "$commitMessage"
 	git push
 else
