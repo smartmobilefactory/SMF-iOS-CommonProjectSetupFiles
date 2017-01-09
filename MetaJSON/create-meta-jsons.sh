@@ -11,7 +11,7 @@
 #
 
 readonly metaJSONFolderName=".MetaJSON"
-readonly podsJSONFilename=".pods.json"
+readonly podsJSONFilename="Pods.json"
 
 readonly scriptBaseFolderPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
