@@ -83,14 +83,28 @@ Project navigator > Submodules > Add files to "SMF-iOS-CommonProjectSetupFiles" 
 
 #### Use the HockeySDK.swift helper struct
 
-If all former steps are completed you can call the `HockeySDK.setup()` method during the `application:didFinishLaunchingWithOptions` in the app delegate:
+If all former steps are completed you can call the `HockeySDK.setup()` method during the `applicationDidFinishLaunching(_:)` in the app delegate:
 
 ```
-	func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-		// Override point for customization after application launch.
-		HockeySDK.setup()
-		return true
-	}
+func applicationDidFinishLaunching(_ application: UIApplication) {
+	HockeySDK.setup()
+}
+```
+
+#### Customiztion
+
+If you want to use a diferent `BITCrashManagerStatus` (the default is `.autoSend`) or want to enable crash reports also for debug builds you can send these as optional parameters:
+
+```
+HockeySDK.setup(withStatus: .alwaysAsk, configureHockeyAppAlsoForDebugBuildTypes: true)
+```
+
+#### Perform a test crash
+
+If you want to test if crash reports are working you can perform a test crash. This will trigger a `fatalError()`. Note: If you didn't set `configureHockeyAppAlsoForDebugBuildTypes` to `true` you have to build the app as release app in order to capture crashes!
+
+```
+HockeySDK.performTestCrash()
 ```
 
 
@@ -119,12 +133,18 @@ Project navigator > Submodules > Add files to "SMF-iOS-CommonProjectSetupFiles" 
 
 #### Use the BuglifeSDK.swift helper struct
 
-If all former steps are completed you can call the `BuglifeSDK.setup()` method during the `application:didFinishLaunchingWithOptions` in the app delegate:
+If all former steps are completed you can call the `BuglifeSDK.setup()` method during the `applicationDidFinishLaunching (_:)` in the app delegate:
 
 ```
-	func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-		// Override point for customization after application launch.
-		BuglifeSDK.setup()
-		return true
-	}
+func applicationDidFinishLaunching(_ application: UIApplication) {
+	BuglifeSDK.setup()
+}
+```
+
+#### Customiztion
+
+If you want to use a diferent `LIFEInvocationOptions` (the default is `.shake`) you can send it as optional parameter:
+
+```
+BuglifeSDK.setup(withOption: .screenshot)
 ```
