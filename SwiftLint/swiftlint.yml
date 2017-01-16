@@ -140,7 +140,7 @@ custom_rules:
     severity: warning
   missing_closure_datatype:
     name: "Missing Closure Data Type"
-    regex: "(\{[\s]{1}\([^:]+?\)[\s]{1}in)"
+    regex: "(\{[\s]{1}(\[weak [\w]+?\][\s]{1})*?\([^:]+?\)[\s]{1}in)"
     message: "Data Type in Closure is missing"
     severity: warning
   invalid_mark_format:
