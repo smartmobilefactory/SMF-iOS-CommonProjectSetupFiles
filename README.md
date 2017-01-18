@@ -123,7 +123,7 @@ $> brew upgrade swiftlint
 
 **Make sure that `/.swiftlint.yml` is added to the gitignore file as the this default SwiftLint configuration file be automatically copied from the repo into the projects base folder.**
 
-The Swiftlint configuration and lint call is integrated in the [setup script](#setup-script). If it shouldn't be used you can pass the flag `--no-swiftlint`.
+The Swiftlint configuration and lint call is integrated in the [setup script](#setup). If it shouldn't be used you can pass the flag `--no-swiftlint`.
 
 #### Optional: Call the SwiftLint script without using the setup script
 If you want to copy the SwiftLint configuration and lint the code without integrating the setup script you can call `Submodules/SMF-iOS-CommonProjectSetupFiles/SwiftLint/copy-and-run-swiftlint-config.sh` directly.
@@ -147,7 +147,7 @@ fi
 
 [Codebeat](http://codebeat.co) is a service which provides static code analysis. The integration isn't done in the repo itself. But ignore and configuration files should be added to customize rules and ignore unwanted code (like generated source files).
 
-The Codebeat configuration files copying is integrated in the [setup script](#setup-script). If it shouldn't be used you can pass the flag `--no-codebeat`.
+The Codebeat configuration files copying is integrated in the [setup script](#setup). If it shouldn't be used you can pass the flag `--no-codebeat`.
 
 #### Optional: Call the Codebeat configuration script without using the setup script
 If you want to copy the Codebeat configuration files without integrating the setup script you can call `Submodules/SMF-iOS-CommonProjectSetupFiles/Codebeat/copy-codebeat-config.sh` directly.
