@@ -63,11 +63,6 @@ custom_rules:
     regex: "(?m-s)(let|var).*(:\s\[+(\w|:| |\t)+\]+\s*=\s*\[:*\])"
     message: "Unnecessary datatype. Use '= [DataType]()' instead of ': [DataType] = []'"
     severity: warning
-  missing_parameter_name:
-    name: "Missing parameter name"
-    regex: "(_( |\t|:|\))( |\t|=)(?! try).*)"
-    message: "Variable named '_' should be avoided. Please use a valid name."
-    severity: warning
   missing_closure_name:
     name: "Missing closure name"
     regex: "^\s*\}\) \{.*"
@@ -147,11 +142,6 @@ custom_rules:
     name: "Invalid MARK Format"
     regex: "(?m-s)(\/\/[\s]*?MARK(?!(\:[\s]{1}\-[\s]{1}){1}))"
     message: "Use format: MARK: - Your Info"
-    severity: warning
-  prefer_structs_over_classes:
-    name: "Prefer structs over classes"
-    regex: "(?m-s)(class[\s]{1}[a-zA-Z]*[\s]*\{$)"
-    message: "Prefer structs over classes"
     severity: warning
   missing_todo_link:
     name: "Missing TODO Link"
