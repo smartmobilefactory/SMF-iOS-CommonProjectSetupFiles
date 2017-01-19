@@ -1,64 +1,38 @@
 # SMF-iOS-CommonProjectSetupFiles
 
-This Repo contains our common project setup files:
+This Repo contains our common project setup files.
 
-- SwiftLint 
-- HockeySDK.swift**\***
-- BuglifeSDK.swift**\***
+Helpers which can be added manually to the Xcode project which should be used:
 
-**\*** optional Files which doesn't have to be in each project and should only be added to Xcode if they should be used.
+- [HockeySDK.swift](#hockeyapp-sdk)
+- [BuglifeSDK.swift](#buglife-sdk)
 
-##SwiftLint
+Scripts which should be called during the build phase:
 
-If SwiftLint is or should be used in project you have to install it first (if not done yet). 
+- [SwiftLint](#swiftlint)
+- [Codebeat](#codebeat)
 
+Scripts which are used manually or by the CI:
 
-### Install SwiftLint
-```
-$> brew update
-$> brew install swiftlint
-```
+- [MetaJSON](#metajson)
 
-### Update SwiftLint
-```
-$> brew update
-$> brew upgrade swiftlint
-```
+### Setup
 
-### Integrate it into the project
-
-**Make sure that `/.swiftlint.yml` is added to the gitignore file as the this default SwiftLint configuration file be automatically copied from the repo into the projects base folder.**
-
-Go to the the projects `Build Phases` configuration and add a `New Run Script Phase` called "SwiftLint".
+Go to the the projects `Build Phases` configuration, add a `New Run Script Phase` called "SMF-iOS-CommonProjectSetupFiles" and place it below `Compile Sources`.
 
 The script should look like:
 
 ```
-cp Submodules/SMF-iOS-CommonProjectSetupFiles/SwiftLint/.swiftlint.yml ./
-
-if which swiftlint >/dev/null; then
-swiftlint
-else
-echo "SwiftLint does not exist, download from https://github.com/realm/SwiftLint"
-fi
+Submodules/SMF-iOS-CommonProjectSetupFiles/setup-common-project-files.sh
 ```
-The default SwiftLint configuration is copied to the base project folder and called from there. 
 
-#### Use an additional project specific SwiftLint config
-If you have to modify the SwiftLint configuration for a specific project only you can create a new `.yml` file. By declaring this file during the swiftlint call it will be processed with a higher priority before the default ".swiftlint.yml" configuration is processed. 
+This will copy the Codebeat configuration files, copy the SwiftLint configuration and run SwiftLint. In case either of them shouldn't be used in the project a flag can be used to opt out (see the readme below).
 
-The adjusted script should look like this then:
+# Documentation
 
-```
-cp Submodules/SMF-iOS-CommonProjectSetupFiles/SwiftLint/.swiftlint.yml ./
+## Helper classes
 
-if which swiftlint >/dev/null; then
-swiftlint lint --config .custom_swiftlint.yml
-else
-echo "SwiftLint does not exist, download from https://github.com/realm/SwiftLint"
-fi
-```
-## HockeyApp SDK
+### HockeyApp-SDK
 
 This repo contains the `HockeySDK` helper struct which takes care of the default HockeyApp SDK setup. The SDK will be initialized with the App ID and the Crash Manager started.
 
@@ -108,7 +82,7 @@ HockeySDK.performTestCrash()
 ```
 
 
-## Buglife SDK
+### Buglife-SDK
 
 This repo contains the `BuglifeSDK` helper struct which takes care of the default Buglife SDK setup with `Shake` as default invocation option to trigger the Buglife view controller.
 
@@ -148,3 +122,60 @@ If you want to use a diferent `LIFEInvocationOptions` (the default is `.shake`) 
 ```
 BuglifeSDK.setup(withOption: .screenshot)
 ```
+
+## Scripts to be called during Build phase
+
+###SwiftLint
+
+### Install SwiftLint
+```
+$> brew update
+$> brew install swiftlint
+```
+
+### Update SwiftLint
+```
+$> brew update
+$> brew upgrade swiftlint
+```
+
+### Integrate it into the project
+
+**Make sure that `/.swiftlint.yml` is added to the gitignore file as the this default SwiftLint configuration file be automatically copied from the repo into the projects base folder.**
+
+The Swiftlint configuration and lint call is integrated in the [setup script](#setup). If it shouldn't be used you can pass the flag `--no-swiftlint`.
+
+#### Optional: Call the SwiftLint script without using the setup script
+If you want to copy the SwiftLint configuration and lint the code without integrating the setup script you can call `Submodules/SMF-iOS-CommonProjectSetupFiles/SwiftLint/copy-and-run-swiftlint-config.sh` directly.
+
+#### Optional: Use an additional project specific SwiftLint config
+If you have to modify the SwiftLint configuration for a specific project only you can create a new `.yml` file. By declaring this file during the SwiftLint call it will be processed with a higher priority before the default ".swiftlint.yml" configuration is processed. 
+
+The adjusted script should look like this then:
+
+```
+cp Submodules/SMF-iOS-CommonProjectSetupFiles/SwiftLint/.swiftlint.yml ./
+
+if which swiftlint >/dev/null; then
+swiftlint lint --config .custom_swiftlint.yml
+else
+echo "SwiftLint does not exist, download from https://github.com/realm/SwiftLint"
+fi
+```
+
+### Codebeat
+
+[Codebeat](http://codebeat.co) is a service which provides static code analysis. The integration isn't done in the repo itself. But ignore and configuration files should be added to customize rules and ignore unwanted code (like generated source files).
+
+The Codebeat configuration files copying is integrated in the [setup script](#setup). If it shouldn't be used you can pass the flag `--no-codebeat`.
+
+#### Optional: Call the Codebeat configuration script without using the setup script
+If you want to copy the Codebeat configuration files without integrating the setup script you can call `Submodules/SMF-iOS-CommonProjectSetupFiles/Codebeat/copy-codebeat-config.sh` directly.
+
+## Scripts to be called manually or by the CI
+
+### MetaJSON
+
+MetaJSON files are custom SMF JSON files which contains various information about the projects itself. These information is used to automatically update some generated confluence pages with eg. the app compatibility page and an overview over all used pods.
+
+The scripts which create the MetaJSON files aren't called during the build phase locally but during fastlane builds of Alpha apps. The CI commits these JSON files to the projects repos.
