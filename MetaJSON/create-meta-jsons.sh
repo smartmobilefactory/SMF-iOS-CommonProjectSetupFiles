@@ -12,6 +12,7 @@
 
 readonly metaJSONFolderName=".MetaJSON"
 readonly podsJSONFilename="Pods.json"
+readonly clocJSONFilename="Cloc.json"
 
 readonly scriptBaseFolderPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -46,6 +47,7 @@ cd "$scriptBaseFolderPath"
 # Logic
 #
 
-mkdir "$projectDir/$metaJSONFolderName"
+mkdir -p "$projectDir/$metaJSONFolderName"
 
 ./create-pods-json.sh "$podsJSONFilename" "$metaJSONFolderName" "$projectDir"
+./create-cloc-json.sh "$clocJSONFilename" "$metaJSONFolderName" "$projectDir"

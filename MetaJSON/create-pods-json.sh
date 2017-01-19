@@ -65,7 +65,7 @@ jsonString=""
 #
 
 function display_usage () { 
-	echo "This script expects the output filename and fildername of the metaJSON folder as argument. You can pass the projects base folder path if needed. Otherwise the scripts parent folder path is used." 
+	echo "This script expects the output filename and foldername of the metaJSON folder as argument. You can pass the projects base folder path if needed. Otherwise the scripts parent folder path is used." 
 	echo -e "\nUsage:\n$ $0 FILENAME META_JSON_DIR_NAME PROJECT_BASE_DIR FILENAME\n" 
 } 
 
