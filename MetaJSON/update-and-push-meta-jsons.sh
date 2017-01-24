@@ -50,10 +50,14 @@ cd "$projectDir"
 # Logic
 #
 
-"$scriptBaseFolderPath/create-meta-jsons.sh" "$projectDir"
+git fetch
+git checkout -B "$branchName"
+git submodule update
 
 if [ "$?" = "0" ]; then
-	git checkout -b "$branchName"
+	
+	"$scriptBaseFolderPath/create-meta-jsons.sh" "$projectDir"
+
 	git add "$metaJSONFolderName"
 	git commit -m "$commitMessage"
 	git push origin "$branchName"
