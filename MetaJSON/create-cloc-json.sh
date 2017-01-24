@@ -73,6 +73,9 @@ if which cloc >/dev/null; then
 	# Generate report
 	cloc --vcs=git --quiet --json --out="$projectDir/$metaJSONFolderName/$targetFilename"
 
+	# Remove the header as it contains data which changes with each report generation (seconds measuring)
+	perl -0777 -pi -e 's/\"header\"[^}]*},\n//g' "$projectDir/$metaJSONFolderName/$targetFilename"
+
 	# Go the folder which contains this script
 	cd "$scriptBaseFolderPath"
 else
