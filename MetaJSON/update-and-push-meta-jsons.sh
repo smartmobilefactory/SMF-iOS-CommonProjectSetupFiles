@@ -14,15 +14,29 @@ readonly commitMessage="Update MetaJSONs"
 
 readonly scriptBaseFolderPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+readonly wrongArgumentsExitCode=1
+
 #
 # Variables
 #
 
-projectDir="$1"
+branchName="$1"
+projectDir="$2"
 
 #
 # Check requirements
 #
+
+function display_usage () { 
+	echo "This script expects the git branch name as argument. You can pass the projects base folder path if needed. Otherwise the scripts parent folder path is used." 
+	echo -e "\nUsage:\n$ $0 FILENAME GIT_BRANCH_NAME\n" 
+} 
+
+# Check if the branch name was provided
+if [ -z "$branchName" ]; then
+	display_usage
+	exit $wrongArgumentsExitCode
+fi
 
 # Check if project dir is provided. If not: Use the current directory
 if [  -z "$projectDir" ]; then
@@ -36,13 +50,17 @@ cd "$projectDir"
 # Logic
 #
 
-"$scriptBaseFolderPath/create-meta-jsons.sh" "$projectDir"
+git fetch
+git checkout -B "$branchName"
+git submodule update
 
 if [ "$?" = "0" ]; then
-	git pull
+	
+	"$scriptBaseFolderPath/create-meta-jsons.sh" "$projectDir"
+
 	git add "$metaJSONFolderName"
 	git commit -m "$commitMessage"
-	git push
+	git push origin "$branchName"
 else
 	echo "Failed to commit and push to the git repo" 1>&2
 	exit 1
