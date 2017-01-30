@@ -40,9 +40,10 @@ cp swiftlint.yml "$projectDir/.swiftlint.yml"
 
 cd "$projectDir"
 
-if which swiftlint >/dev/null; then
-	swiftlint
+SWIFTLINT_EXECUTABLE="$projectDir/Pods/SwiftLint/swiftlint"
+if [ -f $SWIFTLINT_EXECUTABLE ]; then
+	$SWIFTLINT_EXECUTABLE
 else
-	echo "SwiftLint does not exist, download from https://github.com/realm/SwiftLint"
+	echo "SwiftLint does not exist, please add it to the Alpha target in your Podfile"
 	exit 1
 fi
