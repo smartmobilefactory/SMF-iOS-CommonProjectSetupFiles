@@ -41,8 +41,9 @@ cp swiftlint.yml "$projectDir/.swiftlint.yml"
 cd "$projectDir"
 
 SWIFTLINT_EXECUTABLE="$projectDir/Pods/SwiftLint/swiftlint"
-if [ -f $SWIFTLINT_EXECUTABLE ]; then
-	$SWIFTLINT_EXECUTABLE
+
+if [ -f "$SWIFTLINT_EXECUTABLE" ]; then
+	"$SWIFTLINT_EXECUTABLE"
 else
 	echo "SwiftLint does not exist, please add it to the Alpha target in your Podfile"
 	exit 1
