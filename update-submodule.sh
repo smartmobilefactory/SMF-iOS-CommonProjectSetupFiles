@@ -23,7 +23,7 @@ fi
 # Logic
 #
 
-cd $commonProjectSetupFilesDirectory
+cd "$commonProjectSetupFilesDirectory"
 
 if [ "$?" = "0" ]; then
 	currentBranch="$(git branch | grep \* | cut -d ' ' -f2)"
