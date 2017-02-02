@@ -80,8 +80,6 @@ cd "$scriptBaseFolderPath"
 # Call scripts
 #
 
-#echo "$callSwiftlint - $isDebugConfiguration"
-#exit 1
 if [ $callSwiftlint = true ] && [ $isDebugConfiguration = true ]; then
 	./SwiftLint/copy-and-run-swiftlint-config.sh "$projectDir" || exit 1;
 fi
