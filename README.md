@@ -23,10 +23,10 @@ Go to the the projects `Build Phases` configuration, add a `New Run Script Phase
 The script should look like:
 
 ```
-"${SRCROOT}/Submodules/SMF-iOS-CommonProjectSetupFiles/setup-common-project-files.sh"
+"${SRCROOT}/Submodules/SMF-iOS-CommonProjectSetupFiles/setup-common-project-files.sh" --buildconfig "${CONFIGURATION}"
 ```
 
-This will copy the Codebeat configuration files, copy the SwiftLint configuration and run SwiftLint. In case either of them shouldn't be used in the project a flag can be used to opt out (see the readme below).
+This will copy the Codebeat configuration files, copy the SwiftLint configuration and for DEBUG configuration run SwiftLint. In case either of them shouldn't be used in the project a flag can be used to opt out (see the readme below).
 
 # Documentation
 
@@ -105,19 +105,10 @@ If all former steps are completed you can call the `BuglifeSDK.setup()` method d
 
 ## Scripts to be called during Build phase
 
-###SwiftLint
+###SwiftLint (in DEBUG configuration only)
 
-### Install SwiftLint
-```
-$> brew update
-$> brew install swiftlint
-```
-
-### Update SwiftLint
-```
-$> brew update
-$> brew upgrade swiftlint
-```
+Swiftlint should be integrated via cocoapods.
+If for whatever reason this is not the case the scripts try to execute a local version of swiftlint.
 
 ### Integrate it into the project
 
