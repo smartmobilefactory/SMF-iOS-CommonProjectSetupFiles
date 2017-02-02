@@ -44,6 +44,8 @@ SWIFTLINT_EXECUTABLE="$projectDir/Pods/SwiftLint/swiftlint"
 
 if [ -f "$SWIFTLINT_EXECUTABLE" ]; then
 	"$SWIFTLINT_EXECUTABLE"
+elif which swiftlint >/dev/null; then
+	swiftlint
 else
 	echo "SwiftLint does not exist, please add it to the Alpha target in your Podfile"
 	exit 1
