@@ -23,7 +23,7 @@ Go to the the projects `Build Phases` configuration, add a `New Run Script Phase
 The script should look like:
 
 ```
-"${SRCROOT}/Submodules/SMF-iOS-CommonProjectSetupFiles/setup-common-project-files.sh"
+"${SRCROOT}/Submodules/SMF-iOS-CommonProjectSetupFiles/setup-common-project-files.sh" --buildconfig "${CONFIGURATION}"
 ```
 
 This will copy the Codebeat configuration files, copy the SwiftLint configuration and run SwiftLint. In case either of them shouldn't be used in the project a flag can be used to opt out (see the readme below).

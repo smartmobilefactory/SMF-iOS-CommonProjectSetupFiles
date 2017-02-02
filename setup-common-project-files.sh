@@ -11,6 +11,7 @@
 
 readonly noSwiftlintFlag="--no-swiftlint"
 readonly noCodebeatFlag="--no-codebeat"
+readonly buildConfigurationFlag="--buildconfig"
 
 readonly scriptBaseFolderPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -21,6 +22,7 @@ readonly scriptBaseFolderPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 callSwiftlint=true
 callCodebeat=true
 projectDir="$(pwd)"
+isDebugConfiguration=false
 
 #
 # Methods
@@ -40,6 +42,15 @@ function display_usage () {
 
 while test $# -gt 0; do
 	case "$1" in
+		$buildConfigurationFlag)
+			configName=$(echo "$2" | awk '{print tolower($0)}')
+			if [ $configName = "debug" ]; then
+				isDebugConfiguration=true
+			fi
+			shift
+			shift
+			# break
+			;;
 		$noSwiftlintFlag)
 			callSwiftlint=false
 			shift
@@ -69,7 +80,9 @@ cd "$scriptBaseFolderPath"
 # Call scripts
 #
 
-if [ $callSwiftlint = true ]; then
+#echo "$callSwiftlint - $isDebugConfiguration"
+#exit 1
+if [ $callSwiftlint = true ] && [ $isDebugConfiguration = true ]; then
 	./SwiftLint/copy-and-run-swiftlint-config.sh "$projectDir" || exit 1;
 fi
 
