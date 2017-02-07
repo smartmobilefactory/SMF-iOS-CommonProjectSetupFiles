@@ -2,21 +2,23 @@
 # Extracts meta data from Cocoa Pods projects:
 # - CocoaPods version
 # - If the acknowledgements are added to the apps settings bundle
-# - The name and version of integrated pods (without sub dependencies)
+# - For each integrated pods (without sub dependencies): The name, version and whether a max version is specified (GitHub repos are seen as specified version)
 #
-# Template version 1
+# Template version 2
 #
 # File output is eg:
 # {
 # 	"syntax_version": "1",
-# 	"version": "1.0.1",
+# 	"version": "1.1.1",
 # 	"acknowledgement": false,
 # 	"pods": [{
 # 		"name": "Alamofire",
-# 		"version": "4.1.0"
+# 		"version": "4.1.0",
+#		"specified_max_version": true
 # 	}, {
 # 		"name": "HockeySDK",
-# 		"version": "3.8.6"
+# 		"version": "3.8.6",
+#		"specified_max_version": false
 # 	}
 # }
 #
@@ -24,13 +26,13 @@
 #
 # Author Hans Seiffert
 #
-# Last revised 05/01/2017
+# Last revised 05/02/2017
 
 #
 # Constants
 #
 
-readonly syntaxVersion=1
+readonly syntaxVersion=2
 
 readonly podfileFilename="Podfile"
 readonly podfileLockFilename="Podfile.lock"
@@ -41,8 +43,9 @@ readonly dependenciesEndSectionLine="SPEC CHECKSUMS:"
 readonly versionKey="version"
 readonly acknowledgementKey="acknowledgement"
 readonly usedPodsKey="pods"
-readonly usedPodsNameKey="name"
-readonly usedPodsVersionKey="version"
+readonly usedPodNameKey="name"
+readonly usedPodVersionKey="version"
+readonly usedPodSpecifiedMaxVersionKey="specified_max_version"
 readonly syntaxVersionKey="syntax_version"
 
 readonly wrongArgumentsExitCode=1
@@ -58,6 +61,7 @@ targetFilename="$1"
 metaJSONFolderName="$2"
 projectDir="$3"
 podNamesArray[0]=""
+podSpecifiedMaxVersionsArray[0]=false
 jsonString=""
 
 #
@@ -122,8 +126,16 @@ function extract_used_pods () {
 		   	# The end of the dependencies section is reached
 		   	break
 		elif $didReachDependenciesSection && [[ "$line" =~ (- ([^ ]*)( \(|$)) ]]; then
-		    # Get the Pods name
-		    podNamesArray[$index]=${BASH_REMATCH[2]}
+			# Get the Pods name
+		    podName=${BASH_REMATCH[2]}
+		    # Check if the version is specified as max version or with a git source
+			declared_as_max_version=false
+			if [[ "$line" =~ (\(([=|<|a-z].*)\)) ]]; then
+				declared_as_max_version=true
+			fi
+		    # Store the pod data
+		    podNamesArray[$index]=$podName
+		    podSpecifiedMaxVersionsArray[$index]=$declared_as_max_version
 		    # Increment the index
 		   	((index++))
 		fi
@@ -137,7 +149,7 @@ function append_used_pods_to_json () {
 	local initialPodRead=false
 	local index=0
 	jsonString+="\"$usedPodsKey\": ["
-	# Read the Podfile.lock, extract all direct used pods (not sub pods), their version and create store the information as JSON
+	# Read the Podfile.lock, extract all direct used pods (not sub pods), their version and store the information as JSON
 	while IFS= read -r line; do
 		if [[ "$line" == $dependenciesBeginSectionLine ]]; then
 			# The dependencies are is reached. We can break as there will be no more used Pods.
@@ -152,11 +164,23 @@ function append_used_pods_to_json () {
 	    			currentPodString=', '
 	    		fi
 	    		currentPodString+="{\n\t\t"
-	    		currentPodString+="\"$usedPodsNameKey\": \"${BASH_REMATCH[2]}\",\n\t\t"
+	    		currentPodName=${BASH_REMATCH[2]}
+	    		currentPodString+="\"$usedPodNameKey\": \"$currentPodName\",\n\t\t"
 			    # Get the Pods version without the brackets around it
 	   			if [[ "$line" =~ \(([0-9.]+)\) ]]; then
-				    currentPodString+="\"$usedPodsVersionKey\": \"${BASH_REMATCH[1]}\""
+				    currentPodString+="\"$usedPodVersionKey\": \"${BASH_REMATCH[1]}\",\n\t\t"
 				fi
+				# Mark the version as (un-)specific
+				podIndex=0
+				currentPodIndex=0
+				for podName in "${podNamesArray[@]}"; do
+   					if [[ "$podName" == "$currentPodName" ]]; then
+   						currentPodIndex=$podIndex
+   					else
+   						((podIndex++))
+					fi
+				done
+				currentPodString+="\"$usedPodSpecifiedMaxVersionKey\": ${podSpecifiedMaxVersionsArray[$currentPodIndex]}"
 				currentPodString+='\n\t}'
 				((index++))
 				jsonString+=$currentPodString
