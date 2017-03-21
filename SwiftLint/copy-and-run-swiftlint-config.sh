@@ -22,7 +22,7 @@ projectDir="$1"
 #
 
 # Check if project dir is provided. If not: Use the scripts base directory.
-if [  -z $1 ]; then
+if [  -z "$1" ]; then
    	projectDir="$scriptBaseFolderPath"
 fi
 
