@@ -195,7 +195,6 @@ function append_idfa_appearances_from_grep () {
 
 	prepare_new_json_line
 	jsonString+="\"idfa_usage\": \"$idfa_usage\""
-fi
 }
 
 function append_swiftlint_usage () {
