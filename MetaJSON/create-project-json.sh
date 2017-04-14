@@ -171,7 +171,7 @@ function append_ats_exceptions_from_grep () {
 	complete_json_array
 }
 
-function append_idfa_appearances_from_grep () {
+function append_idfa_usage_from_grep () {
 	prepare_new_json_line
 	jsonString+="\"idfa_appearances\": ["	
 	idfa_usage="no"
@@ -221,7 +221,7 @@ function append_swiftlint_usage () {
 	jsonString+="\"swift_lint_integration\": \"none\""
 }
 
-function append_idfa_usage_from_grep () {
+function append_entries_from_smf_properties () {
 	while IFS= read -r line; do
 		if [[ "$line" =~ (XCODE_VERSION=(.*)) ]]; then
 			prepare_new_json_line
