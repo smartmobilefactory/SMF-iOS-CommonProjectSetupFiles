@@ -42,8 +42,20 @@ function display_usage () {
 	echo -e "\nUsage:\n$ $0 FILENAME META_JSON_DIR_NAME PROJECT_FILENAME PROJECT_BASE_DIR FILENAME\n" 
 } 
 
-function prepare_new_json_entry () {
+function prepare_new_json_line () {
 	jsonString+=",\n\t"
+}
+
+function prepare_new_json_array_item () {
+	if [[ "$jsonString" =~ "["$ ]]; then 
+		jsonString+="\n\t\t"
+	else
+		jsonString+=",\n\t\t"
+	fi
+}
+
+function complete_json_array () {
+	jsonString+="\n\t]"
 }
 
 function override_key_with_value () {
@@ -68,21 +80,50 @@ function append_bitcode_enabled_from_grep () {
 			bitcodeEnabled="no"	
 		fi
 	fi
-	prepare_new_json_entry
+	prepare_new_json_line
 	jsonString+="\"bitcode_enabled\": \"$bitcodeEnabled\""
 }
 
+function append_ats_exceptions_from_grep () {
+	prepare_new_json_line
+	jsonString+="\"ats_exceptions\": ["
+
+	while read plistFile; do 
+		if [[ "$(cat "$plistFile")" =~ (<key>NSAllowsArbitraryLoads<\/key>[^\S]*<true\/>) ]]; then
+			prepare_new_json_array_item
+			jsonString+="\"arbitrary\""
+		elif [[ "$(cat "$plistFile")" =~ (<key>NSExceptionDomains</key>) ]]; then
+			prepare_new_json_array_item
+			jsonString+="\"domains\""
+		else
+			prepare_new_json_array_item
+			jsonString+="\"none\""
+		fi
+	done <<< "$(find "$projectDir" -type f -name "*-Info.plist" -not -path "./Pods/*" -not -path "./Carthage/*")"
+
+	complete_json_array
+}
+
 function append_idfa_usage_from_grep () {
-	idfaUsageStatusString="no"
-	if $(fgrep -R advertisingIdentifier "$projectDir" | grep -v BITHockeyManager.h); then
-		idfaUsageStatusString="maybe"
-	fi
-	prepare_new_json_entry
-	jsonString+="\"idfa_usage\": \"$idfaUsageStatusString\""
+	prepare_new_json_line
+	jsonString+="\"idfa_usage\": ["
+
+	while read idfaUsage; do
+		if [[ $idfaUsage =~ (.*): ]]; then
+			# Get the path of the usage
+			usagePath="${BASH_REMATCH[1]}"
+			# Remove the project path
+			usagePath=${usagePath#$projectDir}
+			prepare_new_json_array_item
+			jsonString+="\"$usagePath\""
+		fi
+	done <<< "$(fgrep -R advertisingIdentifier "$projectDir" | grep -v BITHockeyManager.h)"
+
+	complete_json_array
 }
 
 function append_swiftlint_usage () {
-	prepare_new_json_entry
+	prepare_new_json_line
 	while IFS= read -r line; do
 		if [[ "$line" =~ (shellScript = .*/setup-common-project-files.sh) ]]; then
 			if ! [[ "$line" =~ (--no-swiftlint) ]]; then
@@ -108,16 +149,16 @@ function append_swiftlint_usage () {
 function append_entries_from_smf_properties () {
 	while IFS= read -r line; do
 		if [[ "$line" =~ (XCODE_VERSION=(.*)) ]]; then
-			prepare_new_json_entry
+			prepare_new_json_line
 		    jsonString+="\"xcode_version\": \"${BASH_REMATCH[2]}\""
 		elif [[ "$line" =~ (PROGRAMMING_LANGUAGE=(.*)) ]]; then
-		    prepare_new_json_entry
+		    prepare_new_json_line
 			jsonString+="\"programming_language\": \"${BASH_REMATCH[2]}\""
 		elif [[ "$line" =~ (PROGRAMMING_LANGUAGE_VERSION=(.*)) ]]; then
-		    prepare_new_json_entry
+		    prepare_new_json_line
 			jsonString+="\"programming_language_version\": \"${BASH_REMATCH[2]}\""
 		elif [[ "$line" =~ (FASTLANE_BUILD_JOBS_LEVEL=(.*)) ]]; then
-			prepare_new_json_entry
+			prepare_new_json_line
 		    jsonString+="\"fastlane_build_jobs_level\": \"${BASH_REMATCH[2]}\""
 		elif [[ "$line" =~ (OVERRIDDEN_IDFA_USAGE=(.*)) ]]; then
 			override_key_with_value "idfa_usage" "\"${BASH_REMATCH[2]}\""
@@ -165,6 +206,7 @@ jsonString+="{\n\t\"$syntaxVersionKey\": \"$syntaxVersion\""
 
 append_bitcode_enabled_from_grep
 append_idfa_usage_from_grep
+append_ats_exceptions_from_grep
 append_swiftlint_usage
 append_entries_from_smf_properties
 
