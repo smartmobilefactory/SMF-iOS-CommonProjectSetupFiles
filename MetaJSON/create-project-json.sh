@@ -149,16 +149,19 @@ function append_ats_exceptions_from_grep () {
 
 function append_idfa_usage_from_grep () {
 	prepare_new_json_line
-	jsonString+="\"idfa_usage\": ["
+	jsonString+="\"idfa_usage\": ["	
 
 	while read idfaUsage; do
-		if [[ $idfaUsage =~ (.*): ]]; then
+		if [[ $idfaUsage =~ ([^:]*) ]]; then
 			# Get the path of the usage
 			usagePath="${BASH_REMATCH[1]}"
 			# Remove the project path
 			usagePath=${usagePath#$projectDir}
-			prepare_new_json_array_item
-			jsonString+="\"$usagePath\""
+			if [[ $lastFoundPath != $usagePath ]]; then
+				prepare_new_json_array_item
+				jsonString+="\"$usagePath\""
+				lastFoundPath=$usagePath
+			fi
 		fi
 	done <<< "$(fgrep -R advertisingIdentifier "$projectDir" | grep -v BITHockeyManager.h)"
 
