@@ -58,6 +58,18 @@ function complete_json_array () {
 	jsonString+="\n\t]"
 }
 
+function prepare_new_json_object_item () {
+	if [[ "$jsonString" =~ "{"$ ]]; then 
+		jsonString+="\n\t\t"
+	else
+		jsonString+=",\n\t\t"
+	fi
+}
+
+function complete_json_object () {
+	jsonString+="\n\t}"
+}
+
 function override_key_with_value () {
 	key=$1
 	value=$2
@@ -66,6 +78,38 @@ function override_key_with_value () {
 		stringReplacement="\"$key\": $value"
 		jsonString=$(echo $jsonString | sed -e "s/$stringToReplace/$stringReplacement/g")
 	fi
+}
+
+function append_smf_commonprojectsetupfiles () {
+	prepare_new_json_line
+	jsonString+="\"smf_commonprojectsetupfiles\": {"
+
+	integrated="false"
+	while IFS= read -r line; do
+		if [[ "$line" =~ (shellScript = .*/setup-common-project-files.sh) ]]; then
+			integrated="true"
+		fi
+	done < "$xcodeProjectFile"
+
+	if [[ "$(cat "$projectDir/.gitmodules")" =~ (path = (.*\s).*url = .*SMF-iOS-CommonProjectSetupFiles\.git) ]]; then
+		submodulePath="${BASH_REMATCH[2]}"
+
+		while read line; do
+	    	if [[ "$line" =~ (([+-]?(.*) .*"$submodulePath")) ]]; then
+				submoduleCommit="${BASH_REMATCH[3]}"
+			fi
+		done <<< "$(git submodule status)"
+	fi
+
+	prepare_new_json_object_item
+	jsonString+="\"integrated\": $integrated"
+
+	if [[ $submoduleCommit ]]; then
+		prepare_new_json_object_item
+		jsonString+="\"commit\": \"$submoduleCommit\""
+	fi
+
+	complete_json_object
 }
 
 function append_bitcode_enabled_from_grep () {
@@ -204,6 +248,7 @@ cd "$scriptBaseFolderPath"
 
 jsonString+="{\n\t\"$syntaxVersionKey\": \"$syntaxVersion\""
 
+append_smf_commonprojectsetupfiles
 append_bitcode_enabled_from_grep
 append_idfa_usage_from_grep
 append_ats_exceptions_from_grep
