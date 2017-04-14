@@ -40,11 +40,13 @@ xcodeProjectFile="$projectDir/$projectFilename.$projectFilenameExtension/$projec
 function display_usage () { 
 	echo "This script expects the output filename and foldername of the metaJSON folder as argument. You can pass the projects base folder path if needed. Otherwise the scripts parent folder path is used." 
 	echo -e "\nUsage:\n$ $0 FILENAME META_JSON_DIR_NAME PROJECT_FILENAME PROJECT_BASE_DIR FILENAME\n" 
-} 
+}
+
 
 function prepare_new_json_line () {
 	jsonString+=",\n\t"
 }
+
 
 function prepare_new_json_array_item () {
 	if [[ "$jsonString" =~ "["$ ]]; then 
@@ -58,6 +60,7 @@ function complete_json_array () {
 	jsonString+="\n\t]"
 }
 
+
 function prepare_new_json_object_item () {
 	if [[ "$jsonString" =~ "{"$ ]]; then 
 		jsonString+="\n\t\t"
@@ -69,6 +72,20 @@ function prepare_new_json_object_item () {
 function complete_json_object () {
 	jsonString+="\n\t}"
 }
+
+
+function prepare_new_json_array_object_item () {
+	if [[ "$jsonString" =~ "{"$ ]]; then 
+		jsonString+="\n\t\t\t"
+	else
+		jsonString+=",\n\t\t\t"
+	fi
+}
+
+function complete_json_array_object () {
+	jsonString+="\n\t\t}"
+}
+
 
 function override_key_with_value () {
 	key=$1
@@ -131,18 +148,25 @@ function append_ats_exceptions_from_grep () {
 	prepare_new_json_line
 	jsonString+="\"ats_exceptions\": ["
 
-	while read plistFile; do 
+	while read plistFile; do
 		if [[ "$(cat "$plistFile")" =~ (<key>NSAllowsArbitraryLoads<\/key>[^\S]*<true\/>) ]]; then
-			prepare_new_json_array_item
-			jsonString+="\"arbitrary\""
+			exceptionLevel="arbitrary"
 		elif [[ "$(cat "$plistFile")" =~ (<key>NSExceptionDomains</key>) ]]; then
-			prepare_new_json_array_item
-			jsonString+="\"domains\""
+			exceptionLevel="domains"
 		else
-			prepare_new_json_array_item
-			jsonString+="\"none\""
+			continue
 		fi
-	done <<< "$(find "$projectDir" -type f -name "*-Info.plist" -not -path "$projectDir/Pods/*" -not -path "$projectDir/Carthage/*")"
+
+		prepare_new_json_array_item
+		jsonString+="{"
+
+		prepare_new_json_array_object_item
+		jsonString+="\"plist\": \"${plistFile#$projectDir}\""
+		prepare_new_json_array_object_item
+		jsonString+="\"level\": \"$exceptionLevel\""
+
+		complete_json_array_object
+	done <<< "$(find "$projectDir" -type f -name "*.plist" -not -path "$projectDir/Pods/*" -not -path "$projectDir/Carthage/*")"
 
 	complete_json_array
 }
