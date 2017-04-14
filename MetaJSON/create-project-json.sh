@@ -93,12 +93,11 @@ function append_smf_commonprojectsetupfiles () {
 
 	if [[ "$(cat "$projectDir/.gitmodules")" =~ (path = (.*\s).*url = .*SMF-iOS-CommonProjectSetupFiles\.git) ]]; then
 		submodulePath="${BASH_REMATCH[2]}"
-
 		while read line; do
 	    	if [[ "$line" =~ (([+-]?(.*) .*"$submodulePath")) ]]; then
 				submoduleCommit="${BASH_REMATCH[3]}"
 			fi
-		done <<< "$(git submodule status)"
+		done <<< "$(cd $projectDir && git submodule status)"
 	fi
 
 	prepare_new_json_object_item
