@@ -40,11 +40,13 @@ xcodeProjectFile="$projectDir/$projectFilename.$projectFilenameExtension/$projec
 function display_usage () { 
 	echo "This script expects the output filename and foldername of the metaJSON folder as argument. You can pass the projects base folder path if needed. Otherwise the scripts parent folder path is used." 
 	echo -e "\nUsage:\n$ $0 FILENAME META_JSON_DIR_NAME PROJECT_FILENAME PROJECT_BASE_DIR FILENAME\n" 
-} 
+}
+
 
 function prepare_new_json_line () {
 	jsonString+=",\n\t"
 }
+
 
 function prepare_new_json_array_item () {
 	if [[ "$jsonString" =~ "["$ ]]; then 
@@ -58,6 +60,7 @@ function complete_json_array () {
 	jsonString+="\n\t]"
 }
 
+
 function prepare_new_json_object_item () {
 	if [[ "$jsonString" =~ "{"$ ]]; then 
 		jsonString+="\n\t\t"
@@ -69,6 +72,20 @@ function prepare_new_json_object_item () {
 function complete_json_object () {
 	jsonString+="\n\t}"
 }
+
+
+function prepare_new_json_array_object_item () {
+	if [[ "$jsonString" =~ "{"$ ]]; then 
+		jsonString+="\n\t\t\t"
+	else
+		jsonString+=",\n\t\t\t"
+	fi
+}
+
+function complete_json_array_object () {
+	jsonString+="\n\t\t}"
+}
+
 
 function override_key_with_value () {
 	key=$1
@@ -93,12 +110,11 @@ function append_smf_commonprojectsetupfiles () {
 
 	if [[ "$(cat "$projectDir/.gitmodules")" =~ (path = (.*\s).*url = .*SMF-iOS-CommonProjectSetupFiles\.git) ]]; then
 		submodulePath="${BASH_REMATCH[2]}"
-
 		while read line; do
 	    	if [[ "$line" =~ (([+-]?(.*) .*"$submodulePath")) ]]; then
 				submoduleCommit="${BASH_REMATCH[3]}"
 			fi
-		done <<< "$(git submodule status)"
+		done <<< "$(cd $projectDir && git submodule status)"
 	fi
 
 	prepare_new_json_object_item
@@ -115,9 +131,9 @@ function append_smf_commonprojectsetupfiles () {
 function append_bitcode_enabled_from_grep () {
 	# Use "yes" as bitcode is enabled as default if the key isn't present in the project file
 	bitcodeEnabled="yes"
-	if $(fgrep -R "ENABLE_BITCODE = [A-Z]*\;" "$xcodeProjectFile" | grep -v "YES\;"); then
+	if [[ $(fgrep -R "ENABLE_BITCODE = " "$xcodeProjectFile" | grep -v "YES\;") ]]; then
 		# There are bitcode disabled entries
-		if $(fgrep -R "ENABLE_BITCODE = [A-Z]\;"  "$xcodeProjectFile" | grep -v "NO\;"); then
+		if [[ $(fgrep -R "ENABLE_BITCODE = " "$xcodeProjectFile" | grep -v "NO\;") ]]; then
 			# There are also bitcode enabled entries. As we can't tell for sure whats used the result is "both"
 			bitcodeEnabled="both"
 		else
@@ -132,38 +148,53 @@ function append_ats_exceptions_from_grep () {
 	prepare_new_json_line
 	jsonString+="\"ats_exceptions\": ["
 
-	while read plistFile; do 
+	while read plistFile; do
 		if [[ "$(cat "$plistFile")" =~ (<key>NSAllowsArbitraryLoads<\/key>[^\S]*<true\/>) ]]; then
-			prepare_new_json_array_item
-			jsonString+="\"arbitrary\""
+			exceptionLevel="arbitrary"
 		elif [[ "$(cat "$plistFile")" =~ (<key>NSExceptionDomains</key>) ]]; then
-			prepare_new_json_array_item
-			jsonString+="\"domains\""
+			exceptionLevel="domains"
 		else
-			prepare_new_json_array_item
-			jsonString+="\"none\""
+			continue
 		fi
-	done <<< "$(find "$projectDir" -type f -name "*-Info.plist" -not -path "./Pods/*" -not -path "./Carthage/*")"
+
+		prepare_new_json_array_item
+		jsonString+="{"
+
+		prepare_new_json_array_object_item
+		jsonString+="\"plist\": \"${plistFile#$projectDir}\""
+		prepare_new_json_array_object_item
+		jsonString+="\"level\": \"$exceptionLevel\""
+
+		complete_json_array_object
+	done <<< "$(find "$projectDir" -type f -name "*.plist" -not -path "$projectDir/Pods/*" -not -path "$projectDir/Carthage/*")"
 
 	complete_json_array
 }
 
 function append_idfa_usage_from_grep () {
 	prepare_new_json_line
-	jsonString+="\"idfa_usage\": ["
+	jsonString+="\"idfa_appearances\": ["	
+	idfa_usage="no"
 
 	while read idfaUsage; do
-		if [[ $idfaUsage =~ (.*): ]]; then
+		if [[ $idfaUsage =~ ([^:]*) ]]; then
+			idfa_usage="maybe"
 			# Get the path of the usage
 			usagePath="${BASH_REMATCH[1]}"
 			# Remove the project path
 			usagePath=${usagePath#$projectDir}
-			prepare_new_json_array_item
-			jsonString+="\"$usagePath\""
+			if [[ $lastFoundPath != $usagePath ]]; then
+				prepare_new_json_array_item
+				jsonString+="\"$usagePath\""
+				lastFoundPath=$usagePath
+			fi
 		fi
 	done <<< "$(fgrep -R advertisingIdentifier "$projectDir" | grep -v BITHockeyManager.h)"
 
 	complete_json_array
+
+	prepare_new_json_line
+	jsonString+="\"idfa_usage\": \"$idfa_usage\""
 }
 
 function append_swiftlint_usage () {
@@ -208,6 +239,8 @@ function append_entries_from_smf_properties () {
 			override_key_with_value "idfa_usage" "\"${BASH_REMATCH[2]}\""
 		elif [[ "$line" =~ (OVERRIDEN_SWIFT_LINT_INTEGRATION=(.*)) ]]; then
 			override_key_with_value "swift_lint_integration" "\"${BASH_REMATCH[2]}\""
+		elif [[ "$line" =~ (OVERRIDEN_BITCODE_USAGE=(.*)) ]]; then
+			override_key_with_value "bitcode_enabled" "\"${BASH_REMATCH[2]}\""
 		fi
 	done < "$projectDir/$smfPropertiesFilename"
 }
