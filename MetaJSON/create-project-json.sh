@@ -114,9 +114,9 @@ function append_smf_commonprojectsetupfiles () {
 function append_bitcode_enabled_from_grep () {
 	# Use "yes" as bitcode is enabled as default if the key isn't present in the project file
 	bitcodeEnabled="yes"
-	if $(fgrep -R "ENABLE_BITCODE = [A-Z]*\;" "$xcodeProjectFile" | grep -v "YES\;"); then
+	if [[ $(fgrep -R "ENABLE_BITCODE = " "$xcodeProjectFile" | grep -v "YES\;") ]]; then
 		# There are bitcode disabled entries
-		if $(fgrep -R "ENABLE_BITCODE = [A-Z]\;"  "$xcodeProjectFile" | grep -v "NO\;"); then
+		if [[ $(fgrep -R "ENABLE_BITCODE = " "$xcodeProjectFile" | grep -v "NO\;") ]]; then
 			# There are also bitcode enabled entries. As we can't tell for sure whats used the result is "both"
 			bitcodeEnabled="both"
 		else
