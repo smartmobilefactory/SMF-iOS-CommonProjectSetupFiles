@@ -142,7 +142,7 @@ function append_ats_exceptions_from_grep () {
 			prepare_new_json_array_item
 			jsonString+="\"none\""
 		fi
-	done <<< "$(find "$projectDir" -type f -name "*-Info.plist" -not -path "./Pods/*" -not -path "./Carthage/*")"
+	done <<< "$(find "$projectDir" -type f -name "*-Info.plist" -not -path "$projectDir/Pods/*" -not -path "$projectDir/Carthage/*")"
 
 	complete_json_array
 }
