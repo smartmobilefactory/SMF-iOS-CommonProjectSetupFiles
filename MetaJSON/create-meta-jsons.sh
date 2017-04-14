@@ -17,24 +17,33 @@ readonly clocJSONFilename="Cloc.json"
 
 readonly scriptBaseFolderPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+readonly wrongArgumentsExitCode=1
+
 #
 # Variables
 #
 
-projectDir="$1"
+projectFilename="$1"
+projectDir="$2"
 
 #
 # Methods
 #
 
 function display_usage () { 
-	echo "You can pass the projects base folder path if needed. Otherwise the scripts parent folder path is used." 
-	echo -e "\nUsage:\n$ $0 PROJECT_BASE_DIR\n" 
+	echo "You have to pass the projects filename (name of the Xcode project and workspace files) and can pass the projects base folder path if needed. Otherwise the scripts parent folder path is used." 
+	echo -e "\nUsage:\n$ $0 HiDrive Users/smf/Code/HiDrive-iOS\n" 
 } 
 
 #
 # Check requirements
 #
+
+# Check if the project and workspace (if used) filename is provided.
+if [  -z "$projectFilename" ]; then
+	display_usage
+	exit $wrongArgumentsExitCode
+fi
 
 # Check if project dir is provided. If not: Use the current directory
 if [  -z "$projectDir" ]; then
@@ -52,5 +61,5 @@ rm -r "$projectDir/$metaJSONFolderName"
 mkdir "$projectDir/$metaJSONFolderName"
 
 ./create-pods-json.sh "$podsJSONFilename" "$metaJSONFolderName" "$projectDir"
-./create-project-json.sh "$projectJSONFilename" "$metaJSONFolderName" "$projectDir"
+./create-project-json.sh "$projectJSONFilename" "$metaJSONFolderName" "$projectFilename" "$projectDir"
 ./create-cloc-json.sh "$clocJSONFilename" "$metaJSONFolderName" "$projectDir"
