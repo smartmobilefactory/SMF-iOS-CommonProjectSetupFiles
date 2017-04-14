@@ -234,6 +234,8 @@ function append_entries_from_smf_properties () {
 			override_key_with_value "idfa_usage" "\"${BASH_REMATCH[2]}\""
 		elif [[ "$line" =~ (OVERRIDEN_SWIFT_LINT_INTEGRATION=(.*)) ]]; then
 			override_key_with_value "swift_lint_integration" "\"${BASH_REMATCH[2]}\""
+		elif [[ "$line" =~ (OVERRIDEN_BITCODE_USAGE=(.*)) ]]; then
+			override_key_with_value "bitcode_enabled" "\"${BASH_REMATCH[2]}\""
 		fi
 	done < "$projectDir/$smfPropertiesFilename"
 }
