@@ -8,7 +8,7 @@
 # Constants
 #
 
-readonly syntaxVersion=2
+readonly syntaxVersion=3
 
 readonly smfPropertiesFilename="smf.properties"
 
