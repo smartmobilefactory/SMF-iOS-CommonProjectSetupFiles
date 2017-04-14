@@ -171,12 +171,14 @@ function append_ats_exceptions_from_grep () {
 	complete_json_array
 }
 
-function append_idfa_usage_from_grep () {
+function append_idfa_appearances_from_grep () {
 	prepare_new_json_line
-	jsonString+="\"idfa_usage\": ["	
+	jsonString+="\"idfa_appearances\": ["	
+	idfa_usage="no"
 
 	while read idfaUsage; do
 		if [[ $idfaUsage =~ ([^:]*) ]]; then
+			idfa_usage="maybe"
 			# Get the path of the usage
 			usagePath="${BASH_REMATCH[1]}"
 			# Remove the project path
@@ -190,6 +192,10 @@ function append_idfa_usage_from_grep () {
 	done <<< "$(fgrep -R advertisingIdentifier "$projectDir" | grep -v BITHockeyManager.h)"
 
 	complete_json_array
+
+	prepare_new_json_line
+	jsonString+="\"idfa_usage\": \"$idfa_usage\""
+fi
 }
 
 function append_swiftlint_usage () {
@@ -216,7 +222,7 @@ function append_swiftlint_usage () {
 	jsonString+="\"swift_lint_integration\": \"none\""
 }
 
-function append_entries_from_smf_properties () {
+function append_idfa_usage_from_grep () {
 	while IFS= read -r line; do
 		if [[ "$line" =~ (XCODE_VERSION=(.*)) ]]; then
 			prepare_new_json_line
