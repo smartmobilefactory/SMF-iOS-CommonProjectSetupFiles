@@ -2,7 +2,7 @@
 #
 # Author Hans Seiffert
 #
-# Last revised 28/01/2017
+# Last revised 17/04/2017
 
 #
 # Constants
@@ -108,14 +108,24 @@ function append_smf_commonprojectsetupfiles () {
 		fi
 	done < "$xcodeProjectFile"
 
-	if [[ "$(cat "$projectDir/.gitmodules")" =~ (path = (.*\s).*url = .*SMF-iOS-CommonProjectSetupFiles\.git) ]]; then
-		submodulePath="${BASH_REMATCH[2]}"
-		while read line; do
-	    	if [[ "$line" =~ (([+-]?(.*) .*"$submodulePath")) ]]; then
-				submoduleCommit="${BASH_REMATCH[3]}"
+	formerLine=""
+	submodulePath=""
+    while IFS= read -r line; do
+		if [[ "$line" =~ (url = .*SMF-iOS-CommonProjectSetupFiles\.git) ]]; then
+			submoduleCommit="${BASH_REMATCH[3]}"
+			if [[ $formerLine =~ (path = (.*)) ]]; then
+				submodulePath="${BASH_REMATCH[2]}"
 			fi
-		done <<< "$(cd $projectDir && git submodule status)"
-	fi
+			break
+		fi
+		formerLine=$line
+	done < "$projectDir/.gitmodules"
+
+	while read line; do
+		if [[ "$line" =~ (([+-]?(.*) .*"$submodulePath")) ]]; then
+			submoduleCommit="${BASH_REMATCH[3]}"
+		fi
+	done <<< "$(cd $projectDir && git submodule status)"
 
 	prepare_new_json_object_item
 	jsonString+="\"integrated\": $integrated"
