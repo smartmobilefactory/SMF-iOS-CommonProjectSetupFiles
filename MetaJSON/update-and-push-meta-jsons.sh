@@ -21,20 +21,27 @@ readonly wrongArgumentsExitCode=1
 #
 
 branchName="$1"
-projectDir="$2"
+projectFilename="$2"
+projectDir="$3"
 
 #
 # Check requirements
 #
 
 function display_usage () { 
-	echo "This script expects the git branch name as argument. You can pass the projects base folder path if needed. Otherwise the scripts parent folder path is used." 
-	echo -e "\nUsage:\n$ $0 FILENAME GIT_BRANCH_NAME\n" 
+	echo "This script expects the git branch name and the Xcode project name as argument. You can pass the projects base folder path if needed. Otherwise the scripts parent folder path is used." 
+	echo -e "\nUsage:\n$ $0 GIT_BRANCH_NAME XCODE_PROJECT_NAME\n" 
 } 
 
 # Check if the branch name was provided
 if [ -z "$branchName" ]; then
 	display_usage
+	exit $wrongArgumentsExitCode
+fi
+
+# Check if the project and workspace (if used) filename is provided.
+if [  -z "$projectFilename" ]; then
+   	display_usage
 	exit $wrongArgumentsExitCode
 fi
 
@@ -56,7 +63,7 @@ git submodule update
 
 if [ "$?" = "0" ]; then
 	
-	"$scriptBaseFolderPath/create-meta-jsons.sh" "$projectDir"
+	"$scriptBaseFolderPath/create-meta-jsons.sh" "$projectFilename" "$projectDir"
 
 	git add "$metaJSONFolderName"
 	git commit -m "$commitMessage"
