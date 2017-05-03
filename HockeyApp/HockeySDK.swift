@@ -34,16 +34,26 @@ struct HockeySDK {
 	- parameter configureHockeyAppAlsoForDebugBuildTypes: `Bool` which determines whether the HockeySDK should also be setup if the app is build with the `DEBUG` type. The Default value is `false`.
 	*/
 	static func setup(withStatus crashManagerStatus: BITCrashManagerStatus = .autoSend, configureHockeyAppAlsoForDebugBuildTypes: Bool = false) {
-		if let _identifier = Bundle.main.object(forInfoDictionaryKey: identifierKey) as? String {
-			if (configureHockeyAppAlsoForDebugBuildTypes == true || self.isDebugBuild == false) {
+		if let
+			_identifier = Bundle.main.object(forInfoDictionaryKey: identifierKey) as? String,
+			(configureHockeyAppAlsoForDebugBuildTypes == true || self.isDebugBuild == false) {
 				BITHockeyManager.shared().configure(withIdentifier: _identifier)
-				BITHockeyManager.shared().start()
 				BITHockeyManager.shared().authenticator.authenticateInstallation()
+				BITHockeyManager.shared().isCrashManagerDisabled = (crashManagerStatus == .disabled)
 				BITHockeyManager.shared().crashManager.crashManagerStatus = crashManagerStatus
-			}
+				BITHockeyManager.shared().start()
 		} else {
 			print("Warning: You have to set the `\(identifierKey)` key in the info plist.")
 		}
+	}
+
+	/**
+	Modifies the crash mananger status. This method should be used to enable or disable crash reports during the app usage.
+
+	- parameter crashManagerStatus: The `BITCrashManagerStatus` which determines whether crashes should be send to HockeyApp and whether it should be done automatically or manually by the user. The default value is `AutoSend`.
+	*/
+	static func updateCrashManagerStatus(to status: BITCrashManagerStatus) {
+		self.setup(withStatus: status)
 	}
 
 	/**
