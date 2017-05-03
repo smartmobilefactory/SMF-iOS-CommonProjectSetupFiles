@@ -17,8 +17,8 @@ struct HockeySDK {
 
 	// MARK: - Private Properties
 
-	private static var isReleaseBuild: Bool {
-		#if RELEASE
+	private static var isDebugBuild: Bool {
+		#if DEBUG
 			return true
 		#else
 			return false
@@ -35,7 +35,7 @@ struct HockeySDK {
 	*/
 	static func setup(crashManagerStatus: BITCrashManagerStatus = .AutoSend, configureHockeyAppAlsoForNonReleaseBuildTypes: Bool = false) {
 		if let _identifier = NSBundle.mainBundle().objectForInfoDictionaryKey(IdentifierKey) as? String
-			where (configureHockeyAppAlsoForNonReleaseBuildTypes == true || self.isReleaseBuild == true) {
+			where (configureHockeyAppAlsoForNonReleaseBuildTypes == true || self.isDebugBuild == false) {
 			BITHockeyManager.sharedHockeyManager().configureWithIdentifier(_identifier)
 			BITHockeyManager.sharedHockeyManager().authenticator.authenticateInstallation()
 			BITHockeyManager.sharedHockeyManager().disableCrashManager = (crashManagerStatus == .Disabled)
