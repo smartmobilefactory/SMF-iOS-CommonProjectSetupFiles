@@ -14,6 +14,7 @@ disabled_rules: # rule identifiers to exclude from running
   - empty_parentheses_with_trailing_closure
   - closure_parameter_position
   - redundant_string_enum_value
+  - vertical_parameter_alignment
 
 excluded: # paths to ignore during linting. overridden by `included`.
   - Carthage
@@ -159,11 +160,6 @@ custom_rules:
     name: "Invalid MARK Format"
     regex: "(?m-s)(\/\/[\s]*?MARK(?!(\:[\s]{1}\-[\s]{1}){1}))"
     message: "Use format: MARK: - Your Info"
-    severity: warning
-  prefer_structs_over_classes:
-    name: "Prefer structs over classes"
-    regex: "(?m-s)(class[\s]{1}[a-zA-Z]*[\s]*\{$)"
-    message: "Prefer structs over classes"
     severity: warning
   missing_todo_link:
     name: "Missing TODO Link"
