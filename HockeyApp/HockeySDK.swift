@@ -34,17 +34,22 @@ struct HockeySDK {
 	- parameter configureHockeyAppAlsoForDebugBuildTypes: `Bool` which determines whether the HockeySDK should also be setup if the app is build with the `DEBUG` type. The Default value is `false`.
 	*/
 	static func setup(withStatus crashManagerStatus: BITCrashManagerStatus = .autoSend, configureHockeyAppAlsoForDebugBuildTypes: Bool = false) {
-		if let
-			_identifier = Bundle.main.object(forInfoDictionaryKey: identifierKey) as? String,
-			(configureHockeyAppAlsoForDebugBuildTypes == true || self.isDebugBuild == false) {
-				BITHockeyManager.shared().configure(withIdentifier: _identifier)
-				BITHockeyManager.shared().authenticator.authenticateInstallation()
-				BITHockeyManager.shared().isCrashManagerDisabled = (crashManagerStatus == .disabled)
-				BITHockeyManager.shared().crashManager.crashManagerStatus = crashManagerStatus
-				BITHockeyManager.shared().start()
-		} else {
-			print("Warning: You have to set the `\(identifierKey)` key in the info plist.")
+
+		guard let _identifierKey = Bundle.main.object(forInfoDictionaryKey: identifierKey) as? String else {
+			assertionFailure("Warning: You have to set the `\(identifierKey)` key in the info plist.")
+			return
 		}
+
+		guard (configureHockeyAppAlsoForDebugBuildTypes == true || self.isDebugBuild == false) else {
+			// Configure HockeyApp only for non debug builds or if the exception flag is set to true
+			return
+		}
+
+		BITHockeyManager.shared().configure(withIdentifier: _identifierKey)
+		BITHockeyManager.shared().authenticator.authenticateInstallation()
+		BITHockeyManager.shared().isCrashManagerDisabled = (crashManagerStatus == .disabled)
+		BITHockeyManager.shared().crashManager.crashManagerStatus = crashManagerStatus
+		BITHockeyManager.shared().start()
 	}
 
 	/**
