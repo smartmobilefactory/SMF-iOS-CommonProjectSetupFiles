@@ -34,8 +34,7 @@ struct HockeySDK {
 	- parameter configureHockeyAppAlsoForNonReleaseBuildTypes: `Bool` which determines whether the HockeySDK should also be setup if the app is not build with the `RELEASE` type. The Default value is `false`.
 	*/
 	static func setup(crashManagerStatus: BITCrashManagerStatus = .AutoSend, configureHockeyAppAlsoForNonReleaseBuildTypes: Bool = false) {
-		if let _identifier = NSBundle.mainBundle().objectForInfoDictionaryKey(IdentifierKey) as? String
-			where (configureHockeyAppAlsoForNonReleaseBuildTypes == true || self.isDebugBuild == false) {
+		if let _identifier = NSBundle.mainBundle().objectForInfoDictionaryKey(IdentifierKey) as? String where (configureHockeyAppAlsoForNonReleaseBuildTypes == true || self.isDebugBuild == false) {
 			BITHockeyManager.sharedHockeyManager().configureWithIdentifier(_identifier)
 			BITHockeyManager.sharedHockeyManager().authenticator.authenticateInstallation()
 			BITHockeyManager.sharedHockeyManager().disableCrashManager = (crashManagerStatus == .Disabled)
