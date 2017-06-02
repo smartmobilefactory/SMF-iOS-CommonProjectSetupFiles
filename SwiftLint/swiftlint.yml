@@ -91,6 +91,8 @@ custom_rules:
     regex: '[^\n/*][ ]{2,}'
     message: "Remove extra whitespaces"
     severity: warning
+    match_kinds:
+      - string
   unnecessary_datatype:
     name: "Unnecessary Datatype"
     regex: '(?m-s)(let|var).*(:\s\[+(\w|:| |\t)+\]+\s*=\s*\[:*\])'
