@@ -37,7 +37,6 @@ opt_in_rules:
   - empty_count
   - first_where # swift 3 only
   - implicitly_unwrapped_optional
-  - overridden_super_call
 
 # rule parameters
 file_length:
@@ -81,6 +80,7 @@ identifier_name:
     - !str on
     - x
     - y
+    - L
 
 private_outlet:
   allow_private_set: true
