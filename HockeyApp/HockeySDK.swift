@@ -13,9 +13,11 @@ struct HockeySDK {
 
 	// MARK: - Public Properties
 
-	static let identifierKey	= "HockeyAppId"
+	static let identifierKey			= "HockeyAppId"
 
 	// MARK: - Private Properties
+
+	private static var isInitialized	= false
 
 	fileprivate static var isDebugBuild: Bool {
 		#if DEBUG
@@ -46,10 +48,11 @@ struct HockeySDK {
 		}
 
 		BITHockeyManager.shared().configure(withIdentifier: _identifierKey)
-		BITHockeyManager.shared().authenticator.authenticateInstallation()
-		BITHockeyManager.shared().isCrashManagerDisabled = (crashManagerStatus == .disabled)
-		BITHockeyManager.shared().crashManager.crashManagerStatus = crashManagerStatus
 		BITHockeyManager.shared().start()
+		BITHockeyManager.shared().authenticator.authenticateInstallation()
+		BITHockeyManager.shared().crashManager.crashManagerStatus = crashManagerStatus
+
+		self.isInitialized = true
 	}
 
 	/**
@@ -58,7 +61,12 @@ struct HockeySDK {
 	- parameter crashManagerStatus: The `BITCrashManagerStatus` which determines whether crashes should be send to HockeyApp and whether it should be done automatically or manually by the user. The default value is `AutoSend`.
 	*/
 	static func updateCrashManagerStatus(to status: BITCrashManagerStatus) {
-		self.setup(withStatus: status)
+		guard (self.isInitialized == true) else {
+			self.setup(status, configureHockeyAppAlsoForNonReleaseBuildTypes: false)
+			return
+		}
+
+		BITHockeyManager.sharedHockeyManager().crashManager.crashManagerStatus = status
 	}
 
 	/**
