@@ -62,11 +62,11 @@ struct HockeySDK {
 	*/
 	static func updateCrashManagerStatus(to status: BITCrashManagerStatus) {
 		guard (self.isInitialized == true) else {
-			self.setup(status, configureHockeyAppAlsoForNonReleaseBuildTypes: false)
+			self.setup(withStatus: status, configureHockeyAppAlsoForDebugBuildTypes: false)
 			return
 		}
 
-		BITHockeyManager.sharedHockeyManager().crashManager.crashManagerStatus = status
+		BITHockeyManager.shared().crashManager.crashManagerStatus = status
 	}
 
 	/**
