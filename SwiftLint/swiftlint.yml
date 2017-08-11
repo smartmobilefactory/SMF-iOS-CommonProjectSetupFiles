@@ -19,6 +19,7 @@ excluded: # paths to ignore during linting. overridden by `included`.
   - Submodules
   - Generated
   - Core/Model/CoreData
+  - App/Model/CoreData
   - Database/Model
   - fastlane
 
