@@ -1,11 +1,11 @@
 ###
 # Swiftlint configuration file.
-# Latest version supported: 0.16.1
+# Latest version supported: 0.21.0
 # Any newer version hasn't been checked yet and might not follow the style guide.
 ###
 
 disabled_rules: # rule identifiers to exclude from running
-  - colon	# exaclty one space after the : >>> let abc: Void\n
+  - colon # exaclty one space after the : >>> let abc: Void\n
   - control_statement # no rounded brackets around conditions. we would need this the other way around
   - todo # TODO can be written in the code but should be linked to a ticket on JIRA.
   - unused_closure_parameter
@@ -36,11 +36,14 @@ opt_in_rules:
   - attributes
   - closure_end_indentation
   - empty_count
-  - first_where # swift 3 only
+  - first_where
   - implicitly_unwrapped_optional
+  - unneeded_parentheses_in_closure_argument
+  - multiline_parameters
 
 # rule parameters
 file_length:
+  - ignore_comment_only_lines: true
   - 600 #warning
   - 800 #error
 
