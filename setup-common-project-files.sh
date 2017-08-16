@@ -10,6 +10,8 @@
 #
 
 readonly noSwiftlintFlag="--no-swiftlint"
+readonly noPRTemplateCopyFlag="--no-pr-template-copy"
+readonly frameworkFlag="--is-framework"
 readonly noCodebeatFlag="--no-codebeat"
 readonly buildConfigurationFlag="--buildconfig"
 
@@ -19,6 +21,8 @@ readonly scriptBaseFolderPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 # Variables
 #
 
+isFramework=false
+copyPRTemplate=true
 callSwiftlint=true
 callCodebeat=true
 projectDir="$(pwd)"
@@ -28,13 +32,15 @@ isDebugConfiguration=false
 # Methods
 #
 
-function display_usage () { 
-	echo "This script performs all common project setup scripts by default. You can optionally pass the projects base directory path as argument. Exceptions can be declared with the flags:" 
-	echo -e "$noSwiftlintFlag" 
-	echo -e "$noCodebeatFlag" 
-	echo -e "\nUsage:\n$ $0 $noCodebeatFlag\n" 
-	echo -e "or:\n$ $0 $noCodebeatFlag /Code/Project/Test\n" 
-} 
+function display_usage () {
+	echo "This script performs all common project setup scripts by default. You can optionally pass the projects base directory path as argument. Exceptions can be declared with the flags:"
+	echo -e "$noSwiftlintFlag"
+	echo -e "$frameworkFlag"
+	echo -e "$noPRTemplateCopyFlag"
+	echo -e "$noCodebeatFlag"
+	echo -e "\nUsage:\n$ $0 $noCodebeatFlag\n"
+	echo -e "or:\n$ $0 $noCodebeatFlag /Code/Project/Test\n"
+}
 
 #
 # Read flags
@@ -53,6 +59,16 @@ while test $# -gt 0; do
 			;;
 		$noSwiftlintFlag)
 			callSwiftlint=false
+			shift
+			# break
+			;;
+		$noPRTemplateCopyFlag)
+			copyPRTemplate=false
+			shift
+			# break
+			;;
+		$frameworkFlag)
+			isFramework=true
 			shift
 			# break
 			;;
@@ -86,4 +102,17 @@ fi
 
 if [ $callCodebeat = true ]; then
 	./Codebeat/copy-codebeat-config.sh "$projectDir" || exit 1;
+fi
+
+if [ $copyPRTemplate = true ]; then
+
+	mkdir -p "$projectDir/.github"
+
+	sourcePRTemplateFilename="PR-Template-App.md"
+
+	if [ $isFramework = true ]; then
+		sourcePRTemplateFilename "PR-Template-Framework.md"
+	fi
+
+	cp "./Github/$sourcePRTemplateFilename" "$projectDir/.github/PULL_REQUEST_TEMPLATE.md" || exit 1;
 fi
