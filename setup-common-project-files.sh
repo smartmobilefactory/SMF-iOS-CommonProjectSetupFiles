@@ -108,11 +108,10 @@ if [ $copyPRTemplate = true ]; then
 
 	mkdir -p "$projectDir/.github"
 
-	sourcePRTemplateFilename="PR-Template-App.md"
-
 	if [ $isFramework = true ]; then
-		sourcePRTemplateFilename "PR-Template-Framework.md"
+		cp "./Github/PR-Template-Framework.md" "$projectDir/.github/PULL_REQUEST_TEMPLATE.md" || exit 1;
+		exit 0
 	fi
 
-	cp "./Github/$sourcePRTemplateFilename" "$projectDir/.github/PULL_REQUEST_TEMPLATE.md" || exit 1;
+	cp "./Github/PR-Template-App.md" "$projectDir/.github/PULL_REQUEST_TEMPLATE.md" || exit 1;
 fi
