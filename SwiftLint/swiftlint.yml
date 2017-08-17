@@ -40,6 +40,12 @@ opt_in_rules:
   - implicitly_unwrapped_optional
   - unneeded_parentheses_in_closure_argument
   - multiline_parameters
+  - explicit_top_level_acl
+  - fatal_error_message
+  - implicit_return
+  - let_var_whitespace
+  - object_literal
+  - redundant_string_enum_value
 
 # rule parameters
 file_length:
@@ -61,10 +67,6 @@ nesting:
 function_body_length:
   - 40 #warning
   - 80 #error
-
-line_length:
-  - 300 #warning
-  - 350 #error
 
 type_body_length:
   - 400 #warning
