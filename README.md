@@ -23,7 +23,7 @@ Go to the the projects `Build Phases` configuration, add a `New Run Script Phase
 The script should look like:
 
 ```
-"${SRCROOT}/Submodules/SMF-iOS-CommonProjectSetupFiles/setup-common-project-files.sh" --buildconfig "${CONFIGURATION}"
+"${SRCROOT}/Submodules/SMF-iOS-CommonProjectSetupFiles/setup-common-project-files.sh" --buildconfig "${CONFIGURATION}" --targettype "${PRODUCT_TYPE}"
 ```
 
 This will copy the Codebeat configuration files, copy the SwiftLint configuration and for DEBUG configuration run SwiftLint. In case either of them shouldn't be used in the project a flag can be used to opt out (see the readme below).
@@ -31,7 +31,7 @@ This will copy the Codebeat configuration files, copy the SwiftLint configuratio
 If you want to add more parameters, eg. to disable SwiftLint, you have to add them with separate `"`s. Otherwise the parameters will be interpreted as one string. Example with disabled SwiftLint:
 
 ```
-"${SRCROOT}/Submodules/SMF-iOS-CommonProjectSetupFiles/setup-common-project-files.sh" --buildconfig "${CONFIGURATION}" "--no-swiftlint"
+"${SRCROOT}/Submodules/SMF-iOS-CommonProjectSetupFiles/setup-common-project-files.sh" --buildconfig "${CONFIGURATION}" --targettype "${PRODUCT_TYPE}" "--no-swiftlint"
 ```
 
 # Documentation
@@ -146,7 +146,7 @@ The Swiftlint configuration and lint call is integrated in the [setup script](#s
 If you want to copy the SwiftLint configuration and lint the code without integrating the setup script you can call `Submodules/SMF-iOS-CommonProjectSetupFiles/SwiftLint/copy-and-run-swiftlint-config.sh` directly.
 
 #### Optional: Use an additional project specific SwiftLint config
-If you have to modify the SwiftLint configuration for a specific project only you can create a new `.yml` file. By declaring this file during the SwiftLint call it will be processed with a higher priority before the default ".swiftlint.yml" configuration is processed. 
+If you have to modify the SwiftLint configuration for a specific project only you can create a new `.yml` file. By declaring this file during the SwiftLint call it will be processed with a higher priority before the default ".swiftlint.yml" configuration is processed.
 
 The adjusted script should look like this then:
 

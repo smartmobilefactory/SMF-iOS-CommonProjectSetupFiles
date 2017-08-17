@@ -11,9 +11,9 @@
 
 readonly noSwiftlintFlag="--no-swiftlint"
 readonly noPRTemplateCopyFlag="--no-pr-template-copy"
-readonly frameworkFlag="--is-framework"
 readonly noCodebeatFlag="--no-codebeat"
 readonly buildConfigurationFlag="--buildconfig"
+readonly targetTypeFlag="--targettype"
 
 readonly scriptBaseFolderPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -38,7 +38,6 @@ function display_usage () {
 	echo -e "$noPRTemplateCopyFlag\t- Don't copy the GitHub PR Template file"
 	echo -e "$noCodebeatFlag\t\t- Don't copy the default SMF codebeat configuration"
 	echo -e "\nUsage:\n$ $0 $noCodebeatFlag"
-	echo -e "or:\n$ $0 $frameworkFlag"
 	echo -e "or:\n$ $0 $noCodebeatFlag /Code/Project/Test"
 }
 
@@ -57,6 +56,15 @@ while test $# -gt 0; do
 			shift
 			# break
 			;;
+		$targetTypeFlag)
+			configName=$(echo "$2" | awk '{print tolower($0)}')
+			if [ $configName = "com.apple.product-type.framework" ]; then
+				isFramework=true
+			fi
+			shift
+			shift
+			# break
+			;;
 		$noSwiftlintFlag)
 			callSwiftlint=false
 			shift
@@ -64,11 +72,6 @@ while test $# -gt 0; do
 			;;
 		$noPRTemplateCopyFlag)
 			copyPRTemplate=false
-			shift
-			# break
-			;;
-		$frameworkFlag)
-			isFramework=true
 			shift
 			# break
 			;;
