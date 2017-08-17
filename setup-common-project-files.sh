@@ -34,12 +34,12 @@ isDebugConfiguration=false
 
 function display_usage () {
 	echo "This script performs all common project setup scripts by default. You can optionally pass the projects base directory path as argument. Exceptions can be declared with the flags:"
-	echo -e "$noSwiftlintFlag"
-	echo -e "$frameworkFlag"
-	echo -e "$noPRTemplateCopyFlag"
-	echo -e "$noCodebeatFlag"
-	echo -e "\nUsage:\n$ $0 $noCodebeatFlag\n"
-	echo -e "or:\n$ $0 $noCodebeatFlag /Code/Project/Test\n"
+	echo -e "$noSwiftlintFlag\t\t- Don't run swiftlint"
+	echo -e "$noPRTemplateCopyFlag\t- Don't copy the GitHub PR Template file"
+	echo -e "$noCodebeatFlag\t\t- Don't copy the default SMF codebeat configuration"
+	echo -e "\nUsage:\n$ $0 $noCodebeatFlag"
+	echo -e "or:\n$ $0 $frameworkFlag"
+	echo -e "or:\n$ $0 $noCodebeatFlag /Code/Project/Test"
 }
 
 #
