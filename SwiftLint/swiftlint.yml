@@ -46,6 +46,10 @@ opt_in_rules:
   - redundant_string_enum_value
 
 # rule parameters
+
+object_literal:
+  color_literal: false
+
 file_length:
   warning: 600
   error: 800
