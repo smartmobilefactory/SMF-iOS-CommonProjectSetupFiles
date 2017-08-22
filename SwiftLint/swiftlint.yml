@@ -40,39 +40,45 @@ opt_in_rules:
   - implicitly_unwrapped_optional
   - unneeded_parentheses_in_closure_argument
   - multiline_parameters
+  - fatal_error_message
+  - let_var_whitespace
+  - object_literal
+  - redundant_string_enum_value
 
 # rule parameters
+
+object_literal:
+  color_literal: false
+
 file_length:
-  - ignore_comment_only_lines: true
-  - 600 #warning
-  - 800 #error
+  warning: 600
+  error: 800
+  ignore_comment_only_lines: true
 
 cyclomatic_complexity:
   ignores_case_statements: true
-  warning: 10 #warning
-  error: 20 #error
+  warning: 10
+  error: 20
 
 nesting:
   type_level:
-    - 6 # warning
+    warning: 6
   statement_level:
-    - 6 # warning
+    warning: 6
 
 function_body_length:
-  - 40 #warning
-  - 80 #error
+  warning: 40
+  error: 80
 
-line_length:
-  - 300 #warning
-  - 350 #error
+line_length: 300
 
 type_body_length:
-  - 400 #warning
-  - 500 #error
+  warning: 400
+  error: 500
 
 large_tuple:
-  - 4 #warning
-  - 6 #error
+  warning: 4
+  error: 6
 
 identifier_name:
   excluded:
