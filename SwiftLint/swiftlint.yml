@@ -161,11 +161,6 @@ custom_rules:
     regex: '(\{\n[ \t]*super\.[ a-zA-Z0-9=?.\(\)\{\}:,><!]*\n[ \t]*(?!(?:\}|return))\S+)'
     message: "There should be an empty line after super if it's at the start of the function"
     severity: warning
-  multiple_empty_lines:
-    name: "Multiple Empty Lines"
-    regex: '((?:\s*\n){3,})'
-    message: "There are too many empty lines"
-    severity: warning
   unnecessary_leading_void_in:
     name: "Unnecessary -> Void in at the end of the line"
     regex: '(-> (Void|\(\)) in$)'
