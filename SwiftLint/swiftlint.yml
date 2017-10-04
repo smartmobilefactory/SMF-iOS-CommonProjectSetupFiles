@@ -93,11 +93,16 @@ private_outlet:
 custom_rules:
   extra_whitespace:
     name: "Extra whitespaces"
-    regex: '[^\n/*][ ]{2,}'
-    message: "Remove extra whitespaces"
+    regex: '([^\n/ \t]  |    | \t)'
+    message: "Indentation should be done with tabs. Only whitespaces in comments and up to three whitespaces at the start of a line or after tabs are allowed."
     severity: warning
     match_kinds:
       - string
+      - keyword
+      - parameter
+      - typeidentifier
+      - number
+      - identifier
   unnecessary_datatype:
     name: "Unnecessary Datatype"
     regex: '(?m-s)(let|var).*(:\s\[+(\w|:| |\t)+\]+\s*=\s*\[:*\])'
