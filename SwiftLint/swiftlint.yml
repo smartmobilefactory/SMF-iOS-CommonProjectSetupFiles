@@ -137,9 +137,20 @@ custom_rules:
       - doccomment
   empty_first_line:
     name: "Empty First Line"
-    regex: '(^[ a-zA-Z ]*(?:protocol|extension|class|struct) (?!(?:var|let))[ a-zA-Z:]*\{\n *\S+)'
-    message: "There should be an empty line after a declaration"
+    regex: '(extension|class) (?!(?:func))[^\{]*\{[^\n]*\n[\t ]*\w+'
+    message: "There should be an empty line after a class or extension declaration."
     severity: warning
+    match_kinds:
+      - keyword
+      - typeidentifier
+      - identifier
+      - typeidentifier
+      - argument
+      - string
+      - objectliteral
+      - placeholder
+      - parameter
+      - attribute.builtin
   empty_line_after_guard:
     name: "Empty Line After Guard"
     regex: '(^ *guard[ a-zA-Z0-9=?.\(\),><!]*\{[ a-zA-Z0-9=?.\(\),><!]*\}\n *(?!(?:return|guard))\S+)'
