@@ -129,9 +129,12 @@ custom_rules:
       - doccomment.field
   comments_capitalized_ignore_possible_code:
     name: "Capitalize First Word In Comment"
-    regex: '(\s??// +(?!swiftlint)[a-z]+)'
+    regex: '(// +(?!swiftlint)[a-z]+)'
     message: "The first word of a comment should be capitalized"
     severity: warning
+    match_kinds:
+      - comment
+      - doccomment
   empty_first_line:
     name: "Empty First Line"
     regex: '(^[ a-zA-Z ]*(?:protocol|extension|class|struct) (?!(?:var|let))[ a-zA-Z:]*\{\n *\S+)'
