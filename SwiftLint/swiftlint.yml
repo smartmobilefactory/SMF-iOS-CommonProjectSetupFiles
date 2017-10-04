@@ -158,8 +158,8 @@ custom_rules:
     severity: warning
   empty_line_after_super:
     name: "Empty Line After Super"
-    regex: '(^ *super\.[ a-zA-Z0-9=?.\(\)\{\}:,><!]*\n *(?!(?:\}|return))\S+)'
-    message: "There should be an empty line after super"
+    regex: '(\{\n[ \t]*super\.[ a-zA-Z0-9=?.\(\)\{\}:,><!]*\n[ \t]*(?!(?:\}|return))\S+)'
+    message: "There should be an empty line after super if it's at the start of the function"
     severity: warning
   multiple_empty_lines:
     name: "Multiple Empty Lines"
