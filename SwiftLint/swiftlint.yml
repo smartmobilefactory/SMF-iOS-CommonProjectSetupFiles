@@ -236,6 +236,29 @@ custom_rules:
     regex: '(?-smxi)(func get[A-Z0-9][\w]+?(\())'
     message: "You should not prefix your functions with the word get."
     severity: warning
+  lowercase_constants:
+    name: "Lowercase Constants"
+    regex: '[ \t]let[ \t]*[A-Z][\w]*[ \t]*='
+    message: "Constants should begin with a lowercase character."
+    severity: warning
+    match_kinds:
+      - argument
+      - attribute.builtin
+      - attribute.id
+      - buildconfig.id
+      - buildconfig.keyword
+      - comment
+      - comment.mark
+      - comment.url
+      - doccomment
+      - doccomment.field
+      - identifier
+      - keyword
+      - number
+      - objectliteral
+      - parameter
+      - placeholder
+      - typeidentifier
 
 ####### enabled rules #######
 #  - comma # k,v >> k, v
