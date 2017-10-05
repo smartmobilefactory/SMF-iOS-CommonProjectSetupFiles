@@ -218,12 +218,12 @@ custom_rules:
     severity: warning
   unnecessary_space:
     name: "Unnecessary Space"
-    regex: '(\[[a-zA-Z]+? {1}: {1}[a-zA-Z]+?\])'
+    regex: '(\[[a-zA-Z0-9]+? {1}: {1}[a-zA-Z0-9]+?\])'
     message: "Unnecessary space. use [DataType: DataType]."
     severity: warning
   missing_space:
     name: "Missing Space"
-    regex: '(\[[a-zA-Z]+?:[a-zA-Z]+?\])'
+    regex: '(\[[a-zA-Z0-9]+?:[a-zA-Z0-9]+?\])'
     message: "Missing space. use [DataType: DataType]."
     severity: warning
   missing_empty_line:
@@ -233,7 +233,7 @@ custom_rules:
     severity: warning
   get_prefixed_function:
     name: "Get prefixed function"
-    regex: '(?-smxi)(func get[A-Z][\w]+?(\())'
+    regex: '(?-smxi)(func get[A-Z0-9][\w]+?(\())'
     message: "You should not prefix your functions with the word get."
     severity: warning
 
