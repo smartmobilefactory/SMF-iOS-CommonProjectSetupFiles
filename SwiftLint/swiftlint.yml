@@ -233,7 +233,7 @@ custom_rules:
     severity: warning
   get_prefixed_function:
     name: "Get prefixed function"
-    regex: '(?-smxi)(func get[\w]+?(\())'
+    regex: '(?-smxi)(func get[A-Z][\w]+?(\())'
     message: "You should not prefix your functions with the word get."
     severity: warning
 
