@@ -259,6 +259,11 @@ custom_rules:
       - parameter
       - placeholder
       - typeidentifier
+  empty_lines_before_declaration_end:
+    name: "Empty lines before declaration end"
+    regex: '\n[ \t]*\n[ \t]*\}'
+    message: "Empty lines before a declaration aren't improving the readability."
+    severity: warning
 
 ####### enabled rules #######
 #  - comma # k,v >> k, v
