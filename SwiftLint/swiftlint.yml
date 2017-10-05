@@ -238,7 +238,7 @@ custom_rules:
     severity: warning
   lowercase_constants:
     name: "Lowercase Constants"
-    regex: '[ \t]let[ \t]*[A-Z][\w]*[ \t]*='
+    regex: '[ \t]let[ \t]*[A-Z][\w]*[ \t]*(=|:)'
     message: "Constants should begin with a lowercase character."
     severity: warning
     match_kinds:
