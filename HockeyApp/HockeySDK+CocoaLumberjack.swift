@@ -18,6 +18,13 @@ class HockeySDK: NSObject {
 		fileprivate var enableOnDebug		: Bool
 		fileprivate var crashManagerStatus	: BITCrashManagerStatus
 
+		/// Initialized a HockeySDK Configuration
+		///
+		/// - Parameters:
+		///   - hockeyAppID: app's hockeyAppID
+		///   - crashManagerStatus: initial crash manager status
+		///   - enableSMFLogUpload: true if you want the SMFLogger logs to be submitted with a crash
+		///   - enableOnDebug: true if you want crash reporting to be enabled during development (Debug builds)
 		init(hockeyAppID: String? = nil, crashManagerStatus: BITCrashManagerStatus = .autoSend, enableSMFLogUpload: Bool = true, enableOnDebug: Bool = false) {
 			self.hockeyAppID			= hockeyAppID
 			self.enableOnDebug			= enableOnDebug
@@ -57,12 +64,9 @@ class HockeySDK: NSObject {
 
 	// MARK: - Methods
 
-	/**
-	This will setup the HockeySDK with the common base configuration. Crashes will be detected if the app is build with the release build type and the `HockeyAppId` token taken from the info plists.
-
-	- parameter crashManagerStatus: The `BITCrashManagerStatus` which determines whether crashes should be send to HockeyApp and whether it should be done automatically or manually by the user. The default value is `AutoSend`.
-	- parameter configureHockeyAppAlsoForDebugBuildTypes: `Bool` which determines whether the HockeySDK should also be setup if the app is build with the `DEBUG` type. The Default value is `false`.
-	*/
+	/// This will setup the HockeySDK with the common base configuration. Crashes will be detected if the app is build with the release build type and the `HockeyAppId` token taken from the info plists.
+	///
+	/// - Parameter configuration: HockeySDK Configuration
 	static func setup(_ configuration: HockeySDK.Configuration) {
 
 		let hockeySDK = (self.shared ?? HockeySDK(configuration: configuration))
