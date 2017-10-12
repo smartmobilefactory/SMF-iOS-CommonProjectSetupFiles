@@ -18,7 +18,7 @@ class HockeySDK: NSObject {
 		fileprivate var enableOnDebug		: Bool
 		fileprivate var crashManagerStatus	: BITCrashManagerStatus
 
-		init(hockeyAppID: String? = nil, crashManagerStatus: BITCrashManagerStatus = .autoSend, enableSMFLogUpload: Bool = false, enableOnDebug: Bool = true) {
+		init(hockeyAppID: String? = nil, crashManagerStatus: BITCrashManagerStatus = .autoSend, enableSMFLogUpload: Bool = true, enableOnDebug: Bool = false) {
 			self.hockeyAppID			= hockeyAppID
 			self.enableOnDebug			= enableOnDebug
 			self.enableSMFLogUpload		= enableSMFLogUpload
@@ -65,13 +65,13 @@ class HockeySDK: NSObject {
 	*/
 	static func setup(_ configuration: HockeySDK.Configuration) {
 
-		let hockeySDK = self.shared ?? HockeySDK(configuration: configuration)
+		let hockeySDK = (self.shared ?? HockeySDK(configuration: configuration))
 
 		let appIdKeyPassed = configuration.hockeyAppID
 		let plistAppId = Bundle.main.object(forInfoDictionaryKey: HockeySDK.plistHockeyIDKey) as? String
 
 		guard let _identifierKey = (appIdKeyPassed ?? plistAppId) else {
-			assertionFailure("Warning: You have to set the `\(String(describing: configuration.hockeyAppID))` key in the info plist.")
+			assertionFailure("You have to set the `\(HockeySDK.plistHockeyIDKey)` key in the info plist.")
 			return
 		}
 
