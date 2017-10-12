@@ -93,11 +93,16 @@ private_outlet:
 custom_rules:
   extra_whitespace:
     name: "Extra whitespaces"
-    regex: '[^\n/*][ ]{2,}'
-    message: "Remove extra whitespaces"
+    regex: '([^\n/ \t]  |    | \t)'
+    message: "Indentation should be done with tabs. Only whitespaces in comments and up to three whitespaces at the start of a line or after tabs are allowed."
     severity: warning
     match_kinds:
       - string
+      - keyword
+      - parameter
+      - typeidentifier
+      - number
+      - identifier
   unnecessary_datatype:
     name: "Unnecessary Datatype"
     regex: '(?m-s)(let|var).*(:\s\[+(\w|:| |\t)+\]+\s*=\s*\[:*\])'
@@ -115,19 +120,37 @@ custom_rules:
     severity: warning
   comments_space:
     name: "Space After Comment"
-    regex: '(^ *//\w+)'
-    message: "There should be a space after //"
+    regex: '(//\w+|///\w+)'
+    message: "There should be a space between the start of a comment and the first character."
     severity: warning
+    match_kinds:
+      - comment
+      - doccomment
+      - doccomment.field
   comments_capitalized_ignore_possible_code:
     name: "Capitalize First Word In Comment"
-    regex: '(\s??// +(?!swiftlint)[a-z]+)'
+    regex: '(// +(?!swiftlint)[a-z]+)'
     message: "The first word of a comment should be capitalized"
     severity: warning
+    match_kinds:
+      - comment
+      - doccomment
   empty_first_line:
     name: "Empty First Line"
-    regex: '(^[ a-zA-Z ]*(?:protocol|extension|class|struct) (?!(?:var|let))[ a-zA-Z:]*\{\n *\S+)'
-    message: "There should be an empty line after a declaration"
+    regex: '(extension|class) (?!(?:func))[^\{]*\{[^\n]*\n[\t ]*\w+'
+    message: "There should be an empty line after a class or extension declaration."
     severity: warning
+    match_kinds:
+      - keyword
+      - typeidentifier
+      - identifier
+      - typeidentifier
+      - argument
+      - string
+      - objectliteral
+      - placeholder
+      - parameter
+      - attribute.builtin
   empty_line_after_guard:
     name: "Empty Line After Guard"
     regex: '(^ *guard[ a-zA-Z0-9=?.\(\),><!]*\{[ a-zA-Z0-9=?.\(\),><!]*\}\n *(?!(?:return|guard))\S+)'
@@ -135,13 +158,8 @@ custom_rules:
     severity: warning
   empty_line_after_super:
     name: "Empty Line After Super"
-    regex: '(^ *super\.[ a-zA-Z0-9=?.\(\)\{\}:,><!]*\n *(?!(?:\}|return))\S+)'
-    message: "There should be an empty line after super"
-    severity: warning
-  multiple_empty_lines:
-    name: "Multiple Empty Lines"
-    regex: '((?:\s*\n){3,})'
-    message: "There are too many empty lines"
+    regex: '(\{\n[ \t]*super\.[ a-zA-Z0-9=?.\(\)\{\}:,><!]*\n[ \t]*(?!(?:\}|return))\S+)'
+    message: "There should be an empty line after super if it's at the start of the function"
     severity: warning
   unnecessary_leading_void_in:
     name: "Unnecessary -> Void in at the end of the line"
@@ -200,12 +218,12 @@ custom_rules:
     severity: warning
   unnecessary_space:
     name: "Unnecessary Space"
-    regex: '(\[[a-zA-Z]+? {1}: {1}[a-zA-Z]+?\])'
+    regex: '(\[[a-zA-Z0-9]+? {1}: {1}[a-zA-Z0-9]+?\])'
     message: "Unnecessary space. use [DataType: DataType]."
     severity: warning
   missing_space:
     name: "Missing Space"
-    regex: '(\[[a-zA-Z]+?:[a-zA-Z]+?\])'
+    regex: '(\[[a-zA-Z0-9]+?:[a-zA-Z0-9]+?\])'
     message: "Missing space. use [DataType: DataType]."
     severity: warning
   missing_empty_line:
@@ -215,8 +233,36 @@ custom_rules:
     severity: warning
   get_prefixed_function:
     name: "Get prefixed function"
-    regex: '(?-smxi)(func get[\w]+?(\())'
+    regex: '(?-smxi)(func get[A-Z0-9][\w]+?(\())'
     message: "You should not prefix your functions with the word get."
+    severity: warning
+  lowercase_constants:
+    name: "Lowercase Constants"
+    regex: '[ \t]let[ \t]*[A-Z][\w]*[ \t]*(=|:)'
+    message: "Constants should begin with a lowercase character."
+    severity: warning
+    match_kinds:
+      - argument
+      - attribute.builtin
+      - attribute.id
+      - buildconfig.id
+      - buildconfig.keyword
+      - comment
+      - comment.mark
+      - comment.url
+      - doccomment
+      - doccomment.field
+      - identifier
+      - keyword
+      - number
+      - objectliteral
+      - parameter
+      - placeholder
+      - typeidentifier
+  empty_lines_before_declaration_end:
+    name: "Empty lines before declaration end"
+    regex: '\n[ \t]*\n[ \t]*\}([ \t]*\n|\n)'
+    message: "Empty lines before a declaration aren't improving the readability."
     severity: warning
 
 ####### enabled rules #######
