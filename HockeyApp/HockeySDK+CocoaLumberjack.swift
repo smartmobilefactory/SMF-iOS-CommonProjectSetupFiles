@@ -16,6 +16,7 @@ class HockeySDK: NSObject {
 		fileprivate var hockeyAppID			: String?
 		fileprivate var enableSMFLogUpload	: Bool
 		fileprivate var enableOnDebug		: Bool
+		fileprivate let smfLogUploadMaxSize	: Int
 		fileprivate var crashManagerStatus	: BITCrashManagerStatus
 
 		/// Initialized a HockeySDK Configuration
@@ -25,10 +26,11 @@ class HockeySDK: NSObject {
 		///   - crashManagerStatus: initial crash manager status
 		///   - enableSMFLogUpload: true if you want the SMFLogger logs to be submitted with a crash
 		///   - enableOnDebug: true if you want crash reporting to be enabled during development (Debug builds)
-		init(hockeyAppID: String? = nil, crashManagerStatus: BITCrashManagerStatus = .autoSend, enableSMFLogUpload: Bool = true, enableOnDebug: Bool = false) {
+		init(hockeyAppID: String? = nil, crashManagerStatus: BITCrashManagerStatus = .autoSend, enableSMFLogUpload: Bool = true, smfLogUploadMaxSize: Int = 5000, enableOnDebug: Bool = false) {
 			self.hockeyAppID			= hockeyAppID
 			self.enableOnDebug			= enableOnDebug
 			self.enableSMFLogUpload		= enableSMFLogUpload
+			self.smfLogUploadMaxSize	= smfLogUploadMaxSize
 			self.crashManagerStatus		= crashManagerStatus
 		}
 
@@ -113,37 +115,13 @@ class HockeySDK: NSObject {
 
 extension HockeySDK: BITHockeyManagerDelegate {
 
-	func logFilesContent(maxSize: Int) -> String {
-
-		guard let sortedLogFileInfos = SMFLogger.latestFileLogger?.logFileManager.sortedLogFileInfos else {
-			return ""
-		}
-
-		var description = ""
-		for logFile in sortedLogFileInfos {
-			if
-				let logData = FileManager.default.contents(atPath: logFile.filePath),
-				(logData.count > 0),
-				let logMessage = String(data: logData, encoding: String.Encoding.utf8) {
-					description.append(logMessage)
-			}
-		}
-
-		if (description.characters.count > maxSize) {
-			description = description.substring(from: description.index(description.startIndex, offsetBy: description.characters.count - maxSize - 1))
-		}
-
-		return description;
-	}
-
 	func applicationLog(for crashManager: BITCrashManager!) -> String! {
-		guard (self.configuration?.enableSMFLogUpload == true) else {
-			return nil
-		}
-
-		let description = self.logFilesContent(maxSize: 5000) // 5000 bytes should be enough!
-		guard (description.isEmpty == false) else {
-			return nil
+		guard
+			let configuration = self.configuration,
+			(configuration.enableSMFLogUpload == true),
+			let description = SMFLogger.logFilesContent(maxSize: configuration.smfLogUploadMaxSize),
+			(description.isEmpty == false) else {
+				return nil
 		}
 
 		return description
