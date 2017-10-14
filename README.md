@@ -1,5 +1,8 @@
 # SMF-iOS-CommonProjectSetupFiles
 
+[![Language: Swift 3.0](https://img.shields.io/badge/Swift-3.0-red.svg)](https://swift.org)
+[![Xcode: Xcode 8.2.1](https://img.shields.io/badge/Xcode-8.2.1-red.svg)](https://swift.org)
+
 This Repo contains our common project setup files.
 
 Helpers which can be added manually to the Xcode project which should be used:
@@ -11,10 +14,6 @@ Scripts which should be called during the build phase:
 
 - [SwiftLint](#swiftlint)
 - [Codebeat](#codebeat)
-
-Scripts which are used manually or by the CI:
-
-- [MetaJSON](#metajson)
 
 ### Setup
 
@@ -168,11 +167,3 @@ The Codebeat configuration files copying is integrated in the [setup script](#se
 
 #### Optional: Call the Codebeat configuration script without using the setup script
 If you want to copy the Codebeat configuration files without integrating the setup script you can call `Submodules/SMF-iOS-CommonProjectSetupFiles/Codebeat/copy-codebeat-config.sh` directly.
-
-## Scripts to be called manually or by the CI
-
-### MetaJSON
-
-MetaJSON files are custom SMF JSON files which contains various information about the projects itself. These information is used to automatically update some generated confluence pages with eg. the app compatibility page and an overview over all used pods.
-
-The scripts which create the MetaJSON files aren't called during the build phase locally but during fastlane builds of Alpha apps. The CI commits these JSON files to the projects repos.
