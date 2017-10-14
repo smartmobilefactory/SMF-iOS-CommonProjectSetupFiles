@@ -1,7 +1,7 @@
 # SMF-iOS-CommonProjectSetupFiles
 
-[![Language: Swift 3.0](https://img.shields.io/badge/Swift-3.0-red.svg)](https://swift.org)
-[![Xcode: Xcode 8.2.1](https://img.shields.io/badge/Xcode-8.2.1-red.svg)](https://swift.org)
+[![Language: Swift 3.1](https://img.shields.io/badge/Swift-3.1-orange.svg)](https://swift.org)
+[![Xcode: Xcode 8.3.3](https://img.shields.io/badge/Xcode-8.3.3-orange.svg)](https://swift.org)
 
 This Repo contains our common project setup files.
 
