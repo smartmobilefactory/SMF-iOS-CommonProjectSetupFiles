@@ -12,10 +12,6 @@ Scripts which should be called during the build phase:
 - [SwiftLint](#swiftlint)
 - [Codebeat](#codebeat)
 
-Scripts which are used manually or by the CI:
-
-- [MetaJSON](#metajson)
-
 ### Setup
 
 Go to the the projects `Build Phases` configuration, add a `New Run Script Phase` called "SMF-iOS-CommonProjectSetupFiles" and place it below `Compile Sources`.
@@ -148,11 +144,3 @@ The Codebeat configuration files copying is integrated in the [setup script](#se
 
 #### Optional: Call the Codebeat configuration script without using the setup script
 If you want to copy the Codebeat configuration files without integrating the setup script you can call `Submodules/SMF-iOS-CommonProjectSetupFiles/Codebeat/copy-codebeat-config.sh` directly.
-
-## Scripts to be called manually or by the CI
-
-### MetaJSON
-
-MetaJSON files are custom SMF JSON files which contains various information about the projects itself. These information is used to automatically update some generated confluence pages with eg. the app compatibility page and an overview over all used pods.
-
-The scripts which create the MetaJSON files aren't called during the build phase locally but during fastlane builds of Alpha apps. The CI commits these JSON files to the projects repos.
