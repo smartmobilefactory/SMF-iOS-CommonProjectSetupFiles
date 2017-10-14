@@ -12,15 +12,11 @@ import SMFLogger
 
 class HockeySDK: NSObject {
 
-	// MARK: - Private Properties
-
-	fileprivate static let plistHockeyIDKey	= "HockeyAppId"
+	// MARK: - Private static properties
 
 	fileprivate static var shared			: HockeySDK?
 
-	fileprivate static var isInitialized	= false
-
-	fileprivate var configuration			: HockeySDK.Configuration?
+	fileprivate static let plistHockeyIDKey	= "HockeyAppId"
 
 	fileprivate static let isDebugBuild		: Bool = {
 		#if DEBUG
@@ -29,6 +25,12 @@ class HockeySDK: NSObject {
 			return false
 		#endif
 	}()
+
+	// MARK: - Private properties
+
+	fileprivate var isInitialized			= false
+
+	fileprivate var configuration			: HockeySDK.Configuration?
 
 	// MARK: - Initialization
 
@@ -69,7 +71,7 @@ class HockeySDK: NSObject {
 		BITHockeyManager.shared().authenticator.authenticateInstallation()
 		BITHockeyManager.shared().crashManager.crashManagerStatus = configuration.crashManagerStatus
 
-		self.isInitialized = true
+		instance.isInitialized = true
 	}
 
 	/// Modifies the crash mananger status. This method should be used to enable or disable crash reports during the app usage.
@@ -77,7 +79,7 @@ class HockeySDK: NSObject {
 	/// - Parameters:
 	///   - status: The `BITCrashManagerStatus` which determines whether crashes should be send to HockeyApp and whether it should be done automatically or manually by the user. The default value is `autoSend`.
 	static func updateCrashManagerStatus(to status: BITCrashManagerStatus) {
-		guard (self.isInitialized == true) else {
+		guard (self.shared?.isInitialized == true) else {
 			assertionFailure("Error: You have to setup `HockeySDK` before updating the crash manager status. The update won't be performed.")
 			return
 		}
@@ -87,7 +89,7 @@ class HockeySDK: NSObject {
 
 	/// This will create a `fatalError` to crash the app.
 	static func performTestCrash() {
-		guard (self.isInitialized == true) else {
+		guard (self.shared?.isInitialized == true) else {
 			assertionFailure("Error: You have to setup `HockeySDK` before performing a test crash. The test crash won't be performed otherwise.")
 			return
 		}
