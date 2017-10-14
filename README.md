@@ -1,7 +1,7 @@
 # SMF-iOS-CommonProjectSetupFiles
 
-[![Language: Swift 2.2](https://img.shields.io/badge/Swift-2.2-red.svg)](https://swift.org)
-[![Xcode: Xcode 7.2+](https://img.shields.io/badge/Xcode-7.3-red.svg)](https://swift.org)
+[![Language: Swift 2.3](https://img.shields.io/badge/Swift-2.3-red.svg)](https://swift.org)
+[![Xcode: Xcode 8.2.1](https://img.shields.io/badge/Xcode-8.2.1-red.svg)](https://swift.org)
 
 This Repo contains our common project setup files.
 
