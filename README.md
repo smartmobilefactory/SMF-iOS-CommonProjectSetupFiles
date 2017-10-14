@@ -1,5 +1,8 @@
 # SMF-iOS-CommonProjectSetupFiles
 
+[![Language: Swift 2.2](https://img.shields.io/badge/Swift-2.2-red.svg)](https://swift.org)
+[![Xcode: Xcode 7.2+](https://img.shields.io/badge/Xcode-7.3-red.svg)](https://swift.org)
+
 This Repo contains our common project setup files.
 
 Helpers which can be added manually to the Xcode project which should be used:
