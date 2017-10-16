@@ -14,10 +14,10 @@ struct HockeySDK {
 	// MARK: - Public Properties
 
 	static let identifierKey			= "HockeyAppId"
+	static let targetConfiguration		= "TargetConfiguration"
+	static var isInitialized			= false
 
 	// MARK: - Private Properties
-
-	private static var isInitialized	= false
 
 	fileprivate static var isDebugBuild: Bool {
 		#if DEBUG
@@ -37,9 +37,12 @@ struct HockeySDK {
 	*/
 	static func setup(withStatus crashManagerStatus: BITCrashManagerStatus = .autoSend, configureHockeyAppAlsoForDebugBuildTypes: Bool = false) {
 
-		guard let _identifierKey = Bundle.main.object(forInfoDictionaryKey: identifierKey) as? String else {
-			assertionFailure("Warning: You have to set the `\(identifierKey)` key in the info plist.")
-			return
+		guard
+			let _filePath						= Bundle.main.path(forResource: targetConfiguration, ofType: "plist"),
+			let _dict 							= NSDictionary(contentsOfFile: _filePath),
+			let _identifierKey 					= _dict[identifierKey] as? String else {
+				assertionFailure("Warning: You have to set the `\(identifierKey)` key in the info plist.")
+				return
 		}
 
 		guard (configureHockeyAppAlsoForDebugBuildTypes == true || self.isDebugBuild == false) else {
