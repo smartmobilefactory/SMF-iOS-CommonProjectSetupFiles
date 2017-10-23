@@ -32,6 +32,12 @@ class HockeySDK: NSObject {
 
 	fileprivate var configuration			: HockeySDK.Configuration?
 
+	// MARK: - Public properties
+
+	static var wasInitialized				: Bool {
+		return (HockeySDK.shared?.isInitialized ?? false)
+	}
+
 	// MARK: - Initialization
 
 	init(configuration: HockeySDK.Configuration) {
