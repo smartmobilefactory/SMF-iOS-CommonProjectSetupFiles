@@ -4,7 +4,8 @@
 # Any newer version hasn't been checked yet and might not follow the style guide.
 ###
 
-disabled_rules: # rule identifiers to exclude from running
+# rule identifiers to exclude from running
+disabled_rules:
   - colon # exaclty one space after the : >>> let abc: Void\n
   - control_statement # no rounded brackets around conditions. we would need this the other way around
   - todo # TODO can be written in the code but should be linked to a ticket on JIRA.
@@ -12,7 +13,8 @@ disabled_rules: # rule identifiers to exclude from running
   - redundant_string_enum_value
   - vertical_parameter_alignment
 
-excluded: # paths to ignore during linting. overridden by `included`.
+# paths to ignore during linting. overridden by `included`.
+excluded:
   - Carthage
   - Pods
   - External

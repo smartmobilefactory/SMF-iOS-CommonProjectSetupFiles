@@ -141,23 +141,19 @@ If for whatever reason this is not the case the scripts try to execute a local v
 
 The Swiftlint configuration and lint call is integrated in the [setup script](#setup). If it shouldn't be used you can pass the flag `--no-swiftlint`.
 
+#### Excluded files from litting
+
+You can declare excluded paths in the project specific swiftlint configuration file `.project-swiftlint.yml`. The file has to be placed in the same directoy as the copied `.swiftlint.yml` (usually the project root directory). The scripts *setup-common-project-files.sh* and *copy-and-run-swiftlint-config.sh* are automatically using the `.project-swiftlint.yml` file if it exists.
+
+The syntax of the project specific configuration file has to match the one from the official swiftlint configuration:
+
+```
+excluded:
+- App/HiDrive/Generated
+```
+
 #### Optional: Call the SwiftLint script without using the setup script
 If you want to copy the SwiftLint configuration and lint the code without integrating the setup script you can call `Submodules/SMF-iOS-CommonProjectSetupFiles/SwiftLint/copy-and-run-swiftlint-config.sh` directly.
-
-#### Optional: Use an additional project specific SwiftLint config
-If you have to modify the SwiftLint configuration for a specific project only you can create a new `.yml` file. By declaring this file during the SwiftLint call it will be processed with a higher priority before the default ".swiftlint.yml" configuration is processed.
-
-The adjusted script should look like this then:
-
-```
-cp Submodules/SMF-iOS-CommonProjectSetupFiles/SwiftLint/.swiftlint.yml ./
-
-if which swiftlint >/dev/null; then
-swiftlint lint --config .custom_swiftlint.yml
-else
-echo "SwiftLint does not exist, download from https://github.com/realm/SwiftLint"
-fi
-```
 
 ### Codebeat
 

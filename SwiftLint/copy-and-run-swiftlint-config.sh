@@ -10,6 +10,7 @@
 #
 
 readonly scriptBaseFolderPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+readonly temporarySwiftLintConfigFilename=".swiftlint.temp.yml"
 
 #
 # Variables
@@ -26,6 +27,43 @@ if [  -z "$1" ]; then
    	projectDir="$scriptBaseFolderPath"
 fi
 
+function merge_commons_with_project_excluded_paths () {
+	# Make sure no former temporary file exists
+	rm "$temporarySwiftLintConfigFilename"
+	# Create the temporary file which will contain the merge from the commons and the projects swiftlint configuration
+	touch "$temporarySwiftLintConfigFilename"
+
+	# Read the commons SwiftLint configuration file
+	while IFS= read -r global_line; do
+		# Copy the line first as this allows the script to directly copy the project depened paths if the excluded sections start was found
+		echo "$global_line" >> "$temporarySwiftLintConfigFilename"
+		if [[ "$global_line" =~ (^excluded:) ]]; then
+			# Variable which is true if we are in the excluded section
+		    local is_in_excluded_section=false
+
+			# Read the project dependend SwiftLint configuration file
+		    while IFS= read -r project_line; do
+		    	# Determine if we are in the excluded section
+				if [[ "$project_line" =~ (^excluded:) ]]; then
+					is_in_excluded_section=true
+					continue
+				elif [[ "$project_line" =~ (^$) ]]; then
+					is_in_excluded_section=false
+				fi
+
+				# Copy the excluded path line if we are in the excluded section
+				if $is_in_excluded_section; then
+					echo "$project_line" >> "$temporarySwiftLintConfigFilename"
+				fi
+
+			done < "$projectDir/.project-swiftlint.yml"
+		fi
+
+	done < "swiftlint.yml"
+
+	return 0
+}
+
 #
 # Logic
 #
@@ -33,8 +71,14 @@ fi
 # Go the folder which contains this script
 cd "$scriptBaseFolderPath"
 
+# Merge the excluded paths of the commons and the project specific configuration
+merge_commons_with_project_excluded_paths
+
 # Copy the Swiftlint file to the projects base folder
-cp swiftlint.yml "$projectDir/.swiftlint.yml"
+cp "$temporarySwiftLintConfigFilename" "$projectDir/.swiftlint.yml"
+
+# Remove the temporary file after it was copied
+rm "$temporarySwiftLintConfigFilename"
 
 # Go to the project folder and run swiftlint from there
 
