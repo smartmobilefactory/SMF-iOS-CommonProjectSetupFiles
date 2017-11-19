@@ -88,6 +88,7 @@ identifier_name:
     - x
     - y
     - L
+    - C
 
 private_outlet:
   allow_private_set: true
