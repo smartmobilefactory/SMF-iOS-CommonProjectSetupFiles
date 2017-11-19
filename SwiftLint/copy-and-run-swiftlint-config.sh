@@ -10,7 +10,7 @@
 #
 
 readonly scriptBaseFolderPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-readonly temporarySwiftLintConfigFilename=".swiftlint.temp.yml"
+readonly temporarySwiftLintConfigFilename=".$(uuidgen)-swiftlint.yml"
 
 #
 # Variables
@@ -28,10 +28,7 @@ if [  -z "$1" ]; then
 fi
 
 function merge_commons_with_project_excluded_paths () {
-	# Make sure no former temporary file exists
-	if [ -e "$temporarySwiftLintConfigFilename" ]; then
-		rm "$temporarySwiftLintConfigFilename"
-	fi
+
 	# Create the temporary file which will contain the merge from the commons and the projects swiftlint configuration
 	touch "$temporarySwiftLintConfigFilename"
 
