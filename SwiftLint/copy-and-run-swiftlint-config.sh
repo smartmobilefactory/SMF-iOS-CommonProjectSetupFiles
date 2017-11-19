@@ -29,7 +29,9 @@ fi
 
 function merge_commons_with_project_excluded_paths () {
 	# Make sure no former temporary file exists
-	rm "$temporarySwiftLintConfigFilename"
+	if [ -e "$temporarySwiftLintConfigFilename" ]; then
+		rm "$temporarySwiftLintConfigFilename"
+	fi
 	# Create the temporary file which will contain the merge from the commons and the projects swiftlint configuration
 	touch "$temporarySwiftLintConfigFilename"
 
