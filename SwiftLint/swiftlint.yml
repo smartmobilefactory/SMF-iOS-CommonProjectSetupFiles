@@ -88,6 +88,9 @@ identifier_name:
     - x
     - y
     - L
+
+type_name:
+  excluded:
     - C
 
 private_outlet:
