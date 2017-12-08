@@ -75,7 +75,7 @@ if [ -f "$projectDir/.project-swiftlint.yml" ]; then
     merge_commons_with_project_excluded_paths
 else
 	# Copy the normal swiftlint file as tempoary one as this file is used later
-	cp ".swiftlint.yml" "$temporarySwiftLintConfigFilename" 
+	cp "swiftlint.yml" "$temporarySwiftLintConfigFilename" 
 fi
 
 # Copy the Swiftlint file to the projects base folder
