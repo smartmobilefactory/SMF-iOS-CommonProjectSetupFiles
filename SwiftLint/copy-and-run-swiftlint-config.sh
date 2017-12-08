@@ -71,7 +71,9 @@ function merge_commons_with_project_excluded_paths () {
 cd "$scriptBaseFolderPath"
 
 # Merge the excluded paths of the commons and the project specific configuration
-merge_commons_with_project_excluded_paths
+if [ -f "$projectDir/.project-swiftlint.yml" ]; then
+    merge_commons_with_project_excluded_paths
+fi
 
 # Copy the Swiftlint file to the projects base folder
 cp "$temporarySwiftLintConfigFilename" "$projectDir/.swiftlint.yml"
