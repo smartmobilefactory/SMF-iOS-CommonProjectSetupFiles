@@ -92,6 +92,7 @@ identifier_name:
 type_name:
   excluded:
     - C
+    - UI
 
 private_outlet:
   allow_private_set: true
