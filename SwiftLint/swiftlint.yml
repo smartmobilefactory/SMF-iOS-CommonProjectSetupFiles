@@ -27,7 +27,6 @@ excluded:
   - fastlane
 
 opt_in_rules:
-  - valid_docs
   - force_unwrapping
   - conditional_returns_on_newline
   - private_outlet
@@ -294,6 +293,5 @@ custom_rules:
 #  - trailing_whitespace # no trailing whitespaced
 #  - type_body_length # max body length
 #  - type_name # types should start with a capital letter
-#  - valid_docs # docs should match the method signature
 #  - variable_name_min_length # variables should have a 3 letter minimum name and 40 maximum.
 #  - variable_name # variables should start with a lower case character or a capitalized one if `static`.
