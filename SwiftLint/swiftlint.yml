@@ -96,6 +96,9 @@ type_name:
   excluded:
     - C
     - UI
+    - T
+    - U
+    - V
 
 private_outlet:
   allow_private_set: true
