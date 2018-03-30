@@ -1,6 +1,6 @@
 ###
 # Swiftlint configuration file.
-# Latest version supported: 0.24.2
+# Latest version supported: 0.25.0
 # Any newer version hasn't been checked yet and might not follow the style guide.
 ###
 
@@ -91,6 +91,10 @@ identifier_name:
     - x
     - y
     - L
+  # Allow the usage of underscores at the start of variables or constants. The lowercase check has currently to be disabled as "_" isn't considered as lowercase character
+  validates_start_lowercase: false
+  allowed_symbols:
+    - _
 
 type_name:
   excluded:
