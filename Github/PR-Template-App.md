@@ -8,7 +8,7 @@ If a conditions like "if existing" or "if appropriate" doesn't apply: Fill the c
 
 - [ ] I have verified that the change actually does what it promises
 - [ ] I have build the project and it's compiling
-- [ ] I runned and fixed the unit tests (if existing)
+- [ ] I have run and fixed the unit tests (if existing)
 - [ ] I have reviewed the Git diff to make sure only changes I wanted to push are in the pull request
 
 # Jira Ticket
