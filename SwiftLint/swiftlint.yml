@@ -154,7 +154,7 @@ custom_rules:
       - doccomment
   empty_first_line:
     name: "Empty First Line"
-    regex: '(extension|class) (?!(?:func))[^\{]*\{[^\n]*\n[\t ]*\w+'
+    regex: '(extension|class) (?!(?:func|let|var))[^\{]*\{[^\n]*\n[\t ]*\w+'
     message: "There should be an empty line after a class or extension declaration."
     severity: warning
     match_kinds:
