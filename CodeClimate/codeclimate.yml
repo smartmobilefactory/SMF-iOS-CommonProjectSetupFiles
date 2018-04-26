@@ -33,4 +33,4 @@ exclude_patterns:
 - Core/Model/CoreData/**
 - Database/Model/**
 - fastlane/**
-- **/*.generated.*
+- "**/*.generated.*"
