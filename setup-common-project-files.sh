@@ -12,6 +12,7 @@
 readonly noSwiftlintFlag="--no-swiftlint"
 readonly noPRTemplateCopyFlag="--no-pr-template-copy"
 readonly noCodebeatFlag="--no-codebeat"
+readonly noCodeClimateFlag="--no-codeclimate"
 readonly buildConfigurationFlag="--buildconfig"
 readonly targetTypeFlag="--targettype"
 
@@ -25,6 +26,7 @@ isFramework=false
 copyPRTemplate=true
 callSwiftlint=true
 callCodebeat=true
+callCodeClimate=true
 projectDir="$(pwd)"
 isDebugConfiguration=false
 
@@ -37,6 +39,7 @@ function display_usage () {
 	echo -e "$noSwiftlintFlag\t\t- Don't run swiftlint"
 	echo -e "$noPRTemplateCopyFlag\t- Don't copy the GitHub PR Template file"
 	echo -e "$noCodebeatFlag\t\t- Don't copy the default SMF codebeat configuration"
+	echo -e "$noCodeClimateFlag\t\t- Don't copy the default SMF Code Climate configuration"
 	echo -e "\nUsage:\n$ $0 $noCodebeatFlag"
 	echo -e "or:\n$ $0 $noCodebeatFlag /Code/Project/Test"
 }
@@ -80,6 +83,11 @@ while test $# -gt 0; do
 			shift
 			# break
 			;;
+		$noCodeClimateFlag)
+			callCodeClimate=false
+			shift
+			# break
+			;;
 		-*)
 			display_usage
 			shift
@@ -105,6 +113,10 @@ fi
 
 if [ $callCodebeat = true ]; then
 	./Codebeat/copy-codebeat-config.sh "$projectDir" || exit 1;
+fi
+
+if [ $callCodeClimate = true ]; then
+	./CodeClimate/copy-codeclimate-config.sh "$projectDir" || exit 1;
 fi
 
 if [ $copyPRTemplate = true ]; then
