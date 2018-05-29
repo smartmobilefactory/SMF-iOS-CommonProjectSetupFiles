@@ -73,7 +73,7 @@ class HockeySDK: NSObject {
 
 		let instance = (self.shared ?? HockeySDK(configuration: configuration))
 		BITHockeyManager.shared().configure(withIdentifier: _identifierKey, delegate: instance)
-		if (CommandLine.arguments.contains("UITestMode") {
+		if (CommandLine.arguments.contains("UITestMode")) {
 			BITHockeyManager.shared().isUpdateManagerDisabled = true
 		}
 		BITHockeyManager.shared().start()
