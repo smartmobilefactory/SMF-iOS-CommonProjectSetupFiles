@@ -48,6 +48,9 @@ struct HockeySDK {
 		}
 
 		BITHockeyManager.shared().configure(withIdentifier: _identifierKey)
+		if (CommandLine.arguments.contains("UITestMode") {
+			BITHockeyManager.shared().isUpdateManagerDisabled = true
+		}
 		BITHockeyManager.shared().start()
 		BITHockeyManager.shared().authenticator.authenticateInstallation()
 		BITHockeyManager.shared().crashManager.crashManagerStatus = crashManagerStatus
