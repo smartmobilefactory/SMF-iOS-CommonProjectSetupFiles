@@ -19,10 +19,15 @@ Scripts which should be called during the build phase:
 
 Go to the the projects `Build Phases` configuration, add a `New Run Script Phase` called "SMF-iOS-CommonProjectSetupFiles" and place it below `Compile Sources`.
 
-The script should look like:
+The script for an app should look like:
 
 ```
 "${SRCROOT}/Submodules/SMF-iOS-CommonProjectSetupFiles/setup-common-project-files.sh" --buildconfig "${CONFIGURATION}" --targettype "${PRODUCT_TYPE}"
+```
+If you're developing on a framework use this line on the all of your Unit Test targets:
+
+```
+"${SRCROOT}/Submodules/SMF-iOS-CommonProjectSetupFiles/setup-common-project-files.sh" --buildconfig "${CONFIGURATION}" --targettype "com.apple.product-type.framework"
 ```
 
 This will copy the Codebeat configuration files, copy the SwiftLint configuration and for DEBUG configuration run SwiftLint. In case either of them shouldn't be used in the project a flag can be used to opt out (see the readme below).
