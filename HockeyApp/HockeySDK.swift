@@ -15,6 +15,8 @@ struct HockeySDK {
 
 	static let identifierKey			= "HockeyAppId"
 
+	static let uiTestModeArgument		= "SMF.UITestMode"
+
 	// MARK: - Private Properties
 
 	private static var isInitialized	= false
@@ -48,7 +50,7 @@ struct HockeySDK {
 		}
 
 		BITHockeyManager.shared().configure(withIdentifier: _identifierKey)
-		if (CommandLine.arguments.contains("UITestMode")) {
+		if (CommandLine.arguments.contains(uiTestModeArgument)) {
 			BITHockeyManager.shared().isUpdateManagerDisabled = true
 		}
 		BITHockeyManager.shared().start()

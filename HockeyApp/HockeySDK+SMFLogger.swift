@@ -18,6 +18,8 @@ class HockeySDK: NSObject {
 
 	fileprivate static let plistHockeyIDKey	= "HockeyAppId"
 
+	static let uiTestModeArgument			= "SMF.UITestMode"
+
 	fileprivate static let isDebugBuild		: Bool = {
 		#if DEBUG
 			return true
@@ -73,7 +75,7 @@ class HockeySDK: NSObject {
 
 		let instance = (self.shared ?? HockeySDK(configuration: configuration))
 		BITHockeyManager.shared().configure(withIdentifier: _identifierKey, delegate: instance)
-		if (CommandLine.arguments.contains("UITestMode")) {
+		if (CommandLine.arguments.contains(uiTestModeArgument)) {
 			BITHockeyManager.shared().isUpdateManagerDisabled = true
 		}
 		BITHockeyManager.shared().start()
