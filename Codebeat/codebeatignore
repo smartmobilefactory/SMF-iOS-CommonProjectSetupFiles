@@ -8,3 +8,6 @@ Core/Model/CoreData/**
 Database/Model/**
 fastlane/**
 /**/*.generated.*
+UnitTest/**
+UnitTests/**
+Unit-Tests/**
