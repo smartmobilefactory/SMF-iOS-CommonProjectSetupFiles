@@ -253,6 +253,16 @@ custom_rules:
     regex: '(?-smxi)(func get[A-Z0-9][\w]+?(\())'
     message: "You should not prefix your functions with the word get."
     severity: warning
+  multiline_if_statement_indentation_violation:
+    name: "Multiline if statement indentation violation"
+    regex: '(?m-six)^(?<tabs>[\t]+)(if|guard|case)\n[^{]+[\{]\n+\k<tabs>{1}[\t]{1}[\w]'
+    message: "You should indent the body by one level"
+    severity: warning
+  one_condition_per_if_statement_line:
+    name: "One condition per if statement line"
+    regex: '[\t]+(if|guard)[^\n]+?,(?!\s[a-zA-Z]+:)'
+    message: "Use if/guard with one condition per line indent by one level"
+    severity: warning
   lowercase_constants:
     name: "Lowercase Constants"
     regex: '[ \t]let[ \t]*[A-Z][\w]*[ \t]*(=|:)'
