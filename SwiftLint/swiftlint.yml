@@ -243,6 +243,24 @@ custom_rules:
     regex: '(\[[a-zA-Z0-9]+?:[a-zA-Z0-9]+?\])'
     message: "Missing space. use [DataType: DataType]."
     severity: warning
+  missing_space_around_operator:
+    name: "Missing Space Around Operator"
+    regex: '[\w)]+(\+|-|\*|/)[\w(]+'
+    message: "Missing space around operator"
+    severity: warning
+    match_kinds:
+      - argument
+      - attribute.builtin
+      - attribute.id
+      - buildconfig.id
+      - buildconfig.keyword
+      - identifier
+      - keyword
+      - number
+      - objectliteral
+      - parameter
+      - placeholder
+      - typeidentifier
   missing_empty_line:
     name: "Missing Empty Line"
     regex: '(?-smxi)(\}\n)([ \t]*?)([^\n\}\t ])'
