@@ -27,6 +27,7 @@ while read line; do
 		# Check if versions match and send error if necessary
 		if [ "${check_version}" -ne "${XCODE_VERSION_ACTUAL}" ]; then
 			echo "error: Found Xcode ${smf_version} in smf.properties. Check your Xcode version or update smf.properties"
+			exit 1
 		fi
 	fi
 done < smf.properties
