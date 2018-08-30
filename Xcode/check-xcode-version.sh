@@ -26,6 +26,11 @@ if [  -z "$1" ]; then
 	projectDir="$scriptBaseFolderPath"
 fi
 
+# Check if file smf.properties exits
+if [ ! -f "$projectDir/smf.properties" ]; then
+	exit 0
+fi
+
 # Read smf.properties
 while read line; do
 	if [[ $line =~ XCODE_VERSION ]]; then
