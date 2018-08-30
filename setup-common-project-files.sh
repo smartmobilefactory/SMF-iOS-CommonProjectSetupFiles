@@ -13,6 +13,7 @@ readonly noSwiftlintFlag="--no-swiftlint"
 readonly noPRTemplateCopyFlag="--no-pr-template-copy"
 readonly noCodebeatFlag="--no-codebeat"
 readonly noCodeClimateFlag="--no-codeclimate"
+readonly noXcodeCheck="--no-xcodecheck"
 readonly buildConfigurationFlag="--buildconfig"
 readonly targetTypeFlag="--targettype"
 
@@ -27,6 +28,7 @@ copyPRTemplate=true
 callSwiftlint=true
 callCodebeat=true
 callCodeClimate=true
+checkXcodeVersion=true
 projectDir="$(pwd)"
 isDebugConfiguration=false
 
@@ -88,6 +90,11 @@ while test $# -gt 0; do
 			shift
 			# break
 			;;
+		$noXcodeCheck)
+			checkXcodeVersion=false
+			shift
+			# break
+			;;
 		-*)
 			display_usage
 			shift
@@ -129,4 +136,8 @@ if [ $copyPRTemplate = true ]; then
 	fi
 
 	cp "./Github/PR-Template-App.md" "$projectDir/.github/PULL_REQUEST_TEMPLATE.md" || exit 1;
+fi
+
+if [ $checkXcodeVersion = true ]; then
+	./Xcode/check-xcode-version.sh || exit 1;
 fi
