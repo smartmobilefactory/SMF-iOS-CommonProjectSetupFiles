@@ -35,46 +35,22 @@ fi
 # Functions
 #
 
-function convert_smf_version () {
-	# Remove punctuations
-	local specified_xcode_version="${1//.}"
-
-	# Check if version is than 4 characters long
-	if [ "${#specified_xcode_version}" -lt 4 ]; then
-		# Extract major version
-		local major_index=$(echo "${specified_xcode_version_string}" | cut -d. -f1)
-
-		# Check if major version is single or double digit and insert leading 0 if necessary
-		if [ "${#major_index}" -eq 1 ]; then
-			specified_xcode_version="0${specified_xcode_version}"
-		fi
-
-		# Fill in trailing Zeros to be comparable with system version
-		while test "${#specified_xcode_version}" -lt 4; do
-			specified_xcode_version="${specified_xcode_version}0"
-		done
-	fi
-
-	# Return comparable version
-	echo $specified_xcode_version
-}
-
-function convert_version_to_applestyle () {
+function convert_to_comparable_version () {
 	# Remove leading 0 from xcode version
 	local display_version="${1#0}"
 
-	# Reverse string and insert point seperator for major, minor and patch version
-	local tmp_reverse=$(echo "${display_version}" | rev)
-	tmp_reverse="${tmp_reverse:0:1}.${tmp_reverse:1:1}."$(echo "${tmp_reverse}" | cut -c 3-)
-	display_version=$(echo "${tmp_reverse}" | rev)
+	# Reverse string and insert dot seperator for major, minor and patch version
+	local tmp_reverse=$(echo "$display_version" | rev)
+	tmp_reverse="${tmp_reverse:0:1}.${tmp_reverse:1:1}."$(echo "$tmp_reverse" | cut -c 3-)
+	display_version=$(echo "$tmp_reverse" | rev)
 
 	# Remove patch version if 0
 	local patch_version="${display_version: -1}"
 	if [ "$patch_version" -eq 0 ]; then
-		display_version=$(echo "${display_version}" | rev | cut -c 3- | rev)
+		display_version=$(echo "$display_version" | rev | cut -c 3- | rev)
 	fi
 
-	# Return converted version
+	# Return comparable version
 	echo $display_version
 }
 
@@ -83,13 +59,13 @@ while read line; do
 	if [[ $line =~ XCODE_VERSION ]]; then
 		# Extract version from smf.properties
 		specified_xcode_version_string="${line#XCODE_VERSION=}"
-		# Convert version to be comparable
-		specified_xcode_version_string=$(convert_smf_version "$specified_xcode_version_string")
+
+		# Retrieve Xcode version and convert it to be comparable
+		xcode_version=$(convert_to_comparable_version "$XCODE_VERSION_ACTUAL")
 
 		# Check if versions match and send error if necessary
-		if [ "${specified_xcode_version_string}" -ne "${XCODE_VERSION_ACTUAL}" ]; then
-			xcode_version=$(convert_version_to_applestyle "$XCODE_VERSION_ACTUAL")
-			echo "error: Xcode ${xcode_version} is used but ${line#XCODE_VERSION=} specified in smf.properties"
+		if [ "$specified_xcode_version_string" != "$xcode_version" ]; then
+			echo "error: Xcode $xcode_version is used but $specified_xcode_version_string specified in smf.properties"
 			exit 1
 		fi
 	fi
