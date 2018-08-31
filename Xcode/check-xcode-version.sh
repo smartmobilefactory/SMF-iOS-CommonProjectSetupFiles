@@ -65,7 +65,7 @@ while read line; do
 
 		# Check if versions match and send error if necessary
 		if [ "$specified_xcode_version_string" != "$xcode_version" ]; then
-			echo "error: Xcode $xcode_version is used but $specified_xcode_version_string specified in smf.properties"
+			echo "error: Wrong Xcode version: $xcode_version is used but $specified_xcode_version_string specified in smf.properties"
 			exit 1
 		fi
 	fi
