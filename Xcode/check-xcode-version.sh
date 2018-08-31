@@ -37,12 +37,12 @@ fi
 
 function convert_smf_version () {
 	# Remove punctuations
-	specified_xcode_version="${1//.}"
+	local specified_xcode_version="${1//.}"
 
 	# Check if version is than 4 characters long
 	if [ "${#specified_xcode_version}" -lt 4 ]; then
 		# Extract major version
-		major_index=$(echo "${specified_xcode_version_string}" | cut -d. -f1)
+		local major_index=$(echo "${specified_xcode_version_string}" | cut -d. -f1)
 
 		# Check if major version is single or double digit and insert leading 0 if necessary
 		if [ "${#major_index}" -eq 1 ]; then
