@@ -35,7 +35,7 @@ fi
 # Functions
 #
 
-function convert_to_comparable_version () {
+function convert_xcode_version_to_presentable () {
 	# Remove leading 0 from xcode version
 	local display_version="${1#0}"
 
@@ -54,16 +54,29 @@ function convert_to_comparable_version () {
 	echo $display_version
 }
 
-function add_patch_version_if_necessary () {
-	# Count occurrences of dots to determine if patch version is included
+function add_versions_if_necessary () {
+	# Count occurrences of dots to determine if additional version are needed
 	local dot_count=$(echo "$1" | grep -o "\." | wc -l)
 
-	# Add patch version 0 if necessary
-	if [ "$dot_count" -eq 1 ]; then
+	# Add missing versions if necessary and return version
+	if [ "$dot_count" -eq 0 ]; then
+		echo "$1.0.0"
+	elif [ "$dot_count" -eq 1 ]; then
 		echo "$1.0"
 	else
 		echo "$1"
 	fi
+}
+
+function convert_specified_to_comparable_version () {
+	# Remove any unnecessary characters at the end of version
+	local version=$(echo "$1" | sed -e "s/\.*[^0-9.]\(.*\)$//g")
+
+	# Add minor and patch versions if necessary
+	local full_version=$(add_versions_if_necessary "$version")
+
+	# Return version
+	echo "$full_version"
 }
 
 # Read smf.properties
@@ -71,11 +84,11 @@ while read line; do
 	if [[ $line =~ XCODE_VERSION ]]; then
 		# Retrieve specified version from smf.properties and comparable version
 		specified_xcode_version_string="${line#XCODE_VERSION=}"
-		specified_xcode_version_comparable=$(add_patch_version_if_necessary "$specified_xcode_version_string")
+		specified_xcode_version_comparable=$(convert_specified_to_comparable_version "$specified_xcode_version_string")
 
 		# Retrieve Xcode version and comparable Xcode version
-		xcode_version=$(convert_to_comparable_version "$XCODE_VERSION_ACTUAL")
-		xcode_version_comparable=$(add_patch_version_if_necessary "$xcode_version")
+		xcode_version=$(convert_xcode_version_to_presentable "$XCODE_VERSION_ACTUAL")
+		xcode_version_comparable=$(add_versions_if_necessary "$xcode_version")
 
 		# Check if versions match and send error if necessary
 		if [ "$specified_xcode_version_comparable" != "$xcode_version_comparable" ]; then
