@@ -9,7 +9,7 @@ Plist2swift generates swift code from given plist files. It will gather keys tha
 
 ## Example
 
-Give plist A and plist B, we can generate swift code like so:
+Given plist A and plist B, we can generate swift code like so:
 
 `swift Plist2swift.swift A.plist B.plist`
 
