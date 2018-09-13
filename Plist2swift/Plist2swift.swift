@@ -5,7 +5,7 @@
 //  Created by Bartosz Swiatek on 12.09.18.
 //  Copyright © 2018 Bartosz Swiatek. All rights reserved.
 //
-// Note: Currently only Strings, Bools and Ints are supported
+// Note: Currently only Strings, Bools and Ints and Dictionaries are supported
 
 import Foundation
 
