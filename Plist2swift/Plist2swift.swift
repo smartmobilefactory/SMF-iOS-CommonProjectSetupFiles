@@ -81,6 +81,9 @@ private func generateStructs(name protocolName: String, enumName: String, plistD
 		case "Bool":
 			let boolString = value.boolValue ? "true" : "false"
 			print("\t\tinternal static let \(key): \(type!) = \(boolString)")
+		case "Dictionary<String, Any>":
+			let dictValue = value as! Dictionary<String, String>
+			print("\t\tinternal static let \(key): \(type!) = \(dictValue)")
 		default:
 			print("\t\tinternal static let \(key): \(type!) = \"\(value)\"")
 		}
@@ -140,7 +143,7 @@ private func typeForValue(_ value: AnyObject) -> String {
 	case is Array<Any>:
 		return "Array<Any>"
 	case is Dictionary<String, Any>:
-		return "Dictionary<String: Any>"
+		return "Dictionary<String, Any>"
 	default:
 		return "String"
 	}
