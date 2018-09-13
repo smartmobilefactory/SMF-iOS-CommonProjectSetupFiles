@@ -9,17 +9,24 @@
 
 import Foundation
 
+// MARK: Defaults
+
 let configurationKeyName: String = "configurationName"
+var enumName: String = "Api"
+var protocolName: String = "SMFPlistProtocol"
+var output: FileHandle? = FileHandle.standardOutput
 
 // MARK: Helper
 
+
 private func usage() {
+	let executableName = URL(fileURLWithPath: CommandLine.arguments[0]).lastPathComponent
 	print("""
 		plist2swift code generator
 
-		Usage: plist2swift plist1 plist2 ...
+		Usage: \(executableName) plist1 plist2 ...
 
-		i.e. plist2swift /path/to/production-configuration.plist /path/to/development-configuration.plist > generated.swift
+		i.e. \(executableName) /path/to/production-configuration.plist /path/to/development-configuration.plist > generated.swift
 	""")
 	exit(1)
 }
@@ -149,7 +156,24 @@ private func typeForValue(_ value: AnyObject) -> String {
 	}
 }
 
+// MARK: Logging
+
+extension FileHandle: TextOutputStream {
+	public func write(_ string: String) {
+		guard let data = string.data(using: .utf8) else { return }
+		self.write(data)
+	}
+}
+
+public func print(_ items: Any..., separator: String = " ", terminator: String = "\n") {
+	let localOutput = items.map { "\($0)" }.joined(separator: separator)
+	guard var output = output else { return }
+	Swift.print(localOutput, separator: separator, terminator: terminator, to: &output)
+}
+
 // MARK: Main
+
+//output = FileHandle(forWritingAtPath: "/Users/bartosz/plist2swift.log")
 
 if (CommandLine.arguments.count < 2) {
 	usage()
