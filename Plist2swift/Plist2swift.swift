@@ -173,6 +173,10 @@ for plistPath in plists {
 	plistDicts.append(plistDict)
 
 	let allKeys = Array(plistDict.keys)
+	if (!allKeys.contains(configurationKeyName)) {
+		print("Plist doesn't contain \(configurationKeyName) key. Please add it and run the script again")
+		exit(1)
+	}
 	if (commonKeys.count == 0) {
 		commonKeys = Set(allKeys)
 	}
