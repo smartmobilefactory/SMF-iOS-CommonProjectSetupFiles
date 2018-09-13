@@ -134,3 +134,26 @@ extension Api.BetaStruct: SMFPlistProtocol {
 }
 ```
 
+### How to use the code
+
+Let's print out a common key and two plist specific keys and see what happens
+
+```
+private func printConfig(config: Api) {
+	let privateKey = type(of: config.configuration).privateKey
+	let inAlpha = type(of: config.configuration).inAlpha
+	let inBeta = type(of: config.configuration).inBeta
+	print("\(privateKey) \(inAlpha) \(inBeta)")
+}
+
+printConfig(config: Api.alpha)
+printConfig(config: Api.beta)
+
+```
+
+Returns:
+
+```
+fsfhor4hrbih13r938ryafsdofbo1urb1 balblala Optional("This is only in Alpha") nil
+fdfsfsgfdgeqwerwfredvzxcw nil Optional("This string is not in Alpha, only in Beta")
+```
