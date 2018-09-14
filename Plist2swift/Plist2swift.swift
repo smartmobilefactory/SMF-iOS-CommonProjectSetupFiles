@@ -54,45 +54,88 @@ private func generateHeader() {
 		""")
 }
 
+private func generateProtocol(from name: String, dictionary: Dictionary<String, Any>) -> String {
+	let protocolName = name.appending("Protocol")
+	print("protocol \(protocolName) {")
+	for (key, value) in dictionary {
+		let type = typeForValue(value as AnyObject)
+		print("\tvar \(key.lowercaseFirst()): \(type) { get }")
+	}
+	print("}")
+	return protocolName
+}
+
 private func generateProtocol(name: String, commonKeys: Set<String>, oddKeys: Set<String>, keysAndTypes: Dictionary<String, String>) {
 	print("protocol \(name) {")
 	print("\t// Common Keys")
 	for commonKey in commonKeys {
-		let type = keysAndTypes[commonKey]
-		print("\tstatic var \(commonKey): \(type!) { get }")
+		guard let type = keysAndTypes[commonKey] else { return }
+		print("\tstatic var \(commonKey.lowercaseFirst()): \(type) { get }")
 	}
-	print("\t// Optional Keys")
-	for oddKey in oddKeys {
-		let type = keysAndTypes[oddKey]
-		print("\tstatic var \(oddKey): \(type!)? { get }")
+	if (!oddKeys.isEmpty) {
+		print("\t// Optional Keys")
+		for oddKey in oddKeys {
+			guard let type = keysAndTypes[oddKey] else { return }
+			print("\tstatic var \(oddKey.lowercaseFirst()): \(type)? { get }")
+		}
 	}
 	print("}")
 	print("\n")
 }
 
-private func generateStructs(name protocolName: String, enumName: String, plistDict: Dictionary<String, AnyObject>, keysAndTypes: Dictionary<String, String>, oddKeys: Set<String>) {
-	guard let configName = plistDict[configurationKeyName] as? String else { return }
-	let structName = configName.appending("Struct")
+private func generateStructs(name structName: String? = nil, plistDict: Dictionary<String, AnyObject>, keysAndTypes: [String: String]? = nil, oddKeys: Set<String>, protocolName: String? = nil) {
+	var configName: String? = plistDict[configurationKeyName] as? String
+	if (configName == nil && structName != nil) {
+		configName = structName?.uppercaseFirst()
+	}
+	guard let structName = configName?.appending("Struct") else { return }
 
-	print("\tinternal struct \(structName) {")
+	var localKeysAndTypes = keysAndTypes
+
+	if (localKeysAndTypes == nil) {
+		localKeysAndTypes = [:]
+		for (key, value) in plistDict {
+			if (localKeysAndTypes?[key] == nil) {
+				let type = typeForValue(value)
+				localKeysAndTypes?[key] = type
+				// Generate protocols for Dictionary entries
+				if (type == "Dictionary<String, Any>") {
+					let protocolName = generateProtocol(from: key.uppercaseFirst(), dictionary: plistDict[key] as! Dictionary<String, Any>)
+					// override type with new protocol
+					localKeysAndTypes?[key] = protocolName
+				}
+			}
+		}
+	}
+
+	var conformingToProtocol: String = ""
+	if (protocolName != nil) {
+		conformingToProtocol = ": ".appending(protocolName!)
+	}
+	print("\tinternal struct \(structName)\(conformingToProtocol) {")
 	for (key, value) in plistDict {
 		if (oddKeys.contains(key)) {
 			continue
 		}
-		let type = keysAndTypes[key]
-		switch type! {
+		guard let type = localKeysAndTypes?[key] else { return }
+		switch type {
 		case "String":
-			print("\t\tinternal static let \(key): \(type!) = \"\(value)\"")
+			print("\t\tinternal static let \(key.lowercaseFirst()): \(type) = \"\(value)\"")
 		case "Int":
-			print("\t\tinternal static let \(key): \(type!) = \(value)")
+			print("\t\tinternal static let \(key.lowercaseFirst()): \(type) = \(value)")
 		case "Bool":
 			let boolString = value.boolValue ? "true" : "false"
-			print("\t\tinternal static let \(key): \(type!) = \(boolString)")
+			print("\t\tinternal static let \(key.lowercaseFirst()): \(type) = \(boolString)")
 		case "Dictionary<String, Any>":
 			let dictValue = value as! Dictionary<String, String>
-			print("\t\tinternal static let \(key): \(type!) = \(dictValue)")
+			print("\t\tinternal static let \(key.lowercaseFirst()): \(type) = \(dictValue)")
 		default:
-			print("\t\tinternal static let \(key): \(type!) = \"\(value)\"")
+			// default is a struct
+			// Generate struct from the Dictionaries and Protocols
+			if (type.contains("Protocol")) {
+				generateStructs(name: key.uppercaseFirst(), plistDict: plistDict[key] as! Dictionary<String, AnyObject>, oddKeys: oddKeys, protocolName: type)
+				print("\t\tinternal static let \(key.lowercaseFirst()): \(type) = \(key.uppercaseFirst().appending("Struct"))()")
+			}
 		}
 	}
 	print("\t}")
@@ -105,7 +148,7 @@ private func generateExtensions(enumName: String, cases: [String], protocolName:
 		print("extension \(enumName).\(structName): \(protocolName) {")
 		for oddKey in oddKeys {
 			let type = keysAndTypes[oddKey]
-			print("\tstatic var \(oddKey): \(type!)? {")
+			print("\tstatic var \(oddKey.lowercaseFirst()): \(type!)? {")
 			let returnValue = plistDict[oddKey] as? String
 			returnValue != nil ? print("\t\treturn \"\(returnValue!)\"") : print("\t\treturn nil")
 			print("\t}")
@@ -122,7 +165,7 @@ private func generateEnum(name enumName: String, protocolName: String, plistDict
 		cases.append(caseName.lowercased())
 		// Cases
 		print("\tcase \(caseName.lowercased())")
-		generateStructs(name: protocolName, enumName: enumName, plistDict: plistDict, keysAndTypes: keysAndTypes, oddKeys: oddKeys)
+		generateStructs(plistDict: plistDict, keysAndTypes: keysAndTypes, oddKeys: oddKeys)
 	}
 	print("""
 		\n
@@ -171,9 +214,29 @@ public func print(_ items: Any..., separator: String = " ", terminator: String =
 	Swift.print(localOutput, separator: separator, terminator: terminator, to: &output)
 }
 
+// MARK: String
+
+extension String {
+	func uppercaseFirst() -> String {
+		return prefix(1).uppercased() + dropFirst()
+	}
+
+	func lowercaseFirst() -> String {
+		return prefix(1).lowercased() + dropFirst()
+	}
+
+	mutating func uppercaseFirst() {
+		self = self.uppercaseFirst()
+	}
+
+	mutating func lowercaseFirst() {
+		self = self.lowercaseFirst()
+	}
+}
+
 // MARK: Main
 
-//output = FileHandle(forWritingAtPath: "/Users/bartosz/plist2swift.log")
+output = FileHandle(forWritingAtPath: "/Users/bartosz/plist2swift.swift")
 
 if (CommandLine.arguments.count < 2) {
 	usage()
@@ -190,6 +253,8 @@ var plistDicts: [Dictionary<String, AnyObject>] = []
 for i in 1...CommandLine.arguments.count-1 {
 	plists.append(CommandLine.arguments[i])
 }
+
+generateHeader()
 
 // gather keys and values... and types
 for plistPath in plists {
@@ -212,7 +277,14 @@ for plistPath in plists {
 	}
 	for key in allKeys {
 		if (keysAndTypes[key] == nil) {
-			keysAndTypes[key] = typeForValue(plistDict[key]!)
+			let type = typeForValue(plistDict[key]!)
+			keysAndTypes[key] = type
+			// Generate protocols for Dictionary entries
+			if (type == "Dictionary<String, Any>") {
+				let protocolName = generateProtocol(from: key.uppercaseFirst(), dictionary: plistDict[key] as! Dictionary<String, Any>)
+				// override type with new protocol
+				keysAndTypes[key] = protocolName
+			}
 		}
 	}
 	commonKeys = commonKeys.intersection(allKeys)
@@ -223,6 +295,5 @@ for plistPath in plists {
 	}
 }
 
-generateHeader()
 generateProtocol(name: "SMFPlistProtocol", commonKeys: commonKeys, oddKeys: oddKeys, keysAndTypes: keysAndTypes)
 generateEnum(name: "Api", protocolName: "SMFPlistProtocol", plistDicts: plistDicts, keysAndTypes: keysAndTypes, oddKeys: oddKeys)
