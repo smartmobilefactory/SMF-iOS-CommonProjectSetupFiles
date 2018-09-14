@@ -5,7 +5,7 @@
 //  Created by Bartosz Swiatek on 12.09.18.
 //  Copyright © 2018 Bartosz Swiatek. All rights reserved.
 //
-// Note: Currently only Strings, Bools and Ints and Dictionaries are supported
+// Note: Currently Date is not supported
 
 import Foundation
 
@@ -126,9 +126,9 @@ private func generateStructs(name structName: String? = nil, plistDict: Dictiona
 		case "Bool":
 			let boolString = value.boolValue ? "true" : "false"
 			print("\t\tinternal \(staticVar) let \(key.lowercaseFirst()): \(type) = \(boolString)")
-		case "Dictionary<String, Any>":
-			let dictValue = value as! Dictionary<String, String>
-			print("\t\tinternal \(staticVar) let \(key.lowercaseFirst()): \(type) = \(dictValue)")
+		case "Array<Any>":
+			let arrayValue = value as! Array<String>
+			print("\t\tinternal \(staticVar) let \(key.lowercaseFirst()): \(type) = \(arrayValue)")
 		default:
 			// default is a struct
 			// Generate struct from the Dictionaries and Protocols
@@ -149,8 +149,13 @@ private func generateExtensions(enumName: String, cases: [String], protocolName:
 		for oddKey in oddKeys {
 			let type = keysAndTypes[oddKey]
 			print("\tstatic var \(oddKey.lowercaseFirst()): \(type!)? {")
-			let returnValue = plistDict[oddKey] as? String
-			returnValue != nil ? print("\t\treturn \"\(returnValue!)\"") : print("\t\treturn nil")
+			if (type == "Array<Any>") {
+				let returnValue = plistDict[oddKey] as? Array<String>
+				returnValue != nil ? print("\t\treturn \(returnValue!)") : print("\t\treturn nil")
+			} else { // String
+				let returnValue = plistDict[oddKey] as? String
+				returnValue != nil ? print("\t\treturn \"\(returnValue!)\"") : print("\t\treturn nil")
+			}
 			print("\t}")
 		}
 		print("}\n")
