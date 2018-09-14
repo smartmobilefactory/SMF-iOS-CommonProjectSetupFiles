@@ -91,6 +91,7 @@ private func generateStructs(name structName: String? = nil, plistDict: Dictiona
 	guard let structName = configName?.appending("Struct") else { return }
 
 	var localKeysAndTypes = keysAndTypes
+	let staticVar = protocolName != nil ? "" : "static"
 
 	if (localKeysAndTypes == nil) {
 		localKeysAndTypes = [:]
@@ -120,15 +121,15 @@ private func generateStructs(name structName: String? = nil, plistDict: Dictiona
 		guard let type = localKeysAndTypes?[key] else { return }
 		switch type {
 		case "String":
-			print("\t\tinternal static let \(key.lowercaseFirst()): \(type) = \"\(value)\"")
+			print("\t\tinternal \(staticVar) let \(key.lowercaseFirst()): \(type) = \"\(value)\"")
 		case "Int":
-			print("\t\tinternal static let \(key.lowercaseFirst()): \(type) = \(value)")
+			print("\t\tinternal \(staticVar) let \(key.lowercaseFirst()): \(type) = \(value)")
 		case "Bool":
 			let boolString = value.boolValue ? "true" : "false"
-			print("\t\tinternal static let \(key.lowercaseFirst()): \(type) = \(boolString)")
+			print("\t\tinternal \(staticVar) let \(key.lowercaseFirst()): \(type) = \(boolString)")
 		case "Dictionary<String, Any>":
 			let dictValue = value as! Dictionary<String, String>
-			print("\t\tinternal static let \(key.lowercaseFirst()): \(type) = \(dictValue)")
+			print("\t\tinternal \(staticVar) let \(key.lowercaseFirst()): \(type) = \(dictValue)")
 		default:
 			// default is a struct
 			// Generate struct from the Dictionaries and Protocols
@@ -236,7 +237,7 @@ extension String {
 
 // MARK: Main
 
-output = FileHandle(forWritingAtPath: "/Users/bartosz/plist2swift.swift")
+//output = FileHandle(forWritingAtPath: "/Users/bartosz/plist2swift.swift")
 
 if (CommandLine.arguments.count < 2) {
 	usage()
