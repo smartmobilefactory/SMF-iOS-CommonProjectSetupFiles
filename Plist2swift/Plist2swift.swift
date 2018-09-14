@@ -169,7 +169,7 @@ private func generateEnum(name enumName: String, protocolName: String, plistDict
 		generateStructs(plistDict: plistDict, keysAndTypes: keysAndTypes, oddKeys: oddKeys)
 	}
 	print("""
-		\n
+		
 		\tvar configuration: \(protocolName) {
 			\tswitch self {
 		""")
