@@ -147,16 +147,29 @@ private func generateExtensions(enumName: String, cases: [String], protocolName:
 		let structName = caseName.appending("Struct")
 		print("extension \(enumName).\(structName): \(protocolName) {")
 		for oddKey in oddKeys {
-			let type = keysAndTypes[oddKey]
-			print("\tstatic var \(oddKey.lowercaseFirst()): \(type!)? {")
+			guard let type = keysAndTypes[oddKey] else { return }
 			if (type == "Array<Any>") {
+				print("\tstatic var \(oddKey.lowercaseFirst()): \(type)? {")
 				let returnValue = plistDict[oddKey] as? Array<String>
 				returnValue != nil ? print("\t\treturn \(returnValue!)") : print("\t\treturn nil")
+				print("\t}")
+			} else if (type.contains("Protocol")){
+				guard plistDict[oddKey] != nil else {
+					print("\tstatic var \(oddKey.lowercaseFirst()): \(type)? {")
+					print("\t\treturn nil")
+					print("\t}")
+					continue
+				}
+				generateStructs(name: oddKey.uppercaseFirst(), plistDict: plistDict[oddKey] as! Dictionary<String, AnyObject>, oddKeys: oddKeys, protocolName: type)
+				print("\tstatic var \(oddKey.lowercaseFirst()): \(type)? {")
+				print("\t\treturn \(oddKey.uppercaseFirst().appending("Struct"))()")
+				print("\t}")
 			} else { // String
+				print("\tstatic var \(oddKey.lowercaseFirst()): \(type)? {")
 				let returnValue = plistDict[oddKey] as? String
 				returnValue != nil ? print("\t\treturn \"\(returnValue!)\"") : print("\t\treturn nil")
+				print("\t}")
 			}
-			print("\t}")
 		}
 		print("}\n")
 	}
