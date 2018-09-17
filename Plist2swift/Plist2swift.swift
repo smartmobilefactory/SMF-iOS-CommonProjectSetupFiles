@@ -240,7 +240,7 @@ private func generateEnum(name enumName: String, protocolName: String, plistDict
 	print("internal enum \(enumName) {")
 	for plistDict in plistDicts {
 		guard let caseName = plistDict[configurationKeyName] as? String else { return }
-		cases.append(caseName.lowercased())
+		cases.append(caseName)
 		// Cases
 		print("\tcase \(caseName.lowercased())")
 		generateStructs(plistDict: plistDict, keysAndTypes: keysAndTypes, oddKeys: oddKeys)
@@ -251,8 +251,8 @@ private func generateEnum(name enumName: String, protocolName: String, plistDict
 			\tswitch self {
 		""")
 	for caseName in cases {
-		print("\t\tcase .\(caseName):")
-		print("\t\t\treturn \(caseName.capitalized)Struct()")
+		print("\t\tcase .\(caseName.lowercased()):")
+		print("\t\t\treturn \(caseName)Struct()")
 	}
 	print("\t\t}")
 	print("\t}")
