@@ -14,6 +14,7 @@ Scripts which should be called during the build phase:
 
 - [SwiftLint](#swiftlint)
 - [Codebeat](#codebeat)
+- [Xcode version check](#xcode-version-check)
 
 ### Setup
 
@@ -168,3 +169,12 @@ The Codebeat configuration files copying is integrated in the [setup script](#se
 
 #### Optional: Call the Codebeat configuration script without using the setup script
 If you want to copy the Codebeat configuration files without integrating the setup script you can call `Submodules/SMF-iOS-CommonProjectSetupFiles/Codebeat/copy-codebeat-config.sh` directly.
+
+### Xcode version check
+
+Building a project will trigger a Xcode version check to ensure you are working with the right Xcode version and an updated `smf.properties`. This script will look for the Xcode version specified in `smf.properties`. It will compare it to the Xcode version you are currently building the project and throw an error if it does not match.
+
+The Xcode version check is integrated in the [setup script](#setup). If it shouldn't be used you can pass the flag `--no-xcodecheck`.
+
+#### Optional: Call the Xcode version script without using the setup script
+If you want to copy the Codebeat configuration files without integrating the setup script you can call `Submodules/SMF-iOS-CommonProjectSetupFiles/Xcode/check-xcode-version.sh` directly.
