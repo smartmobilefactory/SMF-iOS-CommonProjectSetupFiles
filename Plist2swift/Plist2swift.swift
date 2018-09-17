@@ -388,6 +388,6 @@ for plistPath in plists {
 	}
 }
 
-generateProtocol(name: "SMFPlistProtocol", commonKeys: commonKeys, oddKeys: oddKeys, keysAndTypes: keysAndTypes)
-generateEnum(name: "Api", protocolName: "SMFPlistProtocol", plistDicts: plistDicts, keysAndTypes: keysAndTypes, oddKeys: oddKeys)
+generateProtocol(name: protocolName, commonKeys: commonKeys, oddKeys: oddKeys, keysAndTypes: keysAndTypes)
+generateEnum(name: enumName, protocolName: protocolName, plistDicts: plistDicts, keysAndTypes: keysAndTypes, oddKeys: oddKeys)
 generateFooter()
