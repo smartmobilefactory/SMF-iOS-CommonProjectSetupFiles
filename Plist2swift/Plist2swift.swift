@@ -375,7 +375,7 @@ for plistPath in plists {
 	commonKeys = commonKeys.intersection(allKeys)
 	oddKeys = oddKeys.union(allKeys)
 	oddKeys = oddKeys.subtracting(commonKeys)
-	if (oddKeys.count == 0 && shouldGenerateOddKeys) {
+	if (oddKeys.count == 0 && shouldGenerateOddKeys && plists.count > 1 && plists.firstIndex(of: plistPath) == 0) {
 		oddKeys = Set(allKeys)
 	}
 }
