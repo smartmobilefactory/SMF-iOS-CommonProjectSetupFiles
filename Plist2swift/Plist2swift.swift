@@ -31,6 +31,13 @@ private func usage() {
 	exit(1)
 }
 
+/**
+Given path to .plist file, it returns a serializes Dictionary Optional
+
+- Parameter fromPath: Path to the .plist file
+
+- Returns: Serialized Dictionary<String: AnyObject> Optional
+*/
 private func readPlist(fromPath: String) -> [String: AnyObject]? {
 	var format = PropertyListSerialization.PropertyListFormat.xml
 	guard let plistData = FileManager.default.contents(atPath: fromPath),
@@ -39,6 +46,9 @@ private func readPlist(fromPath: String) -> [String: AnyObject]? {
 	return plistDict
 }
 
+/**
+Generates the Swift header with date
+*/
 private func generateHeader() {
 	let date = Date()
 	print("""
@@ -53,7 +63,15 @@ private func generateHeader() {
 		""")
 }
 
-private func generateProtocol(from name: String, dictionary: Dictionary<String, Any>) -> String {
+/**
+Generates a protocol with public instance properties. Used to generate protocols that internal structs conform to.
+
+- Parameter name: Name of the protocol; "Protocol" will be added to the name as suffix
+- Parameter dictionary: Dictionary to create protocol from
+
+- Returns: Protocol name, in case it's needed to be saved for further use
+*/
+private func generateProtocol(name: String, dictionary: Dictionary<String, Any>) -> String {
 	let protocolName = name.appending("Protocol")
 	print("protocol \(protocolName) {")
 	for (key, value) in dictionary {
@@ -64,6 +82,15 @@ private func generateProtocol(from name: String, dictionary: Dictionary<String, 
 	return protocolName
 }
 
+/**
+Generate the general protocol with class properties.
+
+- Parameter name: Name of the protocol; "Protocol" will be added to the name as suffix
+- Parameter commonKeys: Keys to generate non-Optional properties from
+- Parameter oddKeys: Keys to generate Optional properties from
+- Parameter keysAndTypes: Map with keys and their types
+
+*/
 private func generateProtocol(name: String, commonKeys: Set<String>, oddKeys: Set<String>, keysAndTypes: Dictionary<String, String>) {
 	print("protocol \(name) {")
 	print("\t// Common Keys")
@@ -82,6 +109,17 @@ private func generateProtocol(name: String, commonKeys: Set<String>, oddKeys: Se
 	print("\n")
 }
 
+/**
+Generate structs out of Dictionaries and make them conform to a given protocol.
+
+- Parameters:
+   - name: Name of the struct. "Struct" suffix will be appended automatically; Default is 'nil' - the configurationName key will be used to generate the name
+   - plistDict: Dictionary created from .plist
+   - keysAndTypes: Map with keys and their types; Default is 'nil' - A new protocol will be created, the generated struct will conform to this new protocol
+   - oddKeys: Keys to generate Optional properties from
+   - protocolName: Name of the protocol; It has to end with a "Protocol" suffix; Default is 'nil' - the new generated protocol will be used
+
+*/
 private func generateStructs(name structName: String? = nil, plistDict: Dictionary<String, AnyObject>, keysAndTypes: [String: String]? = nil, oddKeys: Set<String>, protocolName: String? = nil) {
 	var configName: String? = plistDict[configurationKeyName] as? String
 	if (configName == nil && structName != nil) {
@@ -100,7 +138,7 @@ private func generateStructs(name structName: String? = nil, plistDict: Dictiona
 				localKeysAndTypes?[key] = type
 				// Generate protocols for Dictionary entries
 				if (type == "Dictionary<String, Any>") {
-					let protocolName = generateProtocol(from: key.uppercaseFirst(), dictionary: plistDict[key] as! Dictionary<String, Any>)
+					let protocolName = generateProtocol(name: key.uppercaseFirst(), dictionary: plistDict[key] as! Dictionary<String, Any>)
 					// override type with new protocol
 					localKeysAndTypes?[key] = protocolName
 				}
@@ -141,7 +179,18 @@ private func generateStructs(name structName: String? = nil, plistDict: Dictiona
 	print("\t}")
 }
 
-private func generateExtensions(enumName: String, cases: [String], protocolName: String, plistDicts: Array<Dictionary<String, AnyObject>>, keysAndTypes: Dictionary<String, String>, oddKeys: Set<String>) {
+/**
+Generates extensions to structs, conforming to protocol
+
+- Parameters:
+   - enumName: Name of the enum containing structs that need to conform to given protocol
+   - protocolName: Name of the protocol to conform to
+   - plistDicts: List of Dictionaries serialized from plist files
+   - keysAndTypes: Map with keys and their types
+   - oddKeys: Keys to generate Optional properties from
+
+*/
+private func generateExtensions(enumName: String, protocolName: String, plistDicts: Array<Dictionary<String, AnyObject>>, keysAndTypes: Dictionary<String, String>, oddKeys: Set<String>) {
 	for plistDict in plistDicts {
 		guard let caseName = plistDict[configurationKeyName] as? String else { return }
 		let structName = caseName.appending("Struct")
@@ -175,6 +224,17 @@ private func generateExtensions(enumName: String, cases: [String], protocolName:
 	}
 }
 
+/**
+Generate an enum with structs and properties.
+
+- Parameters:
+   - name: Name of the enum
+   - protocolName: Name of the protocol that extensions should conform to
+   - plistDicts: List of Dictionaries serialized from plist files
+   - keysAndTypes: Map with keys and their types
+   - oddKeys: Keys to generate Optional properties from
+
+*/
 private func generateEnum(name enumName: String, protocolName: String, plistDicts: Array<Dictionary<String, AnyObject>>, keysAndTypes: Dictionary<String, String>, oddKeys: Set<String>) {
 	var cases: [String] = []
 	print("internal enum \(enumName) {")
@@ -197,9 +257,16 @@ private func generateEnum(name enumName: String, protocolName: String, plistDict
 	print("\t\t}")
 	print("\t}")
 	print("}\n")
-	generateExtensions(enumName: enumName, cases: cases, protocolName: protocolName, plistDicts: plistDicts, keysAndTypes: keysAndTypes, oddKeys: oddKeys)
+	generateExtensions(enumName: enumName, protocolName: protocolName, plistDicts: plistDicts, keysAndTypes: keysAndTypes, oddKeys: oddKeys)
 }
 
+/**
+Map the type of a value to its string representation
+
+- Parameter value: Any object you want to get the string type equivalent from; default is "String". Supported types are: String, Bool, Int, Array<Any> and Dictionary<String, Any>
+
+- Returns: String that reflects the type of given value
+*/
 private func typeForValue(_ value: AnyObject) -> String {
 	switch value {
 	case is String:
@@ -299,7 +366,7 @@ for plistPath in plists {
 			keysAndTypes[key] = type
 			// Generate protocols for Dictionary entries
 			if (type == "Dictionary<String, Any>") {
-				let protocolName = generateProtocol(from: key.uppercaseFirst(), dictionary: plistDict[key] as! Dictionary<String, Any>)
+				let protocolName = generateProtocol(name: key.uppercaseFirst(), dictionary: plistDict[key] as! Dictionary<String, Any>)
 				// override type with new protocol
 				keysAndTypes[key] = protocolName
 			}
