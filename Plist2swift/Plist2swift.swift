@@ -60,6 +60,14 @@ private func generateHeader() {
 
 		import Foundation
 
+		// swiftlint:disable missing_empty_line vertical_whitespace let_var_whitespace
+
+		""")
+}
+
+private func generateFooter() {
+	print("""
+		// swiftlint:enable missing_empty_line vertical_whitespace let_var_whitespace
 		""")
 }
 
@@ -382,3 +390,4 @@ for plistPath in plists {
 
 generateProtocol(name: "SMFPlistProtocol", commonKeys: commonKeys, oddKeys: oddKeys, keysAndTypes: keysAndTypes)
 generateEnum(name: "Api", protocolName: "SMFPlistProtocol", plistDicts: plistDicts, keysAndTypes: keysAndTypes, oddKeys: oddKeys)
+generateFooter()
