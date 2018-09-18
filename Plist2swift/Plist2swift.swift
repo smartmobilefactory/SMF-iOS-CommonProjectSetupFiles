@@ -18,7 +18,6 @@ var output: FileHandle? = FileHandle.standardOutput
 
 // MARK: Helper
 
-
 private func usage() {
 	let executableName = URL(fileURLWithPath: CommandLine.arguments[0]).lastPathComponent
 	print("""
@@ -104,13 +103,13 @@ private func generateProtocol(name: String, commonKeys: Set<String>, oddKeys: Se
 	print("\t// Common Keys")
 	for commonKey in commonKeys {
 		guard let type = keysAndTypes[commonKey] else { return }
-		print("\tstatic var \(commonKey.lowercaseFirst()): \(type) { get }")
+		print("\tvar \(commonKey.lowercaseFirst()): \(type) { get }")
 	}
 	if (!oddKeys.isEmpty) {
 		print("\t// Optional Keys")
 		for oddKey in oddKeys {
 			guard let type = keysAndTypes[oddKey] else { return }
-			print("\tstatic var \(oddKey.lowercaseFirst()): \(type)? { get }")
+			print("\tvar \(oddKey.lowercaseFirst()): \(type)? { get }")
 		}
 	}
 	print("}")
@@ -136,7 +135,6 @@ private func generateStructs(name structName: String? = nil, plistDict: Dictiona
 	guard let structName = configName?.appending("Struct") else { return }
 
 	var localKeysAndTypes = keysAndTypes
-	let staticVar = protocolName != nil ? "" : "static"
 
 	if (localKeysAndTypes == nil) {
 		localKeysAndTypes = [:]
@@ -166,21 +164,21 @@ private func generateStructs(name structName: String? = nil, plistDict: Dictiona
 		guard let type = localKeysAndTypes?[key] else { return }
 		switch type {
 		case "String":
-			print("\t\tinternal \(staticVar) let \(key.lowercaseFirst()): \(type) = \"\(value)\"")
+			print("\t\tinternal let \(key.lowercaseFirst()): \(type) = \"\(value)\"")
 		case "Int":
-			print("\t\tinternal \(staticVar) let \(key.lowercaseFirst()): \(type) = \(value)")
+			print("\t\tinternal let \(key.lowercaseFirst()): \(type) = \(value)")
 		case "Bool":
 			let boolString = value.boolValue ? "true" : "false"
-			print("\t\tinternal \(staticVar) let \(key.lowercaseFirst()): \(type) = \(boolString)")
+			print("\t\tinternal let \(key.lowercaseFirst()): \(type) = \(boolString)")
 		case "Array<Any>":
 			let arrayValue = value as! Array<String>
-			print("\t\tinternal \(staticVar) let \(key.lowercaseFirst()): \(type) = \(arrayValue)")
+			print("\t\tinternal let \(key.lowercaseFirst()): \(type) = \(arrayValue)")
 		default:
 			// default is a struct
 			// Generate struct from the Dictionaries and Protocols
 			if (type.contains("Protocol")) {
 				generateStructs(name: key.uppercaseFirst(), plistDict: plistDict[key] as! Dictionary<String, AnyObject>, oddKeys: oddKeys, protocolName: type)
-				print("\t\tinternal static let \(key.lowercaseFirst()): \(type) = \(key.uppercaseFirst().appending("Struct"))()")
+				print("\t\tinternal let \(key.lowercaseFirst()): \(type) = \(key.uppercaseFirst().appending("Struct"))()")
 			}
 		}
 	}
@@ -206,23 +204,23 @@ private func generateExtensions(enumName: String, protocolName: String, plistDic
 		for oddKey in oddKeys {
 			guard let type = keysAndTypes[oddKey] else { return }
 			if (type == "Array<Any>") {
-				print("\tstatic var \(oddKey.lowercaseFirst()): \(type)? {")
+				print("\tvar \(oddKey.lowercaseFirst()): \(type)? {")
 				let returnValue = plistDict[oddKey] as? Array<String>
 				returnValue != nil ? print("\t\treturn \(returnValue!)") : print("\t\treturn nil")
 				print("\t}")
 			} else if (type.contains("Protocol")){
 				guard plistDict[oddKey] != nil else {
-					print("\tstatic var \(oddKey.lowercaseFirst()): \(type)? {")
+					print("\tvar \(oddKey.lowercaseFirst()): \(type)? {")
 					print("\t\treturn nil")
 					print("\t}")
 					continue
 				}
 				generateStructs(name: oddKey.uppercaseFirst(), plistDict: plistDict[oddKey] as! Dictionary<String, AnyObject>, oddKeys: oddKeys, protocolName: type)
-				print("\tstatic var \(oddKey.lowercaseFirst()): \(type)? {")
+				print("\tvar \(oddKey.lowercaseFirst()): \(type)? {")
 				print("\t\treturn \(oddKey.uppercaseFirst().appending("Struct"))()")
 				print("\t}")
 			} else { // String
-				print("\tstatic var \(oddKey.lowercaseFirst()): \(type)? {")
+				print("\tvar \(oddKey.lowercaseFirst()): \(type)? {")
 				let returnValue = plistDict[oddKey] as? String
 				returnValue != nil ? print("\t\treturn \"\(returnValue!)\"") : print("\t\treturn nil")
 				print("\t}")
