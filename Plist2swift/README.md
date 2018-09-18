@@ -9,7 +9,7 @@ Plist2swift generates swift code from given plist files. It will gather keys tha
 
 ### TODO
 
-[ ] Nested Dictionary support
+- [ ] Nested Dictionary support
 
 
 ## Example
