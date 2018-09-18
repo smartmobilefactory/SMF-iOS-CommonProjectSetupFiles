@@ -145,8 +145,10 @@ private func generateStructs(name structName: String? = nil, plistDict: Dictiona
 	}
 
 	var conformingToProtocol: String = ""
+	var tabs: String = ""
 	if (protocolName != nil) {
 		conformingToProtocol = ": ".appending(protocolName!)
+		tabs = "\t"
 	}
 	print("\tinternal struct \(structName)\(conformingToProtocol) {")
 	for (key, value) in plistDict {
@@ -156,21 +158,21 @@ private func generateStructs(name structName: String? = nil, plistDict: Dictiona
 		guard let type = localKeysAndTypes?[key] else { return }
 		switch type {
 		case "String":
-			print("\t\tinternal let \(key.lowercaseFirst()): \(type) = \"\(value)\"")
+			print("\(tabs)\tinternal let \(key.lowercaseFirst()): \(type) = \"\(value)\"")
 		case "Int":
-			print("\t\tinternal let \(key.lowercaseFirst()): \(type) = \(value)")
+			print("\(tabs)\tinternal let \(key.lowercaseFirst()): \(type) = \(value)")
 		case "Bool":
 			let boolString = value.boolValue ? "true" : "false"
-			print("\t\tinternal let \(key.lowercaseFirst()): \(type) = \(boolString)")
+			print("\(tabs)\tinternal let \(key.lowercaseFirst()): \(type) = \(boolString)")
 		case "Array<Any>":
 			let arrayValue = value as! Array<String>
-			print("\t\tinternal let \(key.lowercaseFirst()): \(type) = \(arrayValue)")
+			print("\(tabs)\tinternal let \(key.lowercaseFirst()): \(type) = \(arrayValue)")
 		default:
 			// default is a struct
 			// Generate struct from the Dictionaries and Protocols
 			if (type.contains("Protocol")) {
 				generateStructs(name: key.uppercaseFirst(), plistDict: plistDict[key] as! Dictionary<String, AnyObject>, oddKeys: oddKeys, protocolName: type)
-				print("\t\tinternal let \(key.lowercaseFirst()): \(type) = \(key.uppercaseFirst().appending("Struct"))()")
+				print("\tinternal let \(key.lowercaseFirst()): \(type) = \(key.uppercaseFirst().appending("Struct"))()")
 			}
 		}
 	}
