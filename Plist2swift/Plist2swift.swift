@@ -13,7 +13,7 @@ import Foundation
 
 let configurationKeyName: String = "configurationName"
 var enumName: String = "Api"
-var protocolName: String = "SMFPlistProtocol"
+var protocolName: String = enumName.appending("Protocol")
 var output: FileHandle? = FileHandle.standardOutput
 
 // MARK: Helper
@@ -59,14 +59,6 @@ private func generateHeader() {
 
 		import Foundation
 
-		// swiftlint:disable missing_empty_line vertical_whitespace let_var_whitespace
-
-		""")
-}
-
-private func generateFooter() {
-	print("""
-		// swiftlint:enable missing_empty_line vertical_whitespace let_var_whitespace
 		""")
 }
 
@@ -132,7 +124,7 @@ private func generateStructs(name structName: String? = nil, plistDict: Dictiona
 	if (configName == nil && structName != nil) {
 		configName = structName?.uppercaseFirst()
 	}
-	guard let structName = configName?.appending("Struct") else { return }
+	guard let structName = configName?.appending("Struct").uppercaseFirst() else { return }
 
 	var localKeysAndTypes = keysAndTypes
 
@@ -199,7 +191,7 @@ Generates extensions to structs, conforming to protocol
 private func generateExtensions(enumName: String, protocolName: String, plistDicts: Array<Dictionary<String, AnyObject>>, keysAndTypes: Dictionary<String, String>, oddKeys: Set<String>) {
 	for plistDict in plistDicts {
 		guard let caseName = plistDict[configurationKeyName] as? String else { return }
-		let structName = caseName.appending("Struct")
+		let structName = caseName.appending("Struct").uppercaseFirst()
 		print("extension \(enumName).\(structName): \(protocolName) {")
 		for oddKey in oddKeys {
 			guard let type = keysAndTypes[oddKey] else { return }
@@ -217,7 +209,7 @@ private func generateExtensions(enumName: String, protocolName: String, plistDic
 				}
 				generateStructs(name: oddKey.uppercaseFirst(), plistDict: plistDict[oddKey] as! Dictionary<String, AnyObject>, oddKeys: oddKeys, protocolName: type)
 				print("\tvar \(oddKey.lowercaseFirst()): \(type)? {")
-				print("\t\treturn \(oddKey.uppercaseFirst().appending("Struct"))()")
+				print("\t\treturn \(oddKey.uppercaseFirst().appending("Struct").uppercaseFirst())()")
 				print("\t}")
 			} else { // String
 				print("\tvar \(oddKey.lowercaseFirst()): \(type)? {")
@@ -257,8 +249,9 @@ private func generateEnum(name enumName: String, protocolName: String, plistDict
 			\tswitch self {
 		""")
 	for caseName in cases {
+		let structName = caseName.appending("Struct()").uppercaseFirst()
 		print("\t\tcase .\(caseName.lowercased()):")
-		print("\t\t\treturn \(caseName)Struct()")
+		print("\t\t\treturn \(structName)")
 	}
 	print("\t\t}")
 	print("\t}")
@@ -388,4 +381,3 @@ for plistPath in plists {
 
 generateProtocol(name: protocolName, commonKeys: commonKeys, oddKeys: oddKeys, keysAndTypes: keysAndTypes)
 generateEnum(name: enumName, protocolName: protocolName, plistDicts: plistDicts, keysAndTypes: keysAndTypes, oddKeys: oddKeys)
-generateFooter()
