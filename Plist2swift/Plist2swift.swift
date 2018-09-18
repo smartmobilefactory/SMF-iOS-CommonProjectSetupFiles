@@ -112,7 +112,7 @@ private func generateProtocol(name: String, commonKeys: Set<String>, oddKeys: Se
 Generate structs out of Dictionaries and make them conform to a given protocol.
 
 - Parameters:
-   - name: Name of the struct. "Struct" suffix will be appended automatically; Default is 'nil' - the configurationName key will be used to generate the name
+   - name: Name of the struct. Default is 'nil' - the configurationName key will be used to generate the name
    - plistDict: Dictionary created from .plist
    - keysAndTypes: Map with keys and their types; Default is 'nil' - A new protocol will be created, the generated struct will conform to this new protocol
    - oddKeys: Keys to generate Optional properties from
@@ -124,7 +124,8 @@ private func generateStructs(name structName: String? = nil, plistDict: Dictiona
 	if (configName == nil && structName != nil) {
 		configName = structName?.uppercaseFirst()
 	}
-	guard let structName = configName?.appending("Struct").uppercaseFirst() else { return }
+	guard var structName = configName else { return }
+	structName = structName.uppercaseFirst()
 
 	var localKeysAndTypes = keysAndTypes
 
@@ -172,7 +173,7 @@ private func generateStructs(name structName: String? = nil, plistDict: Dictiona
 			// Generate struct from the Dictionaries and Protocols
 			if (type.contains("Protocol")) {
 				generateStructs(name: key.uppercaseFirst(), plistDict: plistDict[key] as! Dictionary<String, AnyObject>, oddKeys: oddKeys, protocolName: type)
-				print("\tinternal let \(key.lowercaseFirst()): \(type) = \(key.uppercaseFirst().appending("Struct"))()")
+				print("\tinternal let \(key.lowercaseFirst()): \(type) = \(key.uppercaseFirst())()")
 			}
 		}
 	}
@@ -193,7 +194,7 @@ Generates extensions to structs, conforming to protocol
 private func generateExtensions(enumName: String, protocolName: String, plistDicts: Array<Dictionary<String, AnyObject>>, keysAndTypes: Dictionary<String, String>, oddKeys: Set<String>) {
 	for plistDict in plistDicts {
 		guard let caseName = plistDict[configurationKeyName] as? String else { return }
-		let structName = caseName.appending("Struct").uppercaseFirst()
+		let structName = caseName.uppercaseFirst()
 		print("extension \(enumName).\(structName): \(protocolName) {")
 		for oddKey in oddKeys {
 			guard let type = keysAndTypes[oddKey] else { return }
@@ -211,7 +212,7 @@ private func generateExtensions(enumName: String, protocolName: String, plistDic
 				}
 				generateStructs(name: oddKey.uppercaseFirst(), plistDict: plistDict[oddKey] as! Dictionary<String, AnyObject>, oddKeys: oddKeys, protocolName: type)
 				print("\tvar \(oddKey.lowercaseFirst()): \(type)? {")
-				print("\t\treturn \(oddKey.uppercaseFirst().appending("Struct").uppercaseFirst())()")
+				print("\t\treturn \(oddKey.uppercaseFirst())()")
 				print("\t}")
 			} else { // String
 				print("\tvar \(oddKey.lowercaseFirst()): \(type)? {")
@@ -251,9 +252,9 @@ private func generateEnum(name enumName: String, protocolName: String, plistDict
 			\tswitch self {
 		""")
 	for caseName in cases {
-		let structName = caseName.appending("Struct()").uppercaseFirst()
+		let structName = caseName.uppercaseFirst()
 		print("\t\tcase .\(caseName.lowercased()):")
-		print("\t\t\treturn \(structName)")
+		print("\t\t\treturn \(structName)()")
 	}
 	print("\t\t}")
 	print("\t}")
