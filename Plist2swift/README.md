@@ -10,13 +10,14 @@ Plist2swift generates swift code from given plist files. It will gather keys tha
 ### TODO
 
 - [ ] Nested Dictionary support
+- [x] CLI arguments
 
 
 ## Example
 
 Given plist A and plist B, we can generate swift code like so:
 
-`swift Plist2swift.swift A.plist B.plist`
+`swift Plist2swift.swift -e Api A.plist B.plist`
 
 Now let's take a look into the plists and the generated code.
 

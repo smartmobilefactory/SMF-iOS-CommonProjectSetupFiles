@@ -12,8 +12,6 @@ import Foundation
 // MARK: Defaults
 
 let configurationKeyName: String = "configurationName"
-var enumName: String = "Api"
-var protocolName: String = enumName.appending("Protocol")
 var output: FileHandle? = FileHandle.standardOutput
 
 // MARK: Helper
@@ -23,9 +21,10 @@ private func usage() {
 	print("""
 		plist2swift code generator
 
-		Usage: \(executableName) plist1 plist2 ...
+		Usage: \(executableName) -e enumName [-o outputFile] plist1 plist2 ...
 
-		i.e. \(executableName) /path/to/production-configuration.plist /path/to/development-configuration.plist > generated.swift
+		i.e. \(executableName) -e Api /path/to/production-configuration.plist /path/to/development-configuration.plist > generated.swift
+		i.e. \(executableName) -e Api -o generated.swift /path/to/production-configuration.plist /path/to/development-configuration.plist
 	""")
 	exit(1)
 }
@@ -325,21 +324,43 @@ extension String {
 
 //output = FileHandle(forWritingAtPath: "/Users/bartosz/plist2swift.swift")
 
-if (CommandLine.arguments.count < 2) {
+let args = CommandLine.arguments
+var plists: [String] = []
+var enumName: String = ""
+
+if (args.count < 4) {
 	usage()
 }
 
-let shouldGenerateOddKeys: Bool = CommandLine.arguments.count >= 3
+if (args.count >= 6 && args[1] == "-e" && args[3] == "-o") {
+	enumName = args[2]
+	let fileManager = FileManager.default
+	if (!fileManager.fileExists(atPath: args[4])) {
+		fileManager.createFile(atPath: args[4], contents: nil, attributes: nil)
+	}
+	output = FileHandle(forWritingAtPath: args[4])
 
-var plists: [String] = []
+	for i in 5...args.count-1 {
+		plists.append(args[i])
+	}
+} else if (args.count >= 4 && args[1] == "-e") {
+	enumName = args[2]
+
+	for i in 3...args.count-1 {
+		plists.append(args[i])
+	}
+} else {
+	usage()
+}
+
+let shouldGenerateOddKeys: Bool = CommandLine.arguments.count >= 5
+
 var commonKeys: Set<String> = Set()
 var oddKeys: Set<String> = Set()
 var keysAndTypes: [String:String] = [:]
 var plistDicts: [Dictionary<String, AnyObject>] = []
+var protocolName: String = enumName.appending("Protocol")
 
-for i in 1...CommandLine.arguments.count-1 {
-	plists.append(CommandLine.arguments[i])
-}
 
 generateHeader()
 
