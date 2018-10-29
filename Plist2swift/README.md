@@ -12,6 +12,17 @@ Plist2swift generates swift code from given plist files. It will gather keys tha
 - [ ] Nested Dictionary support
 - [x] CLI arguments
 
+### Important
+
+When you update the code, please also recompile the binary, as it's used in some project in a build phase.
+
+You can use the following commands to achieve this quickly:
+
+```
+$ swiftc -Osize -o Plist2swift Plist2swift.swift 
+$ strip Plist2swift
+```
+
 
 ## Example
 
