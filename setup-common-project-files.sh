@@ -16,6 +16,7 @@ readonly noCodeClimateFlag="--no-codeclimate"
 readonly noXcodeCheck="--no-xcodecheck"
 readonly buildConfigurationFlag="--buildconfig"
 readonly targetTypeFlag="--targettype"
+readonly breakingInternalFrameworkVersioningFlag="--use-breaking-internal-framework-versioning"
 
 readonly scriptBaseFolderPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -24,6 +25,7 @@ readonly scriptBaseFolderPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 #
 
 isFramework=false
+useBreakingInternalFrameworkVersioning=false
 copyPRTemplate=true
 callSwiftlint=true
 callCodebeat=true
@@ -38,10 +40,11 @@ isDebugConfiguration=false
 
 function display_usage () {
 	echo "This script performs all common project setup scripts by default. You can optionally pass the projects base directory path as argument. Exceptions can be declared with the flags:"
-	echo -e "$noSwiftlintFlag\t\t- Don't run swiftlint"
-	echo -e "$noPRTemplateCopyFlag\t- Don't copy the GitHub PR Template file"
-	echo -e "$noCodebeatFlag\t\t- Don't copy the default SMF codebeat configuration"
-	echo -e "$noCodeClimateFlag\t\t- Don't copy the default SMF Code Climate configuration"
+	echo -e "$noSwiftlintFlag\t\t\t\t- Don't run swiftlint"
+	echo -e "$noPRTemplateCopyFlag\t\t\t- Don't copy the GitHub PR Template file"
+	echo -e "$noCodebeatFlag\t\t\t\t- Don't copy the default SMF codebeat configuration"
+	echo -e "$noCodeClimateFlag\t\t\t- Don't copy the default SMF Code Climate configuration"
+	echo -e "$breakingInternalFrameworkVersioningFlag\t -Use the \"BreakingInternal framework versioning system\" (only for frameworks)"
 	echo -e "\nUsage:\n$ $0 $noCodebeatFlag"
 	echo -e "or:\n$ $0 $noCodebeatFlag /Code/Project/Test"
 }
@@ -82,6 +85,11 @@ while test $# -gt 0; do
 			;;
 		$noCodebeatFlag)
 			callCodebeat=false
+			shift
+			# break
+			;;
+		$breakingInternalFrameworkVersioningFlag)
+			useBreakingInternalFrameworkVersioning=true
 			shift
 			# break
 			;;
@@ -131,7 +139,11 @@ if [ $copyPRTemplate = true ]; then
 	mkdir -p "$projectDir/.github"
 
 	if [ $isFramework = true ]; then
-		cp "./Github/PR-Template-Framework.md" "$projectDir/.github/PULL_REQUEST_TEMPLATE.md" || exit 1;
+		if [ $useBreakingInternalFrameworkVersioning = true ]; then
+			cp "./Github/PR-Template-Framework-BreakingInternal-Versioning.md" "$projectDir/.github/PULL_REQUEST_TEMPLATE.md" || exit 1;
+		else
+			cp "./Github/PR-Template-Framework.md" "$projectDir/.github/PULL_REQUEST_TEMPLATE.md" || exit 1;
+		fi
 		exit 0
 	fi
 
