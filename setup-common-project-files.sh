@@ -16,7 +16,7 @@ readonly noCodeClimateFlag="--no-codeclimate"
 readonly noXcodeCheck="--no-xcodecheck"
 readonly buildConfigurationFlag="--buildconfig"
 readonly targetTypeFlag="--targettype"
-readonly breakingInternalFrameworkVersioningFlag="--breaking-internal-framework-versioning"
+readonly breakingInternalFrameworkVersioningFlag="--use-breaking-internal-framework-versioning"
 
 readonly scriptBaseFolderPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
