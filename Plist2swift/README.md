@@ -19,7 +19,7 @@ When you update the code, please also recompile the binary, as it's used in some
 You can use the following commands to achieve this quickly:
 
 ```
-$ swiftc -Osize -o Plist2swift Plist2swift.swift 
+$ swiftc -static-stdlib -Osize -o Plist2swift Plist2swift.swift 
 $ strip Plist2swift
 ```
 
