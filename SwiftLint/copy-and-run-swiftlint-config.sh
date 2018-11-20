@@ -96,7 +96,11 @@ rm "$temporarySwiftLintConfigFilename"
 
 cd "$projectDir"
 
-SWIFTLINT_EXECUTABLE="$projectDir/Pods/SwiftLint/swiftlint"
+if [ -e "$projectDir/Pods/SwiftLint" ]; then
+	echo "warning: SwiftLint should not be added as Pod, as it is already located in the submodules folder"
+fi
+
+SWIFTLINT_EXECUTABLE="$scriptBaseFolderPath/portable_swiftlint/swiftlint"
 
 if [ -f "$SWIFTLINT_EXECUTABLE" ]; then
 	"$SWIFTLINT_EXECUTABLE"
