@@ -97,7 +97,7 @@ rm "$temporarySwiftLintConfigFilename"
 cd "$projectDir"
 
 if [ -e "$projectDir/Pods/SwiftLint" ]; then
-	echo "warning: SwiftLint should not be added as Pod, as it is already located in the submodules folder"
+	echo "warning: SwiftLint should not be added as Pod, as it is already located in SMF-iOS-CommonProjectSetupFiles"
 fi
 
 SWIFTLINT_EXECUTABLE="$scriptBaseFolderPath/portable_swiftlint/swiftlint"
