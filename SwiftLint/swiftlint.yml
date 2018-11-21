@@ -52,7 +52,6 @@ opt_in_rules:
   - legacy_random
   - identical_operands
   - collection_alignment
-  - static_operator
   - empty_xctest_method
 
 # rule parameters
