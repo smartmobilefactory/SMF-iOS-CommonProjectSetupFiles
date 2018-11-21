@@ -136,10 +136,9 @@ BuglifeSDK.setup(withOption: .screenshot)
 
 ## Scripts to be called during Build phase
 
-###SwiftLint (in DEBUG configuration only)
+###SwiftLint
 
-Swiftlint should be integrated via cocoapods.
-If for whatever reason this is not the case the scripts try to execute a local version of swiftlint.
+Swiftlint is integrated in SMF-iOS-CommonProjectSetupFiles itself. The current version is 0.28.1.
 
 ### Integrate it into the project
 
