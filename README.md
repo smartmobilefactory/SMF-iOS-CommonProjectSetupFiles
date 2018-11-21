@@ -138,8 +138,7 @@ BuglifeSDK.setup(withOption: .screenshot)
 
 ###SwiftLint
 
-Swiftlint is integrated as submodule.
-Current version: 0.28.1
+Swiftlint is integrated in SMF-iOS-CommonProjectSetupFiles itself. The current version is 0.28.1.
 
 ### Integrate it into the project
 
