@@ -49,6 +49,11 @@ opt_in_rules:
   - required_enum_case
   - private_action
   - yoda_condition
+  - legacy_random
+  - identical_operands
+  - collection_alignment
+  - static_operator
+  - empty_xctest_method
 
 # rule parameters
 file_length:
