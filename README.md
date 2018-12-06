@@ -9,6 +9,7 @@ Helpers which can be added manually to the Xcode project which should be used:
 
 - [HockeySDK.swift](#hockeyapp-sdk)
 - [BuglifeSDK.swift](#buglife-sdk)
+- [LifetimeTrackerSDK](#lifetimetracker-sdk)
 
 Scripts which should be called during the build phase:
 
@@ -133,6 +134,20 @@ If you want to use a diferent `LIFEInvocationOptions` (the default is `.shake`) 
 ```
 BuglifeSDK.setup(withOption: .screenshot)
 ```
+
+### LifetimeTracker-SDK
+
+This repo contains the `LifetimeTracker-SDK` helper struct and SMF base view controllers. Together with a custom protocol - which duplicates the LifetimeTracker configuration without exposing any LifetimeTracker type - the base view controller and setup can be added to a project even if LifetimeTracker is not part of the project.
+
+Multiple `#if canImport(LifetimeTracker)` checks make sure that targets with LifetimeTracker are using it and that other targets work as well without any code changes.
+
+### Integrate it into the project
+
+- Add the folder `LifetimeTracker` to all targets
+- Call `LifetimeTrackerSDK.setup()` in the app delegate
+- Use the base view controllers as parent for all of your view controllers
+- Use the LifetimeTracker Pod in the targets you want to
+
 
 ## Scripts to be called during Build phase
 
