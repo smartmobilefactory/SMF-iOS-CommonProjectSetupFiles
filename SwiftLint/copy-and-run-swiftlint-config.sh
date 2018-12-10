@@ -28,7 +28,45 @@ if [  -z "$1" ]; then
    	projectDir="$scriptBaseFolderPath"
 fi
 
+# Contains the local SwiftLint settings (.project-swiftlint.yml). Global so we dont read it multiple times.
+declare -a local_lines
+
+# File to array keeping newlines.
+function read_local_settings() {
+	let i=0
+	while IFS=$'\n' read -r -a line_data; do
+   		local_lines[i]="${line_data}"
+		((++i))
+	done < $1
+}
+
+# Write the desired section of extra settings to the temporary file.
+function write_local_settings() {
+	# Variable which is true if we are in the excluded section
+	local is_in_matched_section=false
+	
+	# Section to look for
+	local matched_section=$1
+	
+	for project_line in "${local_lines[@]}"; do
+		# Determine if we are in the excluded section
+		if [[ "$project_line" == "$matched_section" ]]; then
+			is_in_matched_section=true
+			continue
+		elif [[ "$project_line" =~ (^$) ]]; then
+			is_in_matched_section=false
+		fi
+
+		# Copy the excluded path line if we are in the excluded section
+		if $is_in_matched_section; then
+			echo "$project_line" >> "$temporarySwiftLintConfigFilename"
+		fi
+	done
+}
+
 function merge_commons_with_project_excluded_paths () {
+
+	read_local_settings "$projectDir/.project-swiftlint.yml"
 
 	# Create the temporary file which will contain the merge from the commons and the projects swiftlint configuration
 	touch "$temporarySwiftLintConfigFilename"
@@ -37,28 +75,9 @@ function merge_commons_with_project_excluded_paths () {
 	while IFS= read -r global_line; do
 		# Copy the line first as this allows the script to directly copy the project depened paths if the excluded sections start was found
 		echo "$global_line" >> "$temporarySwiftLintConfigFilename"
-		if [[ "$global_line" =~ (^excluded:) ]]; then
-			# Variable which is true if we are in the excluded section
-		    local is_in_excluded_section=false
-
-			# Read the project dependend SwiftLint configuration file
-		    while IFS= read -r project_line; do
-		    	# Determine if we are in the excluded section
-				if [[ "$project_line" =~ (^excluded:) ]]; then
-					is_in_excluded_section=true
-					continue
-				elif [[ "$project_line" =~ (^$) ]]; then
-					is_in_excluded_section=false
-				fi
-
-				# Copy the excluded path line if we are in the excluded section
-				if $is_in_excluded_section; then
-					echo "$project_line" >> "$temporarySwiftLintConfigFilename"
-				fi
-
-			done < "$projectDir/.project-swiftlint.yml"
+		if ([[ "$global_line" =~ (^excluded:) ]] || [[ "$global_line" =~ (^disabled_rules:) ]]) then
+			write_local_settings "$global_line"
 		fi
-
 	done < "swiftlint.yml"
 
 	return 0
