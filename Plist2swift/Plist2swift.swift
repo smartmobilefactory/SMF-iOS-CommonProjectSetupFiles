@@ -51,14 +51,16 @@ Given path to .plist file, it returns a sorted array of tuples
 
 - Parameter fromPath: Path to the .plist file
 
-- Returns: sorted array of tuples of type (key: String, value: AnyObject)
+- Returns: sorted array of tuples of type (key: String, value: Any)
 */
 private func readPlist(fromPath: String) -> KeyValueTuples? {
 	var format = PropertyListSerialization.PropertyListFormat.xml
 
 	guard
 		let plistData = FileManager.default.contents(atPath: fromPath),
-		let plistDict = try! PropertyListSerialization.propertyList(from: plistData, options: .mutableContainersAndLeaves, format: &format) as? [String: AnyObject] else { return nil }
+		let plistDict = try! PropertyListSerialization.propertyList(from: plistData, options: .mutableContainersAndLeaves, format: &format) as? [String: Any] else {
+			return nil
+	}
 
 	let tupleArray = plistDict.sorted { (pairOne, pairTwo) -> Bool in
 		return pairOne.key < pairTwo.key
@@ -96,7 +98,7 @@ private func generateProtocol(name: String, tuples: KeyValueTuples) -> String {
 	intend()
 
 	for tuple in tuples.tuples {
-		let type = typeForValue(tuple.value as AnyObject)
+		let type = typeForValue(tuple.value as Any)
 		print("\(tabs())var \(tuple.key.lowercaseFirst()): \(type) { get }")
 	}
 
@@ -186,7 +188,7 @@ private func generateStructs(name structName: String? = nil, tuples: KeyValueTup
 					let dictionary = tuples[key] as? Dictionary<String, Any>
 					let sortedDictionary = dictionary?.sorted { (pairOne, pairTwo) -> Bool in
 						return pairOne.key < pairTwo.key
-					} as? [(key: String, value: AnyObject)]
+					}
 
 					let protocolName = generateProtocol(name: key.uppercaseFirst(), tuples: KeyValueTuples(tuples: sortedDictionary ?? []))
 					// override type with new protocol
@@ -224,7 +226,7 @@ private func generateStructs(name structName: String? = nil, tuples: KeyValueTup
 		case "Int":
 			print("\(tabs())internal let \(key.lowercaseFirst()): \(type) = \(value)")
 		case "Bool":
-			let boolString = value.boolValue ? "true" : "false"
+			let boolString = (((value as? Bool) == true) ? "true" : "false")
 			print("\(tabs())internal let \(key.lowercaseFirst()): \(type) = \(boolString)")
 		case "Array<Any>":
 			let arrayValue = value as! Array<String>
@@ -236,7 +238,7 @@ private func generateStructs(name structName: String? = nil, tuples: KeyValueTup
 				let dictionary = tuples[key] as? Dictionary<String, Any>
 				let sortedDictionary = dictionary?.sorted { (pairOne, pairTwo) -> Bool in
 					return pairOne.key < pairTwo.key
-				} as? [(key: String, value: AnyObject)]
+				}
 
 				generateStructs(name: key.uppercaseFirst(), tuples: KeyValueTuples(tuples: sortedDictionary ?? []), oddKeys: oddKeys, protocolName: type)
 
@@ -244,7 +246,7 @@ private func generateStructs(name structName: String? = nil, tuples: KeyValueTup
 			}
 		}
 	}
-	print("\(tabs(intendBy: -1))}")
+	print("\(tabs(intendBy: -1))}\n")
 }
 
 /**
@@ -278,8 +280,10 @@ private func generateExtensions(enumName: String, protocolName: String, allTuple
 
 			if (type == "Array<Any>") {
 				print("\(tabs())var \(oddKey.lowercaseFirst()): \(type)? {")
+
 				let returnValue = tuples[oddKey] as? Array<String>
-				returnValue != nil ? print("\(tabs())return \(returnValue!)") : print("\t\treturn nil")
+
+				((returnValue != nil) ? print("\(tabs())return \(returnValue!)") : print("\t\treturn nil"))
 				print("\(tabs())}")
 			} else if (type.contains("Protocol")){
 				guard tuples[oddKey] != nil else {
@@ -292,7 +296,7 @@ private func generateExtensions(enumName: String, protocolName: String, allTuple
 				let dictionary = tuples[oddKey] as? Dictionary<String, Any>
 				let sortedDictionary = dictionary?.sorted { (pairOne, pairTwo) -> Bool in
 					return pairOne.key < pairTwo.key
-				} as? [(key: String, value: AnyObject)]
+				}
 
 				generateStructs(name: oddKey.uppercaseFirst(), tuples: KeyValueTuples(tuples: sortedDictionary ?? []), oddKeys: oddKeys, protocolName: type)
 				print("\(tabs())var \(oddKey.lowercaseFirst()): \(type)? {")
@@ -331,7 +335,7 @@ private func generateEnum(name enumName: String, protocolName: String, allTuples
 	intend()
 
 	for caseName in cases {
-		print("\(tabs())case \(caseName.lowercased())")
+		print("\(tabs())case \(caseName.lowercaseFirst())")
 	}
 
 	for tuples in allTuples {
@@ -339,7 +343,6 @@ private func generateEnum(name enumName: String, protocolName: String, allTuples
 	}
 
 	print("""
-
 		\(tabs())var configuration: \(protocolName) {
 
 		\(tabs(intendBy: 1))switch self {
@@ -347,7 +350,7 @@ private func generateEnum(name enumName: String, protocolName: String, allTuples
 
 	for caseName in cases {
 		let structName = caseName.uppercaseFirst()
-		print("\(tabs())case .\(caseName.lowercased()):")
+		print("\(tabs())case .\(caseName.lowercaseFirst()):")
 		print("\(tabs())\treturn \(structName)()")
 	}
 
@@ -364,7 +367,7 @@ Map the type of a value to its string representation
 
 - Returns: String that reflects the type of given value
 */
-private func typeForValue(_ value: AnyObject) -> String {
+private func typeForValue(_ value: Any) -> String {
 	switch value {
 	case is String:
 		return "String"
@@ -427,23 +430,23 @@ extension String {
 
 class KeyValueTuples {
 
-	var tuples: [(key: String, value: AnyObject)]
+	var tuples: [(key: String, value: Any)]
 
 	var keys: [String] {
-		let keys = self.tuples.map { (tuple: (key: String, value: AnyObject)) in
+		let keys = self.tuples.map { (tuple: (key: String, value: Any)) in
 			return tuple.key
 		}
 
 		return keys
 	}
 
-	init(tuples: [(key: String, value: AnyObject)]) {
+	init(tuples: [(key: String, value: Any)]) {
 		self.tuples = tuples
 	}
 
-	subscript(_ key: String) -> AnyObject? {
+	subscript(_ key: String) -> Any? {
 		get {
-			let tuple = self.tuples.first { (tuple: (key: String, value: AnyObject)) -> Bool in
+			let tuple = self.tuples.first { (tuple: (key: String, value: Any)) -> Bool in
 				return tuple.key == key
 			}
 
@@ -453,8 +456,6 @@ class KeyValueTuples {
 }
 
 // MARK: Main
-
-//output = FileHandle(forWritingAtPath: "/Users/bartosz/plist2swift.swift")
 
 let args = CommandLine.arguments
 var plists: [String] = []
@@ -534,7 +535,7 @@ for plistPath in plists {
 				let dictionary = tuples[key] as? Dictionary<String, Any>
 				let sortedDictionary = dictionary?.sorted { (pairOne, pairTwo) -> Bool in
 					return pairOne.key < pairTwo.key
-					} as? [(key: String, value: AnyObject)]
+				}
 
 				let protocolName = generateProtocol(name: key.uppercaseFirst(), tuples: KeyValueTuples(tuples: sortedDictionary ?? []))
 				// override type with new protocol
