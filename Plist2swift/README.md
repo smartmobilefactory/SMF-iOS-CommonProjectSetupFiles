@@ -23,6 +23,8 @@ $ swiftc -static-stdlib -Osize -o Plist2swift Plist2swift.swift
 $ strip Plist2swift
 ```
 
+or use `$ sh build.sh` to generate the binary.
+
 
 ## Example
 
