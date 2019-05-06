@@ -17,6 +17,7 @@ readonly noXcodeCheck="--no-xcodecheck"
 readonly buildConfigurationFlag="--buildconfig"
 readonly targetTypeFlag="--targettype"
 readonly breakingInternalFrameworkVersioningFlag="--use-breaking-internal-framework-versioning"
+readonly enableIblinter="--iblinter"
 
 readonly scriptBaseFolderPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -28,6 +29,7 @@ isFramework=false
 useBreakingInternalFrameworkVersioning=false
 copyPRTemplate=true
 callSwiftlint=true
+callIBLinter=false
 callCodebeat=true
 callCodeClimate=true
 checkXcodeVersion=true
@@ -41,6 +43,7 @@ isDebugConfiguration=false
 function display_usage () {
 	echo "This script performs all common project setup scripts by default. You can optionally pass the projects base directory path as argument. Exceptions can be declared with the flags:"
 	echo -e "$noSwiftlintFlag\t\t\t\t- Don't run swiftlint"
+	echo -e "$enableIblinter\t\t\t\t- Run IBLinter"
 	echo -e "$noPRTemplateCopyFlag\t\t\t- Don't copy the GitHub PR Template file"
 	echo -e "$noCodebeatFlag\t\t\t\t- Don't copy the default SMF codebeat configuration"
 	echo -e "$noCodeClimateFlag\t\t\t- Don't copy the default SMF Code Climate configuration"
@@ -75,6 +78,11 @@ while test $# -gt 0; do
 			;;
 		$noSwiftlintFlag)
 			callSwiftlint=false
+			shift
+			# break
+			;;
+		$enableIblinter)
+			callIBLinter=true
 			shift
 			# break
 			;;
@@ -124,6 +132,10 @@ cd "$scriptBaseFolderPath"
 
 if [ $callSwiftlint = true ]; then
 	./SwiftLint/copy-and-run-swiftlint-config.sh "$projectDir" $isFramework || exit 1;
+fi
+
+if [ $callIBLinter = true ]; then
+	./IBLinter/copy-and-run-iblinter-config.sh "$projectDir" $isFramework || exit 1;
 fi
 
 if [ $callCodebeat = true ]; then

@@ -1,0 +1,17 @@
+enabled_rules:
+  - relative_to_margin
+  - misplaced
+  - enable_autolayout
+  - duplicate_constraint
+  - font_size
+  - control_size
+  - null_label
+  - large_storyboards
+  - ambiguous
+disabled_rules:
+  - custom_class_name
+  - storyboard_viewcontroller_id
+  - image_resources
+  - custom_module
+  - use_base_class
+  - view_as_device
