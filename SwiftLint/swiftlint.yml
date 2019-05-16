@@ -152,9 +152,9 @@ custom_rules:
       - comment
       - doccomment
       - doccomment.field
-  unnecessary_empty_type:
-    name: "Unnecessary empty type"
-    regex: 'case.*\(_\):'
+  unnecessary_empty_type_in_case:
+    name: "Unnecessary empty type in case"
+    regex: '\(_\):'
     message: "Unnecessary empty type in case. Remove '(_)' from case"
     severity: warning
   comments_capitalized_ignore_possible_code:
