@@ -152,6 +152,11 @@ custom_rules:
       - comment
       - doccomment
       - doccomment.field
+  unnecessary_empty_type:
+    name: "Unnecessary empty type"
+    regex: 'case.*\(_\):'
+    message: "Unnecessary empty type in case. Remove '(_)' from case"
+    severity: warning
   comments_capitalized_ignore_possible_code:
     name: "Capitalize First Word In Comment"
     regex: '(// +(?!swiftlint)[a-z]+)'
