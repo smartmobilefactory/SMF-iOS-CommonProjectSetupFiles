@@ -27,7 +27,6 @@ or use `$ sh build.sh` to generate the binary.
 
 
 ## Example
----
 
 Given plist A and plist B, we can generate swift code like so:
 
@@ -255,7 +254,6 @@ Completely Private nil
 
 
 ## Migration
----
 
 1. [PList preparation](#plist-preparation)
 2. [Generate swift files](#generate-swift-files)
