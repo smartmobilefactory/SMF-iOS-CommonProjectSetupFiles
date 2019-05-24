@@ -311,5 +311,5 @@ Built the project to generate Swift files
 ### Clean up
 
 After adding generated files and building successfully (files are not added to project automatically)
-- Remove Member Targetmemberships from PLists
+- Remove Member Target memberships from PLists
 - Add generated .ignore.swift to .gitignore
