@@ -251,3 +251,65 @@ uwrhfiusdbfvjhdsvhgavcayrtwdcatydfawufgla
 ascgsduycgauwygfuicblzsivclaweucvgalwc
 Completely Private nil
 ```
+
+
+## Migration
+
+1. [PList preparation](#plist-preparation)
+2. [Generate swift files](#generate-swift-files)
+3. [Clean up](#clean-up)
+
+### PList preparation
+
+- Make sure your PList top level is a dictionary
+- Strings need to be properly escaped to be generated
+- Dictionary names need to be unique 
+- Add a new row with key **configurationName** (string value needs to be unique when combining multiple PLists)
+
+```
+<dict>
+	...
+
+	<key>configurationName</key>
+	<string>EnumCaseName</string>
+
+	<key>UniqueDictionaryKey</key>
+	<dict>
+		<key>ProperlyEscapedString</key>
+		<String>{String: \"ABC\"}</String>
+	</dict>
+
+	...
+</dict>
+```
+
+### Generate swift files
+
+Call the PList2Swift script directly from a Xcode script phase or from a seperate bash script.
+
+**If your target embeds app extensions:** To prevent cycling targets the Xcode phase script has to be placed in the target that is built last
+
+bash script example:
+```
+"${SRCROOT}/Submodules/SMF-iOS-CommonProjectSetupFiles/Plist2swift/Plist2swift" -e EnumName -o "${SRCROOT}/../FileName.generated.swift" "${SRCROOT}/../A.plist" "${SRCROOT}/../B.plist"
+```
+
+**Workaround for Xcode 10’s parallel build system, see** https://github.com/mac-cain13/R.swift/issues/456#issuecomment-426344064
+
+Add following code for every generated file to your Xcode script phase
+```
+echo "\n" > "${SRCROOT}/../FileName.ignore.swift"
+```
+
+And add the file paths in Input Files and OutputFiles
+
+- For Input Files: ${SRCROOT}/../FileName.ignore.swift
+- For Output Files: ${SRCROOT}/../FileName.generated.swift
+
+Built the project to generate Swift files
+
+### Clean up
+
+After adding generated files and building successfully (files are not added to project automatically)
+- Remove Member Target memberships from PLists
+- Add generated .ignore.swift to .gitignore
