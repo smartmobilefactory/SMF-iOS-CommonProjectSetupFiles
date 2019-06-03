@@ -1,6 +1,6 @@
 ###
 # Swiftlint configuration file.
-# Latest version supported: 0.28.1
+# Latest version supported: 0.33.0
 # Any newer version hasn't been checked yet and might not follow the style guide.
 ###
 
@@ -14,6 +14,7 @@ disabled_rules:
   - vertical_parameter_alignment
   - switch_case_alignment
   - empty_enum_arguments # case .unexpectedSituation(_): ... is not allowed
+  - duplicate_enum_cases
 
 # paths to ignore during linting. overridden by `included`.
 excluded:
