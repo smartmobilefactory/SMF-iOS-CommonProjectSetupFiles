@@ -8,6 +8,7 @@ This Repo contains our common project setup files.
 Helpers which can be added manually to the Xcode project which should be used:
 
 - [HockeySDK.swift](#hockeyapp-sdk)
+- [SentrySDK.swift](#sentry-sdk)
 - [BuglifeSDK.swift](#buglife-sdk)
 - [LifetimeTrackerSDK](#lifetimetracker-sdk)
 
@@ -47,6 +48,10 @@ If you want to add more parameters, eg. to disable SwiftLint, you have to add th
 ### HockeyApp-SDK
 
 This repo contains the `HockeySDK` helper struct which takes care of the default HockeyApp SDK setup. The SDK will be initialized with the App ID and the Crash Manager started.
+
+### Sentry-SDK
+
+This repo contains the `SentrySKD` (plus the SMFLogger variant) helper struct which takes care of the default Sentry SDK setup. The SDK will be initialized with the Sentry DSN (in the info.plist).
 
 #### Integrate the HockeyApp SDK
 To use the HockeySDK.swift helper struct you have to manually add the HockeyApp SDK to your project first. Use the preferred way to do this - at this time it's [CocoaPods](https://cocoapods.org).
