@@ -41,10 +41,10 @@ class SentrySDK: NSObject {
 	static func setup(configuration: SentrySDK.Configuration) {
 
 		// Make sure SentrySDK is not setup in a debug build
-//		guard (self.isDebugBuild == false) else {
-//			// Configure SentrySDK only for non debug builds or if the exception flag is set to true
-//			return
-//		}
+		guard (self.isDebugBuild == false) else {
+			// Configure SentrySDK only for non debug builds or if the exception flag is set to true
+			return
+		}
 
 		let instance = (self.shared ?? SentrySDK())
 
