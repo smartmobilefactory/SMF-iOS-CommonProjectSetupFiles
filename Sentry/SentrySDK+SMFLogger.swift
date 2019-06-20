@@ -8,15 +8,30 @@ import Foundation
 import Sentry
 import SMFLogger
 
+fileprivate struct SentryConstants {
+
+	static let plistSentryDsn				= "SentryDsn"
+	static let smfLogUploadMaxSizeDefault	= 5000
+}
+
 class SentrySDK: NSObject {
 
 	// MARK: - Private static properties
 
 	fileprivate static var shared			: SentrySDK?
 
+	fileprivate static let isDebugBuild		: Bool = {
+		#if DEBUG
+		return true
+		#else
+		return false
+		#endif
+	}()
+
 	// MARK: - Private properties
 
-	fileprivate var isInitialized					= false
+	fileprivate var isInitialized			= false
+	fileprivate var configuration			: Configuration?
 
 	// MARK: - Public properties
 
@@ -53,9 +68,11 @@ class SentrySDK: NSObject {
 			Client.shared?.beforeSerializeEvent = { (event: Event) in
 				event.environment = SentrySDK.Configuration.environment
 
-				if	(configuration.enableSMFLogUpload == true),
+				if
+					(event.level != .debug),
+					(configuration.enableSMFLogUpload == true),
 					let loggerContents = Logger.logFilesContent(maxSize: configuration.smfLogUploadMaxSize) {
-						event.message = loggerContents
+					event.message = loggerContents
 				}
 			}
 
@@ -64,6 +81,9 @@ class SentrySDK: NSObject {
 			}
 
 			try Client.shared?.startCrashHandler()
+
+			instance.configuration = configuration
+
 			instance.isInitialized = true
 		} catch let error {
 			Log.Channel.Manager.sentry.error("Error initialising sentry: \(error.localizedDescription)")
@@ -81,20 +101,40 @@ class SentrySDK: NSObject {
 		Client.shared?.reportUserException("TestCrash", reason: "Only testing crashes", language: "swift", lineOfCode: "23", stackTrace: [], logAllThreads: false, terminateProgram: true)
 		fatalError("This is a test crash to trigger a crash report in Sentry Dashboard")
 	}
+
+	/// Send a custom event to Sentry for debugging.
+	///
+	///	- Parameters:
+	///		- title					: title of the event
+	///		- message				: description of what happened
+	///		- additionalData		: dictionary of key/value pairs that will apear under Additional Data in Sentry
+	///		- includeLoggerData		: if the event should also include the last part of SMFLogger
+	///		- smfLogUploadMaxSize	: The max count of characters which should be uploaded
+	static func sendEvent(title: String, message: String, additionalData: [String: Any]? = nil, includeLoggerData: Bool = true, smfLogUploadMaxSize: Int = (SentrySDK.shared?.configuration?.smfLogUploadMaxSize ?? SentryConstants.smfLogUploadMaxSizeDefault)) {
+		let event = Event(level: .debug)
+
+		if (additionalData != nil) {
+			event.extra = additionalData
+		}
+
+		var fullMessage = "\(title) \n\n\(message)\n\n"
+
+		if
+			(includeLoggerData == true),
+			let loggerContents = Logger.logFilesContent(maxSize: smfLogUploadMaxSize) {
+			fullMessage.append("--------- DEBUG LOG ---------\n\n")
+			fullMessage.append(loggerContents)
+		}
+
+		event.message = fullMessage
+
+		Client.shared?.send(event: event, completion: nil)
+	}
 }
 
 extension SentrySDK {
 
 	struct Configuration {
-		fileprivate static let plistSentryDsn	= "SentryDsn"
-
-		fileprivate static let isDebugBuild		: Bool = {
-			#if DEBUG
-			return true
-			#else
-			return false
-			#endif
-		}()
 
 		fileprivate static let environment		: String = {
 			#if ALPHA
@@ -113,7 +153,7 @@ extension SentrySDK {
 		fileprivate var sentryDSN			: String	= ""
 		fileprivate var enableSMFLogUpload	: Bool		= true
 		fileprivate var enableBreadcrumbs	: Bool		= true
-		fileprivate var smfLogUploadMaxSize	: Int		= 5000
+		fileprivate var smfLogUploadMaxSize	: Int		= SentryConstants.smfLogUploadMaxSizeDefault
 
 		/// Initializes a SentrySDK Configuration
 		///
@@ -122,13 +162,13 @@ extension SentrySDK {
 		///		- enableSMFLogUpload: true if you want the SMFLogger logs to be submitted with a crash
 		///		- enableBreadcrumbs: true if you want Sentry to attach the last user interaction before a crash
 		///		- smfLogUploadMaxSize: The max count of characters which should be uploaded
-		init(sentryDSN: String? = nil, enableSMFLogUpload: Bool = true, smfLogUploadMaxSize: Int = 5000, smfEnableBreadcrumbs: Bool = true) {
+		init(sentryDSN: String? = nil, enableSMFLogUpload: Bool = true, smfLogUploadMaxSize: Int = SentryConstants.smfLogUploadMaxSizeDefault, smfEnableBreadcrumbs: Bool = true) {
 
 			// Get the Sentry DSN
-			let dsnFromPlist = Bundle.main.object(forInfoDictionaryKey: SentrySDK.Configuration.plistSentryDsn) as? String
+			let dsnFromPlist = Bundle.main.object(forInfoDictionaryKey: SentryConstants.plistSentryDsn) as? String
 
 			guard let _sentryDsn = (sentryDSN ?? dsnFromPlist) else {
-				assertionFailure("Error: You have to set the `\(SentrySDK.Configuration.plistSentryDsn)` key in the info plist or specify your own when initializing teh SDK.")
+				assertionFailure("Error: You have to set the `\(SentryConstants.plistSentryDsn)` key in the info plist or specify your own when initializing teh SDK.")
 				return
 			}
 
