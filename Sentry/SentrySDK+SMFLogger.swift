@@ -52,12 +52,9 @@ class SentrySDK: NSObject {
 	/// This will setup the SentrySDK with the common base configuration. Crashes will be detected if the app is build with the release build type and the sentry dsn taken from the info plists.
 	///
 	/// - Parameters:
-	///   - configuration: sentry dsn string
+	///   - configuration: Configuration object
 	static func setup(configuration: SentrySDK.Configuration) {
-
-		// Make sure SentrySDK is not setup in a debug build
-		guard (self.isDebugBuild == false) else {
-			// Configure SentrySDK only for non debug builds or if the exception flag is set to true
+		guard (self.isDebugBuild == false || configuration.enableDebug == true) else {
 			return
 		}
 
@@ -150,6 +147,7 @@ extension SentrySDK {
 			#endif
 		}()
 
+		fileprivate var enableDebug			: Bool		= false
 		fileprivate var sentryDSN			: String	= ""
 		fileprivate var enableSMFLogUpload	: Bool		= true
 		fileprivate var enableBreadcrumbs	: Bool		= true
@@ -162,7 +160,7 @@ extension SentrySDK {
 		///		- enableSMFLogUpload: true if you want the SMFLogger logs to be submitted with a crash
 		///		- enableBreadcrumbs: true if you want Sentry to attach the last user interaction before a crash
 		///		- smfLogUploadMaxSize: The max count of characters which should be uploaded
-		init(sentryDSN: String? = nil, enableSMFLogUpload: Bool = true, smfLogUploadMaxSize: Int = SentryConstants.smfLogUploadMaxSizeDefault, smfEnableBreadcrumbs: Bool = true) {
+		init(sentryDSN: String? = nil, enableSMFLogUpload: Bool = true, smfLogUploadMaxSize: Int = SentryConstants.smfLogUploadMaxSizeDefault, smfEnableBreadcrumbs: Bool = true, enableDebug: Bool = false) {
 
 			// Get the Sentry DSN
 			let dsnFromPlist = Bundle.main.object(forInfoDictionaryKey: SentryConstants.plistSentryDsn) as? String
@@ -172,6 +170,7 @@ extension SentrySDK {
 				return
 			}
 
+			self.enableDebug			= enableDebug
 			self.sentryDSN				= _sentryDsn
 			self.enableBreadcrumbs		= smfEnableBreadcrumbs
 			self.enableSMFLogUpload		= enableSMFLogUpload
