@@ -1,9 +1,9 @@
 //
 //  AppCenterSDK+SMFLogger.swift
-//  Newsletter2Go
+//  SmartMobileFactory
 //
 //  Created by Konstantin Deichmann on 11.09.19.
-//  Copyright © 2019 Newsletter2Go GmbH. All rights reserved.
+//  Copyright © 2019 SmartMobileFactory. All rights reserved.
 //
 
 import Foundation
@@ -41,7 +41,8 @@ class AppCenterSDK: NSObject {
 
 	// MARK: - Methods
 
-	/// This will setup the SentrySDK with the common base configuration. Crashes will be detected if the app is build with the release build type and the sentry dsn taken from the info plists.
+	/// This will setup the AppCenterSDK with the common base configuration. Crashes will be detected if the app is build with the release build type.
+	/// Distribution can be enabled using the configuration
 	///
 	/// - Parameters:
 	///   - configuration: Configuration object
@@ -53,6 +54,25 @@ class AppCenterSDK: NSObject {
 		let services = (configuration.isDistributionEnabled == true) ? [MSCrashes.self, MSDistribute.self] : [MSCrashes.self]
 
 		MSAppCenter.start(configuration.appSecret, withServices: services)
+	}
+
+	/// Returns True, if and only if the Service got started and is enabled.
+	var isDistributionEnabled: Bool {
+		return MSDistribute.isEnabled()
+	}
+
+	/// Will enable or disable the Distribution Feature of AppCenter
+	/// While disabling works always.
+	/// For enabling the Setup (aka. start) - Method should be called before.
+	///
+	/// Flow in the App, for Apps that want to dynamically change that State:
+	/// - Call the Setup Method for with `isDistributionEnabled` set to true.
+	/// - Disable Distribution using `enableDistribution(enabled: false)`
+	/// - Enable Distribution at a later time using the same method
+	///
+	/// - Parameter enabled: Enable or Disable Distribtion
+	func enableDistribution(enabled: Bool = true) {
+		MSDistribute.setEnabled(enabled)
 	}
 
 	/// This will create a `fatalError` to crash the app.
@@ -68,12 +88,14 @@ extension AppCenterSDK {
 
 		fileprivate var enableDebug				: Bool		= false
 		fileprivate var appSecret				: String	= ""
-		fileprivate var isDistributionEnabled	: Bool
+		fileprivate var isDistributionEnabled	: Bool		= false
 
 		/// Initializes a AppCenterSDK Configuration
 		///
 		///	- Parameters:
 		///		- appSecret: supply this manually if you dont want it in the info.plist
+		///		- enableDebug: Should start the Services even for Debug, Default is false
+		///		- isDistributionEnabled: Should start the Distribution Service, Default is false for Debug and Live apps, else true,
 		init(appSecret: String? = nil, enableDebug: Bool = false, isDistributionEnabled: Bool? = nil) {
 
 			let appSecretFromBundle = Bundle.main.object(forInfoDictionaryKey: AppCenterConstants.appSecretKey) as? String
