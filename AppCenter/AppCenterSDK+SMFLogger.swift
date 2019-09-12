@@ -101,7 +101,7 @@ extension AppCenterSDK {
 			let appSecretFromBundle = Bundle.main.object(forInfoDictionaryKey: AppCenterConstants.appSecretKey) as? String
 
 			guard let _appSecret = (appSecret ?? appSecretFromBundle) else {
-				assertionFailure("Error: You have to set the `\(AppCenterConstants.appSecretKey)` key in the info plist or specify your own when initializing teh SDK.")
+				assertionFailure("Error: You have to set the `\(AppCenterConstants.appSecretKey)` key in the info plist or specify your own when initializing the SDK.")
 				return
 			}
 
