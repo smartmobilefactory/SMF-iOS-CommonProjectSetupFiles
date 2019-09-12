@@ -86,9 +86,9 @@ extension AppCenterSDK {
 
 	struct Configuration {
 
-		fileprivate var enableDebug				: Bool		= false
-		fileprivate var appSecret				: String	= ""
-		fileprivate var isDistributionEnabled	: Bool		= false
+		fileprivate var enableDebug				: Bool
+		fileprivate var appSecret				: String
+		fileprivate var isDistributionEnabled	: Bool
 
 		/// Initializes a AppCenterSDK Configuration
 		///
@@ -101,8 +101,7 @@ extension AppCenterSDK {
 			let appSecretFromBundle = Bundle.main.object(forInfoDictionaryKey: AppCenterConstants.appSecretKey) as? String
 
 			guard let _appSecret = (appSecret ?? appSecretFromBundle) else {
-				assertionFailure("Error: You have to set the `\(AppCenterConstants.appSecretKey)` key in the info plist or specify your own when initializing the SDK.")
-				return
+				fatalError("You have to set the `\(AppCenterConstants.appSecretKey)` key in the info plist or specify your own when initializing the SDK.")
 			}
 
 			self.enableDebug			= enableDebug
