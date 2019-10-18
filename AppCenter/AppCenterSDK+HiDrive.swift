@@ -10,10 +10,13 @@ import Foundation
 import AppCenter
 import AppCenterCrashes
 import AppCenterDistribute
+import SMFLogger
+
 
 fileprivate enum AppCenterConstants {
 
 	static let appSecretKey					= "AppCenterAppSecret"
+	static let smfLogUploadMaxSize	: Int	= 5000
 }
 
 class AppCenterSDK: NSObject {
@@ -30,6 +33,7 @@ class AppCenterSDK: NSObject {
 
 	// MARK: - Private properties
 
+	fileprivate static var shared			: AppCenterSDK?
 	fileprivate var isInitialized			= false
 	fileprivate var configuration			: Configuration?
 
@@ -54,7 +58,8 @@ class AppCenterSDK: NSObject {
 		let services = (configuration.isDistributionEnabled == true) ? [MSCrashes.self, MSDistribute.self] : [MSCrashes.self]
 
 		MSAppCenter.start(configuration.appSecret, withServices: services)
-		MSCrashes.setEnabled(HDManager.shared.settings.crashReportsEnabled)
+		MSCrashes.setEnabled(configuration.enableCrashes)
+		MSCrashes.setDelegate(shared)
 	}
 
 	/// Returns True, if and only if the Service got started and is enabled.
@@ -92,6 +97,7 @@ extension AppCenterSDK {
 		fileprivate var enableDebug				: Bool
 		fileprivate var appSecret				: String
 		fileprivate var isDistributionEnabled	: Bool
+		fileprivate var enableCrashes			: Bool
 
 		/// Initializes a AppCenterSDK Configuration
 		///
@@ -99,7 +105,7 @@ extension AppCenterSDK {
 		///		- appSecret: supply this manually if you dont want it in the info.plist
 		///		- enableDebug: Should start the Services even for Debug, Default is false
 		///		- isDistributionEnabled: Should start the Distribution Service, Default is false for Debug and Live apps, else true,
-		init(appSecret: String? = nil, enableDebug: Bool = false, isDistributionEnabled: Bool? = nil) {
+		init(appSecret: String? = nil, enableDebug: Bool = false, isDistributionEnabled: Bool? = nil, enableCrashes: Bool = true) {
 
 			let appSecretFromBundle = Bundle.main.object(forInfoDictionaryKey: AppCenterConstants.appSecretKey) as? String
 
@@ -109,6 +115,7 @@ extension AppCenterSDK {
 
 			self.enableDebug			= enableDebug
 			self.appSecret				= _appSecret
+			self.enableCrashes			= enableCrashes
 
 			#if DEBUG
 			self.isDistributionEnabled	= isDistributionEnabled ?? false
@@ -124,3 +131,17 @@ extension AppCenterSDK {
 		}
 	}
 }
+
+extension AppCenterSDK: MSCrashesDelegate {
+
+	private func applicationLog() -> String? {
+		guard
+			let description = Logger.logFilesContent(maxSize: AppCenterConstants.smfLogUploadMaxSize),
+			(description.isEmpty == false) else {
+				return nil
+		}
+
+		return description
+	}
+}
+
