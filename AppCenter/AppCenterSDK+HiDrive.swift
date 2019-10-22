@@ -85,8 +85,6 @@ class AppCenterSDK: NSObject {
 
 		MSCrashes.generateTestCrash()
 	}
-
-	static let uiTestModeArgument        = "SMF.UITestMode"
 }
 
 extension AppCenterSDK {
