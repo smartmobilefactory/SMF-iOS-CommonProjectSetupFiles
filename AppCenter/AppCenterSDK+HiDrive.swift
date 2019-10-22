@@ -34,7 +34,6 @@ class AppCenterSDK: NSObject {
 	// MARK: - Private properties
 
 	fileprivate static var shared			: AppCenterSDK?
-	fileprivate var isInitialized			= false
 	fileprivate var configuration			: Configuration?
 
 	// MARK: - Public properties
@@ -134,7 +133,13 @@ extension AppCenterSDK {
 
 extension AppCenterSDK: MSCrashesDelegate {
 
-	private func applicationLog() -> String? {
+	func attachments(with crashes: MSCrashes!, for errorReport: MSErrorReport!) -> [MSErrorAttachmentLog]! {
+		return [
+			MSErrorAttachmentLog.attachment(withText: self.applicationLog ?? "No Log found", filename: "SMFLogger.log")
+		]
+	}
+
+	private var applicationLog:  String? {
 		guard
 			let description = Logger.logFilesContent(maxSize: AppCenterConstants.smfLogUploadMaxSize),
 			(description.isEmpty == false) else {
