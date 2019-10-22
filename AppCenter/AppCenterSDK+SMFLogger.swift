@@ -28,11 +28,6 @@ class AppCenterSDK: NSObject {
 		#endif
 	}()
 
-	// MARK: - Private properties
-
-	fileprivate var isInitialized			= false
-	fileprivate var configuration			: Configuration?
-
 	// MARK: - Public properties
 
 	static var wasInitialized				: Bool {
@@ -57,7 +52,7 @@ class AppCenterSDK: NSObject {
 	}
 
 	/// Returns True, if and only if the Service got started and is enabled.
-	var isDistributionEnabled: Bool {
+	static var isDistributionEnabled: Bool {
 		return MSDistribute.isEnabled()
 	}
 
@@ -71,7 +66,7 @@ class AppCenterSDK: NSObject {
 	/// - Enable Distribution at a later time using the same method
 	///
 	/// - Parameter enabled: Enable or Disable Distribtion
-	func enableDistribution(enabled: Bool = true) {
+	static func enableDistribution(enabled: Bool = true) {
 		MSDistribute.setEnabled(enabled)
 	}
 
