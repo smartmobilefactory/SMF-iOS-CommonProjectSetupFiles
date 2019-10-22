@@ -163,9 +163,11 @@ private class AppCenterSDKDelegate	: NSObject, MSCrashesDelegate {
 	}
 
 	func attachments(with crashes: MSCrashes!, for errorReport: MSErrorReport!) -> [MSErrorAttachmentLog]! {
-		return [
-			MSErrorAttachmentLog.attachment(withText: self.applicationLog, filename: AppCenterConstants.crashLogFileName)
-		]
+		guard (self.isLogUploadEnabled == true) else {
+			return []
+		}
+
+		return [MSErrorAttachmentLog.attachment(withText: self.applicationLog, filename: AppCenterConstants.crashLogFileName)]
 	}
 
 	private var applicationLog: String {
