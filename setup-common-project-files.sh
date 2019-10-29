@@ -151,5 +151,5 @@ if [ $copyPRTemplate = true ]; then
 fi
 
 if [ $checkXcodeVersion = true ]; then
-	./Xcode/check-xcode-version.sh "$projectDir" || exit 1;
+	./Xcode/check-xcode-version.swift;
 fi
