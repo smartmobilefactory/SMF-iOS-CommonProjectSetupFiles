@@ -153,17 +153,9 @@ custom_rules:
       - comment
       - doccomment
       - doccomment.field
-  comments_capitalized_ignore_possible_code:
-    name: "Capitalize First Word In Comment"
-    regex: '(// +(?!swiftlint)[a-z]+)'
-    message: "The first word of a comment should be capitalized"
-    severity: warning
-    match_kinds:
-      - comment
-      - doccomment
   empty_first_line:
     name: "Empty First Line"
-    regex: '(extension|class) (?!(?:func|let|var))[^\{]*\{[^\n]*\n[\t ]*\w+'
+    regex: '(extension|class|struct) (?!(?:func|let|var))[^\{]*\{[^\n]*\n[\t ]*\w+'
     message: "There should be an empty line after a class or extension declaration."
     severity: warning
     match_kinds:
@@ -211,11 +203,6 @@ custom_rules:
     name: "Incomplete if"
     regex: '(^ *if \(((?!( is | > | < | (=|!|<|>)= )).)*\) \{)'
     message: "if should contain == true or == false"
-    severity: warning
-  single_line_body:
-    name: "Single Line Body"
-    regex: '(?i-sm)((if|while|do|for)*? \{(?!\n|.?(s|g)et).+?\}\n)'
-    message: "Single line bodies are not allowed"
     severity: warning
   missing_closure_datatype:
     name: "Missing Closure Data Type"
