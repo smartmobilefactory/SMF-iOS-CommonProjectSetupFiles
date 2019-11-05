@@ -73,7 +73,6 @@ opt_in_rules:
   - multiline_arguments
   - multiline_function_chains
   - multiline_literal_brackets
-  - multiline_parameters_brackets
   - object_literal
   - overridden_super_call
   - redundant_type_annotation
@@ -82,10 +81,7 @@ opt_in_rules:
   - toggle_bool
   - unowned_variable_capture
   - unused_import
-  - vertical_parameter_alignment_on_call
   - vertical_whitespace_closing_braces
-  - convenience_type
-  - number_separator
   - single_test_class
   - strong_iboutlet
 
@@ -181,11 +177,6 @@ custom_rules:
       - placeholder
       - parameter
       - attribute.builtin
-  single_line_body:
-    name: "Single Line Body"
-    regex: '(?i-sm)((if|while|do|for).? \{(?!\n|.?(s|g)et).+?\}\n)'
-    message: "Single line bodies are not allowed"
-    severity: warning
   empty_line_after_guard:
     name: "Empty Line After Guard"
     regex: '(^ *guard[ a-zA-Z0-9=?.\(\),><!]*\{[ a-zA-Z0-9=?.\(\),><!]*\}\n *(?!(?:return|guard))\S+)'
@@ -256,6 +247,24 @@ custom_rules:
     regex: '(\[[a-zA-Z0-9]+?:[a-zA-Z0-9]+?\])'
     message: "Missing space. use [DataType: DataType]."
     severity: warning
+  missing_space_around_operator:
+    name: "Missing Space Around Operator"
+    regex: '[\w)]+(\+|-|\*|/)[\w(]+'
+    message: "Missing space around operator"
+    severity: warning
+    match_kinds:
+      - argument
+      - attribute.builtin
+      - attribute.id
+      - buildconfig.id
+      - buildconfig.keyword
+      - identifier
+      - keyword
+      - number
+      - objectliteral
+      - parameter
+      - placeholder
+      - typeidentifier
   missing_empty_line:
     name: "Missing Empty Line"
     regex: '(?-smxi)(\}\n)([ \t]*?)([^\n\}\t ])'
