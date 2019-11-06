@@ -15,6 +15,7 @@ disabled_rules:
   - switch_case_alignment
   - empty_enum_arguments # case .unexpectedSituation(_): ... is not allowed
   - duplicate_enum_cases
+  - identifier_name
 
 # paths to ignore during linting. overridden by `included`.
 excluded:
@@ -54,6 +55,35 @@ opt_in_rules:
   - identical_operands
   - collection_alignment
   - empty_xctest_method
+  - array_init
+  - contains_over_filter_count
+  - contains_over_filter_is_empty
+  - contains_over_first_not_nil
+  - empty_collection_literal
+  - empty_string
+  - explicit_self
+  - file_name
+  - for_where
+  - joined_default_parameter
+  - last_where
+  - legacy_multiple
+  - literal_expression_end_indentation
+  - lower_acl_than_parent
+  - modifier_order
+  - multiline_arguments
+  - multiline_function_chains
+  - multiline_literal_brackets
+  - convenience_type
+  - overridden_super_call
+  - redundant_type_annotation
+  - sorted_first_last
+  - static_operator
+  - toggle_bool
+  - unowned_variable_capture
+  - unused_import
+  - vertical_whitespace_closing_braces
+  - single_test_class
+  - strong_iboutlet
 
 # rule parameters
 file_length:
@@ -86,23 +116,6 @@ large_tuple:
   warning: 4
   error: 6
 
-identifier_name:
-  excluded:
-    - to
-    - id
-    - by
-    - of
-    - at
-    - in
-    - !str on
-    - x
-    - y
-    - L
-  # Allow the usage of underscores at the start of variables or constants. The lowercase check has currently to be disabled as "_" isn't considered as lowercase character
-  validates_start_lowercase: false
-  allowed_symbols:
-    - _
-
 type_name:
   min_length: 3
   max_length: 60
@@ -129,11 +142,6 @@ custom_rules:
       - typeidentifier
       - number
       - identifier
-  unnecessary_datatype:
-    name: "Unnecessary Datatype"
-    regex: '(?m-s)(let|var).*(:\s\[+(\w|:| |\t)+\]+\s*=\s*\[:*\])'
-    message: "Unnecessary datatype. Use '= [DataType]()' instead of ': [DataType] = []'"
-    severity: warning
   missing_closure_name:
     name: "Missing closure name"
     regex: '^\s*\}\) \{.*'
@@ -155,7 +163,7 @@ custom_rules:
       - doccomment.field
   empty_first_line:
     name: "Empty First Line"
-    regex: '(extension|class|struct) (?!(?:func|let|var))[^\{]*\{[^\n]*\n[\t ]*\w+'
+    regex: '(extension|class|struct|protocol) (?!(?:func|let|var))[^\{]*\{[^\n]*\n[\t ]*\w+'
     message: "There should be an empty line after a class or extension declaration."
     severity: warning
     match_kinds:
