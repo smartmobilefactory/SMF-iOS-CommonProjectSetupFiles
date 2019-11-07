@@ -17,7 +17,7 @@ url.appendPathComponent("Config.json")
 
 guard
 	let data = try? Data(contentsOf: url),
-	let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
+	let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
 	let project = json["project"] as? [String: Any],
 	let projectXcodeVersion = project["xcode_version"] as? String else {
 		print("\(projectPath):1:1: error: Xcode Version not found in Config.json")
