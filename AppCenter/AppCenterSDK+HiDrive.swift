@@ -9,7 +9,9 @@
 import Foundation
 import AppCenter
 import AppCenterCrashes
+#if !os(macOS)
 import AppCenterDistribute
+#endif
 import SMFLogger
 
 
@@ -56,13 +58,18 @@ class AppCenterSDK: NSObject {
 
 		self.delegate = AppCenterSDKDelegate(isLogUploadEnabled: configuration.isLogUploadEnabled)
 
+		#if !os(macOS)
 		let services = (configuration.isDistributionEnabled == true) ? [MSCrashes.self, MSDistribute.self] : [MSCrashes.self]
+		#else
+		let services = [MSCrashes.self]
+		#endif
 
 		MSAppCenter.start(configuration.appSecret, withServices: services)
 		MSCrashes.setEnabled(configuration.isCrashReportEnabled)
 		MSCrashes.setDelegate(self.delegate)
 	}
 
+	#if !os(macOS)
 	/// Returns True, if and only if the Service got started and is enabled.
 	static var isDistributionEnabled: Bool {
 		return MSDistribute.isEnabled()
@@ -81,6 +88,7 @@ class AppCenterSDK: NSObject {
 	static func enableDistribution(enabled: Bool = true) {
 		MSDistribute.setEnabled(enabled)
 	}
+	#endif
 
 	/// Returns True, if and only if Crash Reporting is enabled.
 	static var isCrashReportingEnabled: Bool {
