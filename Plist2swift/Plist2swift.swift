@@ -455,103 +455,193 @@ class KeyValueTuples {
 	}
 }
 
-// MARK: Main
+struct Arguments {
 
-let args = CommandLine.arguments
-var plists: [String] = []
-var enumName: String = ""
+	let enumName: String // -e
+	let generatedFilePath: String // -o 1
+	let sourceFilePaths: [String] // -o 2
+	let keyName: String? // -k
 
-if (args.count < 4) {
-	usage()
 }
 
-if (args.count >= 6 && args[1] == "-e" && args[3] == "-o") {
-	enumName = args[2]
-
-	let fileManager = FileManager.default
-
-	if (fileManager.fileExists(atPath: args[4]) == true) {
-		try? fileManager.removeItem(atPath: args[4])
-	}
-
-	fileManager.createFile(atPath: args[4], contents: nil, attributes: nil)
-
-	output = FileHandle(forWritingAtPath: args[4])
-
-	for i in 5...args.count-1 {
-		plists.append(args[i])
-	}
-} else if (args.count >= 4 && args[1] == "-e") {
-	enumName = args[2]
-
-	for i in 3...args.count-1 {
-		plists.append(args[i])
-	}
-} else {
-	usage()
+enum Plist2SwiftError: Error {
+	case programmerError
+	case missingArgument(String)
+	case badArguments(String)
 }
 
-let shouldGenerateOddKeys: Bool = CommandLine.arguments.count >= 5
-var commonKeys = [String]()
-var oddKeys = [String]()
-var keysAndTypes: [String:String] = [:]
-var allTuples: [KeyValueTuples] = []
-var protocolName: String = enumName.appending("Protocol")
-
-generateHeader()
-
-// gather keys and values... and types
-for plistPath in plists {
-
-	guard let tuples = readPlist(fromPath: plistPath) else {
-		print("Couldn't read plist at \(plistPath)")
-		exit(1)
+/// Count -> Number of items to fetch. If nil, it will loop until finding another argument
+func extractMultipleArgumentValues(arguments: [String], forKey key: String, fromIndex: Int, count: Int?) throws -> [String] {
+	let _keyIndex = arguments.firstIndex { (argument: String) -> Bool in
+		return (argument == key)
 	}
 
-	allTuples.append(tuples)
-
-	let allKeys = tuples.keys
-
-	if (allKeys.contains(configurationKeyName) == false) {
-		print("Plist doesn't contain \(configurationKeyName) key. Please add it and run the script again")
-		exit(1)
+	guard
+		let keyIndex = _keyIndex else {
+			throw Plist2SwiftError.badArguments(key)
 	}
 
-	if (commonKeys.count == 0) {
-		commonKeys = allKeys
-	}
+	var values = [String]()
 
-	if (oddKeys.count == 0 && shouldGenerateOddKeys) {
-		oddKeys = allKeys
-	}
-
-	for key in allKeys {
-		if (keysAndTypes[key] == nil) {
-			let type = typeForValue(tuples[key]!)
-			keysAndTypes[key] = type
-			// Generate protocols for Dictionary entries
-			if (type == "Dictionary<String, Any>") {
-
-				let dictionary = tuples[key] as? Dictionary<String, Any>
-				let sortedDictionary = dictionary?.sorted { (pairOne, pairTwo) -> Bool in
-					return pairOne.key < pairTwo.key
-				}
-
-				let protocolName = generateProtocol(name: key.uppercaseFirst(), tuples: KeyValueTuples(tuples: sortedDictionary ?? []))
-				// override type with new protocol
-				keysAndTypes[key] = protocolName
+	let count: Int = try {
+		if let count = count {
+			// `count` was set
+			guard (arguments.count > keyIndex+count) else {
+				throw Plist2SwiftError.missingArgument(key)
 			}
+
+			return count
+		} else {
+			// We need to determine `count`
+			let cutArguments = Array(arguments[(keyIndex+1)...])
+			let _endIndex = cutArguments.firstIndex { (argument: String) -> Bool in
+				return (argument.hasPrefix("-") == true)
+			}
+
+			guard let endIndex = _endIndex else {
+				// Here there is no other arguments
+				return cutArguments.count
+			}
+
+			return ((keyIndex+1)..<endIndex).count
+		}
+	}()
+
+	// We want to start at 1 and include count because we want to start at keyIndex+1
+	for offset in 1...count {
+		let value = arguments[keyIndex+offset]
+		values.append(value)
+	}
+
+	return values
+}
+
+func extractSingleArgumentValue(arguments: [String], forKey key: String) throws -> String {
+	guard let value = try extractMultipleArgumentValues(arguments: arguments, forKey: key, fromIndex: 0, count: 1).first else {
+		throw Plist2SwiftError.programmerError
+	}
+
+	return value
+}
+
+func temp() throws {
+	let args = CommandLine.arguments
+	var plists: [String] = []
+
+	if (args.count < 4) {
+		usage()
+	}
+
+	let enumName = try {
+		return try extractSingleArgumentValue(arguments: args, forKey: "-e")
+	}()
+
+	let keyName: String? = {
+		// Optional argument, we don't want to throw
+		return try? extractSingleArgumentValue(arguments: args, forKey: "-k")
+	}()
+
+	let generatedFilePath: String = try {
+		return try extractSingleArgumentValue(arguments: args, forKey: "-o")
+	}()
+
+	let sourceFilePaths: [String] = try {
+		return try extractMultipleArgumentValues(arguments: args, forKey: "-o", fromIndex: 1, count: nil)
+	}()
+
+
+	if (args.count >= 6 && args[1] == "-e" && args[3] == "-o") {
+		//enumName = args[2]
+
+		let fileManager = FileManager.default
+
+		if (fileManager.fileExists(atPath: args[4]) == true) {
+			try? fileManager.removeItem(atPath: args[4])
+		}
+
+		fileManager.createFile(atPath: args[4], contents: nil, attributes: nil)
+
+		output = FileHandle(forWritingAtPath: args[4])
+
+		for i in 5...args.count-1 {
+			plists.append(args[i])
+		}
+	} else if (args.count >= 4 && args[1] == "-e") {
+		enumName = args[2]
+
+		for i in 3...args.count-1 {
+			plists.append(args[i])
+		}
+	} else {
+		usage()
+	}
+
+	let shouldGenerateOddKeys: Bool = CommandLine.arguments.count >= 5
+	var commonKeys = [String]()
+	var oddKeys = [String]()
+	var keysAndTypes: [String:String] = [:]
+	var allTuples: [KeyValueTuples] = []
+	var protocolName: String = enumName.appending("Protocol")
+
+	generateHeader()
+
+	// gather keys and values... and types
+	for plistPath in plists {
+
+		guard let tuples = readPlist(fromPath: plistPath) else {
+			print("Couldn't read plist at \(plistPath)")
+			exit(1)
+		}
+
+		allTuples.append(tuples)
+
+		let allKeys = tuples.keys
+
+		if (allKeys.contains(configurationKeyName) == false) {
+			print("Plist doesn't contain \(configurationKeyName) key. Please add it and run the script again")
+			exit(1)
+		}
+
+		if (commonKeys.count == 0) {
+			commonKeys = allKeys
+		}
+
+		if (oddKeys.count == 0 && shouldGenerateOddKeys) {
+			oddKeys = allKeys
+		}
+
+		for key in allKeys {
+			if (keysAndTypes[key] == nil) {
+				let type = typeForValue(tuples[key]!)
+				keysAndTypes[key] = type
+				// Generate protocols for Dictionary entries
+				if (type == "Dictionary<String, Any>") {
+
+					let dictionary = tuples[key] as? Dictionary<String, Any>
+					let sortedDictionary = dictionary?.sorted { (pairOne, pairTwo) -> Bool in
+						return pairOne.key < pairTwo.key
+					}
+
+					let protocolName = generateProtocol(name: key.uppercaseFirst(), tuples: KeyValueTuples(tuples: sortedDictionary ?? []))
+					// override type with new protocol
+					keysAndTypes[key] = protocolName
+				}
+			}
+		}
+
+		commonKeys = Array(Set(commonKeys).intersection(allKeys)).sorted()
+		oddKeys = Array(Set(oddKeys).union(allKeys)).sorted()
+		oddKeys = Array(Set(oddKeys).subtracting(commonKeys)).sorted()
+
+		if (oddKeys.count == 0 && shouldGenerateOddKeys && plists.count > 1 && plists.firstIndex(of: plistPath) == 0) {
+			oddKeys = allKeys
 		}
 	}
 
-	commonKeys = Array(Set(commonKeys).intersection(allKeys)).sorted()
-	oddKeys = Array(Set(oddKeys).union(allKeys)).sorted()
-	oddKeys = Array(Set(oddKeys).subtracting(commonKeys)).sorted()
+	generateProtocol(name: protocolName, commonKeys: commonKeys, oddKeys: oddKeys, keysAndTypes: keysAndTypes)
+	generateEnum(name: enumName, protocolName: protocolName, allTuples: allTuples, keysAndTypes: keysAndTypes, oddKeys: oddKeys)
 
-	if (oddKeys.count == 0 && shouldGenerateOddKeys && plists.count > 1 && plists.firstIndex(of: plistPath) == 0) {
-		oddKeys = allKeys
-	}
 }
 
-generateProtocol(name: protocolName, commonKeys: commonKeys, oddKeys: oddKeys, keysAndTypes: keysAndTypes)
-generateEnum(name: enumName, protocolName: protocolName, allTuples: allTuples, keysAndTypes: keysAndTypes, oddKeys: oddKeys)
+// MARK: Main
+
