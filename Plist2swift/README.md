@@ -19,7 +19,7 @@ When you update the code, please also recompile the binary, as it's used in some
 You can use the following commands to achieve this quickly:
 
 ```
-$ swiftc -static-stdlib -Osize -o Plist2swift Plist2swift.swift 
+$ swiftc -Osize -o Plist2swift Plist2swift.swift 
 $ strip Plist2swift
 ```
 
@@ -30,7 +30,7 @@ or use `$ sh build.sh` to generate the binary.
 
 Given plist A and plist B, we can generate swift code like so:
 
-`swift Plist2swift.swift -e Api A.plist B.plist`
+`swift Plist2swift.swift -e Api -s A.plist B.plist`
 
 Now let's take a look into the plists and the generated code.
 

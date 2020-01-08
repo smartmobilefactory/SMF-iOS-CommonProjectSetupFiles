@@ -22,9 +22,18 @@ private func usage() {
 	print("""
 		plist2swift code generator
 
-		Usage: \(executableName) -e enumName -o outputFile -s plist1 plist2 ...
+		Usage: \(executableName) -e enumName [-k keyName] -o outputFile -s plist1 plist2 ...
 
 		i.e. \(executableName) -e Api -o generated.swift -s /path/to/production-configuration.plist /path/to/development-configuration.plist
+		This will parse the whole plist.
+
+		Optional parameter:
+
+		-k : Allow you to parse a sub-dictionary of the plist, where the sub-dictionary has this parameter as a key
+
+		i.e.  \(executableName) -e Api -k myKey -o generated.swift -s /path/to/production-configuration.plist /path/to/development-configuration.plist
+		This will only parse production-configuration.plist[myKey] and development-configuration.plist[myKey]
+		
 		""")
 	exit(1)
 }
