@@ -22,10 +22,9 @@ private func usage() {
 	print("""
 		plist2swift code generator
 
-		Usage: \(executableName) -e enumName [-o outputFile] plist1 plist2 ...
+		Usage: \(executableName) -e enumName -o outputFile -s plist1 plist2 ...
 
-		i.e. \(executableName) -e Api /path/to/production-configuration.plist /path/to/development-configuration.plist > generated.swift
-		i.e. \(executableName) -e Api -o generated.swift /path/to/production-configuration.plist /path/to/development-configuration.plist
+		i.e. \(executableName) -e Api -o generated.swift -s /path/to/production-configuration.plist /path/to/development-configuration.plist
 		""")
 	exit(1)
 }
@@ -46,27 +45,51 @@ private func intend(by indentationLevel: Int = 1) {
 	countOfTabs += indentationLevel
 }
 
+
+enum Plist2SwiftError: Error {
+	case programmerError
+	case missingArgument(String)
+	case cannotFindKeyInPlist(String)
+}
+
 /**
 Given path to .plist file, it returns a sorted array of tuples
 
 - Parameter fromPath: Path to the .plist file
+- Parameter key: Key in the plist containing the informations to parse
 
 - Returns: sorted array of tuples of type (key: String, value: Any)
 */
-private func readPlist(fromPath: String) -> KeyValueTuples? {
+private func readPlist(fromPath: String, key: String?) -> KeyValueTuples? {
 	var format = PropertyListSerialization.PropertyListFormat.xml
 
 	guard
 		let plistData = FileManager.default.contents(atPath: fromPath),
-		let plistDict = try! PropertyListSerialization.propertyList(from: plistData, options: .mutableContainersAndLeaves, format: &format) as? [String: Any] else {
+		let plistDict = try? PropertyListSerialization.propertyList(from: plistData, options: .mutableContainersAndLeaves, format: &format) as? [String: Any] else {
 			return nil
 	}
 
-	let tupleArray = plistDict.sorted { (pairOne, pairTwo) -> Bool in
-		return pairOne.key < pairTwo.key
-	}
+	do {
+		let tupleArray: [(key: String, value: Any)] = try {
+			if let key = key {
+				guard let realPlist = plistDict[key] as? [String: Any] else {
+					throw Plist2SwiftError.cannotFindKeyInPlist(key)
+				}
 
-	return KeyValueTuples(tuples: tupleArray)
+				return realPlist.sorted { (pairOne, pairTwo) -> Bool in
+					return pairOne.key < pairTwo.key
+				}
+			} else {
+				return plistDict.sorted { (pairOne, pairTwo) -> Bool in
+					return pairOne.key < pairTwo.key
+				}
+			}
+		}()
+
+		return KeyValueTuples(tuples: tupleArray)
+	} catch {
+		return nil
+	}
 }
 
 /**
@@ -455,21 +478,6 @@ class KeyValueTuples {
 	}
 }
 
-struct Arguments {
-
-	let enumName: String // -e
-	let generatedFilePath: String // -o 1
-	let sourceFilePaths: [String] // -o 2
-	let keyName: String? // -k
-
-}
-
-enum Plist2SwiftError: Error {
-	case programmerError
-	case missingArgument(String)
-	case badArguments(String)
-}
-
 /// Count -> Number of items to fetch. If nil, it will loop until finding another argument
 func extractMultipleArgumentValues(arguments: [String], forKey key: String, fromIndex: Int, count: Int?) throws -> [String] {
 	let _keyIndex = arguments.firstIndex { (argument: String) -> Bool in
@@ -478,7 +486,7 @@ func extractMultipleArgumentValues(arguments: [String], forKey key: String, from
 
 	guard
 		let keyIndex = _keyIndex else {
-			throw Plist2SwiftError.badArguments(key)
+			throw Plist2SwiftError.missingArgument(key)
 	}
 
 	var values = [String]()
@@ -503,7 +511,8 @@ func extractMultipleArgumentValues(arguments: [String], forKey key: String, from
 				return cutArguments.count
 			}
 
-			return ((keyIndex+1)..<endIndex).count
+
+			return cutArguments[0..<endIndex].count
 		}
 	}()
 
@@ -524,124 +533,112 @@ func extractSingleArgumentValue(arguments: [String], forKey key: String) throws 
 	return value
 }
 
-func temp() throws {
+
 	let args = CommandLine.arguments
-	var plists: [String] = []
 
-	if (args.count < 4) {
-		usage()
-	}
+	do {
 
-	let enumName = try {
-		return try extractSingleArgumentValue(arguments: args, forKey: "-e")
-	}()
+		let enumName = try {
+			return try extractSingleArgumentValue(arguments: args, forKey: "-e")
+		}()
 
-	let keyName: String? = {
-		// Optional argument, we don't want to throw
-		return try? extractSingleArgumentValue(arguments: args, forKey: "-k")
-	}()
+		let keyName: String? = {
+			// Optional argument, we don't want to throw
+			return try? extractSingleArgumentValue(arguments: args, forKey: "-k")
+		}()
 
-	let generatedFilePath: String = try {
-		return try extractSingleArgumentValue(arguments: args, forKey: "-o")
-	}()
+		let generatedFilePath: String = try {
+			return try extractSingleArgumentValue(arguments: args, forKey: "-o")
+		}()
 
-	let sourceFilePaths: [String] = try {
-		return try extractMultipleArgumentValues(arguments: args, forKey: "-o", fromIndex: 1, count: nil)
-	}()
-
-
-	if (args.count >= 6 && args[1] == "-e" && args[3] == "-o") {
-		//enumName = args[2]
+		let plists: [String] = try {
+			return try extractMultipleArgumentValues(arguments: args, forKey: "-s", fromIndex: 0, count: nil)
+		}()
 
 		let fileManager = FileManager.default
 
-		if (fileManager.fileExists(atPath: args[4]) == true) {
-			try? fileManager.removeItem(atPath: args[4])
+		if (fileManager.fileExists(atPath: generatedFilePath) == true) {
+			try? fileManager.removeItem(atPath: generatedFilePath)
 		}
 
-		fileManager.createFile(atPath: args[4], contents: nil, attributes: nil)
+		fileManager.createFile(atPath: generatedFilePath, contents: nil, attributes: nil)
 
-		output = FileHandle(forWritingAtPath: args[4])
+		output = FileHandle(forWritingAtPath: generatedFilePath)
 
-		for i in 5...args.count-1 {
-			plists.append(args[i])
-		}
-	} else if (args.count >= 4 && args[1] == "-e") {
-		enumName = args[2]
+		let shouldGenerateOddKeys: Bool = CommandLine.arguments.count >= 5
+		var commonKeys = [String]()
+		var oddKeys = [String]()
+		var keysAndTypes: [String:String] = [:]
+		var allTuples: [KeyValueTuples] = []
+		var protocolName: String = enumName.appending("Protocol")
 
-		for i in 3...args.count-1 {
-			plists.append(args[i])
-		}
-	} else {
-		usage()
-	}
+		generateHeader()
 
-	let shouldGenerateOddKeys: Bool = CommandLine.arguments.count >= 5
-	var commonKeys = [String]()
-	var oddKeys = [String]()
-	var keysAndTypes: [String:String] = [:]
-	var allTuples: [KeyValueTuples] = []
-	var protocolName: String = enumName.appending("Protocol")
+		// gather keys and values... and types
+		for plistPath in plists {
 
-	generateHeader()
-
-	// gather keys and values... and types
-	for plistPath in plists {
-
-		guard let tuples = readPlist(fromPath: plistPath) else {
-			print("Couldn't read plist at \(plistPath)")
-			exit(1)
-		}
-
-		allTuples.append(tuples)
-
-		let allKeys = tuples.keys
-
-		if (allKeys.contains(configurationKeyName) == false) {
-			print("Plist doesn't contain \(configurationKeyName) key. Please add it and run the script again")
-			exit(1)
-		}
-
-		if (commonKeys.count == 0) {
-			commonKeys = allKeys
-		}
-
-		if (oddKeys.count == 0 && shouldGenerateOddKeys) {
-			oddKeys = allKeys
-		}
-
-		for key in allKeys {
-			if (keysAndTypes[key] == nil) {
-				let type = typeForValue(tuples[key]!)
-				keysAndTypes[key] = type
-				// Generate protocols for Dictionary entries
-				if (type == "Dictionary<String, Any>") {
-
-					let dictionary = tuples[key] as? Dictionary<String, Any>
-					let sortedDictionary = dictionary?.sorted { (pairOne, pairTwo) -> Bool in
-						return pairOne.key < pairTwo.key
-					}
-
-					let protocolName = generateProtocol(name: key.uppercaseFirst(), tuples: KeyValueTuples(tuples: sortedDictionary ?? []))
-					// override type with new protocol
-					keysAndTypes[key] = protocolName
+			guard let tuples = readPlist(fromPath: plistPath, key: keyName) else {
+				if let keyName = keyName {
+					print("Couldn't read plist at \(plistPath) OR cannot find the key \(keyName)")
+				} else {
+					print("Couldn't read plist at \(plistPath)")
 				}
+
+				exit(1)
+			}
+
+			allTuples.append(tuples)
+
+			let allKeys = tuples.keys
+
+			if (allKeys.contains(configurationKeyName) == false) {
+				print("Plist doesn't contain \(configurationKeyName) key. Please add it and run the script again")
+				exit(1)
+			}
+
+			if (commonKeys.count == 0) {
+				commonKeys = allKeys
+			}
+
+			if (oddKeys.count == 0 && shouldGenerateOddKeys) {
+				oddKeys = allKeys
+			}
+
+			for key in allKeys {
+				if (keysAndTypes[key] == nil) {
+					let type = typeForValue(tuples[key]!)
+					keysAndTypes[key] = type
+					// Generate protocols for Dictionary entries
+					if (type == "Dictionary<String, Any>") {
+
+						let dictionary = tuples[key] as? Dictionary<String, Any>
+						let sortedDictionary = dictionary?.sorted { (pairOne, pairTwo) -> Bool in
+							return pairOne.key < pairTwo.key
+						}
+
+						let protocolName = generateProtocol(name: key.uppercaseFirst(), tuples: KeyValueTuples(tuples: sortedDictionary ?? []))
+						// override type with new protocol
+						keysAndTypes[key] = protocolName
+					}
+				}
+			}
+
+			commonKeys = Array(Set(commonKeys).intersection(allKeys)).sorted()
+			oddKeys = Array(Set(oddKeys).union(allKeys)).sorted()
+			oddKeys = Array(Set(oddKeys).subtracting(commonKeys)).sorted()
+
+			if (oddKeys.count == 0 && shouldGenerateOddKeys && plists.count > 1 && plists.firstIndex(of: plistPath) == 0) {
+				oddKeys = allKeys
 			}
 		}
 
-		commonKeys = Array(Set(commonKeys).intersection(allKeys)).sorted()
-		oddKeys = Array(Set(oddKeys).union(allKeys)).sorted()
-		oddKeys = Array(Set(oddKeys).subtracting(commonKeys)).sorted()
-
-		if (oddKeys.count == 0 && shouldGenerateOddKeys && plists.count > 1 && plists.firstIndex(of: plistPath) == 0) {
-			oddKeys = allKeys
-		}
+		generateProtocol(name: protocolName, commonKeys: commonKeys, oddKeys: oddKeys, keysAndTypes: keysAndTypes)
+		generateEnum(name: enumName, protocolName: protocolName, allTuples: allTuples, keysAndTypes: keysAndTypes, oddKeys: oddKeys)
+	} catch {
+		print("ERROR: \(error)")
+		usage()
 	}
 
-	generateProtocol(name: protocolName, commonKeys: commonKeys, oddKeys: oddKeys, keysAndTypes: keysAndTypes)
-	generateEnum(name: enumName, protocolName: protocolName, allTuples: allTuples, keysAndTypes: keysAndTypes, oddKeys: oddKeys)
 
-}
 
-// MARK: Main
 
