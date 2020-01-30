@@ -84,6 +84,72 @@ private func generateHeader() {
 }
 
 /**
+Checking the key is present in the Optional Dictionary
+*/
+private func isKeyPresentInOptionalDictionary(keyToSearch: String, tupleKey: String, optionalDictionary: [String: [String: String]]) -> Bool {
+	guard let optionalKeysAndTypes = optionalDictionary[keyToSearch] else {
+		return false
+	}
+
+	let optionalArray = optionalKeysAndTypes.keys
+	return optionalArray.contains(tupleKey)
+}
+
+/**
+Checking the key is present in  all the plists
+*/
+private func isKeyAvailableInAllPlists(keyToSearch: String, tupleKey: String, tuplesForPlists: [String: KeyValueTuples]) -> Bool {
+	let plistPaths = tuplesForPlists.keys
+	for plistPath in plistPaths {
+
+		guard let tuples = tuplesForPlists[plistPath] else {
+			return false
+		}
+
+		guard let dictionary = tuples[tupleKey] as? Dictionary<String, Any> else {
+			return false
+		}
+
+		if (dictionary.keys.contains(keyToSearch) == false) {
+				return false
+		}
+	}
+
+	return true
+}
+
+/**
+Generate Protocol for the Tuples and return the optional dictionary
+*/
+private func generateProtocol(tuplesForPlists: [String: KeyValueTuples], allKeyValueTuples: [String: KeyValueTuples]) -> [String: [String: String]] {
+	var optionalDictionary: [String: [String: String]] = [:]
+	for (tupleKey, tuples) in allKeyValueTuples {
+
+		let name = tupleKey.uppercaseFirst()
+		let protocolName = name.appending("Protocol")
+		print("protocol \(protocolName) {")
+		intend()
+
+		var optionalKeysAndTypes: [String: String] = [:]
+		for tuple in tuples.tuples {
+			let isOptional = !(isKeyAvailableInAllPlists(keyToSearch: tuple.key, tupleKey: tupleKey, tuplesForPlists: tuplesForPlists))
+			var type = typeForValue(tuple.value as Any)
+			if (isOptional == true) {
+				type = "\(type)?"
+				optionalKeysAndTypes[tuple.key] = type
+			}
+
+			print("\(tabs())var \(tuple.key.lowercaseFirst()): \(type) { get }")
+		}
+
+		optionalDictionary[tupleKey] = optionalKeysAndTypes
+		print("\(tabs(intendBy: -1))}\n")
+	}
+
+	return optionalDictionary
+}
+
+/**
 Generates a protocol with public instance properties. Used to generate protocols that internal structs conform to.
 
 - Parameter name: Name of the protocol; "Protocol" will be added to the name as suffix
@@ -157,11 +223,11 @@ Generate structs out of Dictionaries and make them conform to a given protocol.
 - protocolName: Name of the protocol; It has to end with a "Protocol" suffix; Default is 'nil' - the new generated protocol will be used
 
 */
-private func generateStructs(name structName: String? = nil, tuples: KeyValueTuples, keysAndTypes: [String: String]? = nil, oddKeys: [String], protocolName: String? = nil) {
+private func generateStructs(name key: String? = nil, tuples: KeyValueTuples, keysAndTypes: [String: String]? = nil, oddKeys: [String], protocolName: String? = nil, optionalDictionary: [String: [String: String]]) {
 	var configName: String? = tuples[configurationKeyName] as? String
 
-	if (configName == nil && structName != nil) {
-		configName = structName?.uppercaseFirst()
+	if (configName == nil && key != nil) {
+		configName = key
 	}
 
 	guard var structName = configName else {
@@ -207,45 +273,80 @@ private func generateStructs(name structName: String? = nil, tuples: KeyValueTup
 	print("\n\(tabs())internal struct \(structName)\(conformingToProtocol) {")
 	intend()
 
+	var availableKeys: [String] = []
 	for tuple in tuples.tuples {
 
-		let key = tuple.key
-		let value = tuple.value
+		let tupleKey = tuple.key
+		let tupleValue = tuple.value
+		availableKeys.append(tupleKey)
 
-		if (oddKeys.contains(key)) {
+		if (oddKeys.contains(tupleKey)) {
 			continue
 		}
 
-		guard let type = localKeysAndTypes?[key] else {
+		guard let type = localKeysAndTypes?[tupleKey] else {
 			return
 		}
 
+		let isOptional: Bool = {
+			guard let key = key else {
+				return false
+			}
+
+			return isKeyPresentInOptionalDictionary(keyToSearch: key, tupleKey: tupleKey, optionalDictionary: optionalDictionary)
+		}()
+
 		switch type {
-		case "String":
-			print("\(tabs())internal let \(key.lowercaseFirst()): \(type) = \"\(value)\"")
-		case "Int":
-			print("\(tabs())internal let \(key.lowercaseFirst()): \(type) = \(value)")
-		case "Bool":
-			let boolString = (((value as? Bool) == true) ? "true" : "false")
-			print("\(tabs())internal let \(key.lowercaseFirst()): \(type) = \(boolString)")
-		case "Array<Any>":
-			let arrayValue = value as! Array<String>
-			print("\(tabs())internal let \(key.lowercaseFirst()): \(type) = \(arrayValue)")
+		case "String" where (isOptional == false):
+			print("\(tabs())internal let \(tupleKey.lowercaseFirst()): \(type) = \"\(tupleValue)\"")
+		case "String" where (isOptional == true):
+			print("\(tabs())internal var \(tupleKey.lowercaseFirst()): \(type)? = \"\(tupleValue)\"")
+		case "Int" where (isOptional == false):
+			print("\(tabs())internal let \(tupleKey.lowercaseFirst()): \(type) = \(tupleValue)")
+		case "Int" where (isOptional == true):
+			print("\(tabs())internal var \(tupleKey.lowercaseFirst()): \(type)? = \(tupleValue)")
+		case "Bool" where (isOptional == false):
+			let boolString = (((tupleValue as? Bool) == true) ? "true" : "false")
+			print("\(tabs())internal let \(tupleKey.lowercaseFirst()): \(type) = \(boolString)")
+		case "Bool" where (isOptional == true):
+			let boolString = (((tupleValue as? Bool) == true) ? "true" : "false")
+			print("\(tabs())internal var \(tupleKey.lowercaseFirst()): \(type)? = \(boolString)")
+		case "Array<Any>" where (isOptional == false):
+			let arrayValue = tupleValue as! Array<String>
+			print("\(tabs())internal let \(tupleKey.lowercaseFirst()): \(type) = \(arrayValue)")
+		case "Array<Any>" where (isOptional == true):
+			let arrayValue = tupleValue as! Array<String>
+			print("\(tabs())internal var \(tupleKey.lowercaseFirst()): \(type)? = \(arrayValue)")
 		default:
 			// default is a struct
 			// Generate struct from the Dictionaries and Protocols
 			if (type.contains("Protocol")) {
-				let dictionary = tuples[key] as? Dictionary<String, Any>
+				let dictionary = tuples[tupleKey] as? Dictionary<String, Any>
 				let sortedDictionary = dictionary?.sorted { (pairOne, pairTwo) -> Bool in
 					return pairOne.key < pairTwo.key
 				}
 
-				generateStructs(name: key.uppercaseFirst(), tuples: KeyValueTuples(tuples: sortedDictionary ?? []), oddKeys: oddKeys, protocolName: type)
+				generateStructs(name: tupleKey, tuples: KeyValueTuples(tuples: sortedDictionary ?? []), oddKeys: oddKeys, protocolName: type, optionalDictionary: optionalDictionary)
 
-				print("\(tabs())internal let \(key.lowercaseFirst()): \(type) = \(key.uppercaseFirst())()")
+				print("\(tabs())internal let \(tupleKey.lowercaseFirst()): \(type) = \(tupleKey.uppercaseFirst())()")
 			}
+
 		}
 	}
+
+	guard let key = key, let optionalKeysAndTypes = optionalDictionary[key] else {
+		print("\(tabs(intendBy: -1))}\n")
+		return
+	}
+
+	let keysAndTypesToAdd = optionalKeysAndTypes.filter { (key: String, type: String) in
+		return (availableKeys.contains(key) == false)
+	}
+
+	for (key, type) in keysAndTypesToAdd {
+		print("\(tabs())internal var \(key.lowercaseFirst()): \(type) = nil")
+	}
+
 	print("\(tabs(intendBy: -1))}\n")
 }
 
@@ -260,7 +361,7 @@ Generates extensions to structs, conforming to protocol
 - oddKeys: Keys to generate Optional properties from
 
 */
-private func generateExtensions(enumName: String, protocolName: String, allTuples: [KeyValueTuples], keysAndTypes: Dictionary<String, String>, oddKeys: [String]) {
+private func generateExtensions(enumName: String, protocolName: String, allTuples: [KeyValueTuples], keysAndTypes: Dictionary<String, String>, oddKeys: [String], optionalDictionary: [String: [String: String]]) {
 	for tuples in allTuples {
 
 		guard let caseName = tuples[configurationKeyName] as? String else {
@@ -298,7 +399,7 @@ private func generateExtensions(enumName: String, protocolName: String, allTuple
 					return pairOne.key < pairTwo.key
 				}
 
-				generateStructs(name: oddKey.uppercaseFirst(), tuples: KeyValueTuples(tuples: sortedDictionary ?? []), oddKeys: oddKeys, protocolName: type)
+				generateStructs(name: oddKey, tuples: KeyValueTuples(tuples: sortedDictionary ?? []), oddKeys: oddKeys, protocolName: type, optionalDictionary: optionalDictionary)
 				print("\(tabs())var \(oddKey.lowercaseFirst()): \(type)? {")
 				print("\(tabs(intendBy: 1))return \(oddKey.uppercaseFirst())()")
 				print("\(tabs(intendBy: -1))}")
@@ -325,7 +426,7 @@ Generate an enum with structs and properties.
 - oddKeys: Keys to generate Optional properties from
 
 */
-private func generateEnum(name enumName: String, protocolName: String, allTuples: [KeyValueTuples], keysAndTypes: Dictionary<String, String>, oddKeys: [String]) {
+private func generateEnum(name enumName: String, protocolName: String, allTuples: [KeyValueTuples], keysAndTypes: Dictionary<String, String>, oddKeys: [String], optionalDictionary: [String: [String: String]]) {
 
 	let cases: [String] = allTuples.map { (tuples: KeyValueTuples) in
 		return (tuples[configurationKeyName] as? String ?? "")
@@ -339,7 +440,7 @@ private func generateEnum(name enumName: String, protocolName: String, allTuples
 	}
 
 	for tuples in allTuples {
-		generateStructs(tuples: tuples, keysAndTypes: keysAndTypes, oddKeys: oddKeys)
+		generateStructs(tuples: tuples, keysAndTypes: keysAndTypes, oddKeys: oddKeys, optionalDictionary: optionalDictionary)
 	}
 
 	print("""
@@ -357,7 +458,7 @@ private func generateEnum(name enumName: String, protocolName: String, allTuples
 	print("\(tabs())}")
 	print("\(tabs(intendBy: -1))}")
 	print("\(tabs(intendBy: -1))}\n")
-	generateExtensions(enumName: enumName, protocolName: protocolName, allTuples: allTuples, keysAndTypes: keysAndTypes, oddKeys: oddKeys)
+	generateExtensions(enumName: enumName, protocolName: protocolName, allTuples: allTuples, keysAndTypes: keysAndTypes, oddKeys: oddKeys, optionalDictionary: optionalDictionary)
 }
 
 /**
@@ -497,7 +598,8 @@ var oddKeys = [String]()
 var keysAndTypes: [String:String] = [:]
 var allTuples: [KeyValueTuples] = []
 var protocolName: String = enumName.appending("Protocol")
-
+var tuplesForPlists: [String: KeyValueTuples] = [:]
+var allKeyValueTuples: [String: KeyValueTuples] = [:]
 generateHeader()
 
 // gather keys and values... and types
@@ -508,6 +610,7 @@ for plistPath in plists {
 		exit(1)
 	}
 
+	tuplesForPlists[plistPath] = tuples
 	allTuples.append(tuples)
 
 	let allKeys = tuples.keys
@@ -537,8 +640,9 @@ for plistPath in plists {
 					return pairOne.key < pairTwo.key
 				}
 
-				let protocolName = generateProtocol(name: key.uppercaseFirst(), tuples: KeyValueTuples(tuples: sortedDictionary ?? []))
-				// override type with new protocol
+				allKeyValueTuples[key] = KeyValueTuples(tuples: sortedDictionary ?? [])
+				let name = key.uppercaseFirst()
+				let protocolName = name.appending("Protocol")
 				keysAndTypes[key] = protocolName
 			}
 		}
@@ -553,5 +657,6 @@ for plistPath in plists {
 	}
 }
 
+let optionalDictionary = generateProtocol(tuplesForPlists: tuplesForPlists, allKeyValueTuples: allKeyValueTuples)
 generateProtocol(name: protocolName, commonKeys: commonKeys, oddKeys: oddKeys, keysAndTypes: keysAndTypes)
-generateEnum(name: enumName, protocolName: protocolName, allTuples: allTuples, keysAndTypes: keysAndTypes, oddKeys: oddKeys)
+generateEnum(name: enumName, protocolName: protocolName, allTuples: allTuples, keysAndTypes: keysAndTypes, oddKeys: oddKeys, optionalDictionary: optionalDictionary)
