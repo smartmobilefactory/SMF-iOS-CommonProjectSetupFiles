@@ -99,19 +99,16 @@ private func isKeyPresentInOptionalDictionary(keyToSearch: String, tupleKey: Str
 Checking the key is present in  all the plists
 */
 private func isKeyAvailableInAllPlists(keyToSearch: String, tupleKey: String, tuplesForPlists: [String: KeyValueTuples]) -> Bool {
-	let plistPaths = tuplesForPlists.keys
-	for plistPath in plistPaths {
+	for plistPath in tuplesForPlists.keys {
 
-		guard let tuples = tuplesForPlists[plistPath] else {
-			return false
-		}
-
-		guard let dictionary = tuples[tupleKey] as? Dictionary<String, Any> else {
+		guard
+			let tuples = tuplesForPlists[plistPath],
+			let dictionary = tuples[tupleKey] as? Dictionary<String, Any>else {
 			return false
 		}
 
 		if (dictionary.keys.contains(keyToSearch) == false) {
-				return false
+			return false
 		}
 	}
 
@@ -122,7 +119,7 @@ private func isKeyAvailableInAllPlists(keyToSearch: String, tupleKey: String, tu
 Generate Protocol for the Tuples and return the optional dictionary
 */
 private func generateProtocol(tuplesForPlists: [String: KeyValueTuples], allKeyValueTuples: [String: KeyValueTuples]) -> [String: [String: String]] {
-	var optionalDictionary: [String: [String: String]] = [:]
+	var optionalDictionary = [String: [String: String]]()
 	for (tupleKey, tuples) in allKeyValueTuples {
 
 		let name = tupleKey.uppercaseFirst()
@@ -130,11 +127,11 @@ private func generateProtocol(tuplesForPlists: [String: KeyValueTuples], allKeyV
 		print("protocol \(protocolName) {")
 		intend()
 
-		var optionalKeysAndTypes: [String: String] = [:]
+		var optionalKeysAndTypes = [String: String]()
 		for tuple in tuples.tuples {
-			let isOptional = !(isKeyAvailableInAllPlists(keyToSearch: tuple.key, tupleKey: tupleKey, tuplesForPlists: tuplesForPlists))
+			let isKeyPresentInAllPlists = isKeyAvailableInAllPlists(keyToSearch: tuple.key, tupleKey: tupleKey, tuplesForPlists: tuplesForPlists)
 			var type = typeForValue(tuple.value as Any)
-			if (isOptional == true) {
+			if (isKeyPresentInAllPlists == false) {
 				type = "\(type)?"
 				optionalKeysAndTypes[tuple.key] = type
 			}
@@ -273,7 +270,7 @@ private func generateStructs(name key: String? = nil, tuples: KeyValueTuples, ke
 	print("\n\(tabs())internal struct \(structName)\(conformingToProtocol) {")
 	intend()
 
-	var availableKeys: [String] = []
+	var availableKeys = [String]()
 	for tuple in tuples.tuples {
 
 		let tupleKey = tuple.key
@@ -312,11 +309,13 @@ private func generateStructs(name key: String? = nil, tuples: KeyValueTuples, ke
 			let boolString = (((tupleValue as? Bool) == true) ? "true" : "false")
 			print("\(tabs())internal var \(tupleKey.lowercaseFirst()): \(type)? = \(boolString)")
 		case "Array<Any>" where (isOptional == false):
-			let arrayValue = tupleValue as! Array<String>
-			print("\(tabs())internal let \(tupleKey.lowercaseFirst()): \(type) = \(arrayValue)")
+			if let arrayValue = tupleValue as? Array<String> {
+				print("\(tabs())internal let \(tupleKey.lowercaseFirst()): \(type) = \(arrayValue)")
+			}
 		case "Array<Any>" where (isOptional == true):
-			let arrayValue = tupleValue as! Array<String>
-			print("\(tabs())internal var \(tupleKey.lowercaseFirst()): \(type)? = \(arrayValue)")
+			if let arrayValue = tupleValue as? Array<String> {
+				print("\(tabs())internal var \(tupleKey.lowercaseFirst()): \(type)? = \(arrayValue)")
+			}
 		default:
 			// default is a struct
 			// Generate struct from the Dictionaries and Protocols
@@ -334,7 +333,9 @@ private func generateStructs(name key: String? = nil, tuples: KeyValueTuples, ke
 		}
 	}
 
-	guard let key = key, let optionalKeysAndTypes = optionalDictionary[key] else {
+	guard
+		let key = key,
+		let optionalKeysAndTypes = optionalDictionary[key] else {
 		print("\(tabs(intendBy: -1))}\n")
 		return
 	}
@@ -559,7 +560,7 @@ class KeyValueTuples {
 // MARK: Main
 
 let args = CommandLine.arguments
-var plists: [String] = []
+var plists  = [String]()
 var enumName: String = ""
 
 if (args.count < 4) {
@@ -595,11 +596,12 @@ if (args.count >= 6 && args[1] == "-e" && args[3] == "-o") {
 let shouldGenerateOddKeys: Bool = CommandLine.arguments.count >= 5
 var commonKeys = [String]()
 var oddKeys = [String]()
-var keysAndTypes: [String:String] = [:]
-var allTuples: [KeyValueTuples] = []
+var keysAndTypes = [String:String]()
+var allTuples = [KeyValueTuples]()
 var protocolName: String = enumName.appending("Protocol")
-var tuplesForPlists: [String: KeyValueTuples] = [:]
-var allKeyValueTuples: [String: KeyValueTuples] = [:]
+var tuplesForPlists = [String: KeyValueTuples]()
+var allKeyValueTuples = [String: KeyValueTuples]()
+
 generateHeader()
 
 // gather keys and values... and types
