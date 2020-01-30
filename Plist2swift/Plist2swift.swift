@@ -103,7 +103,7 @@ private func isKeyAvailableInAllPlists(keyToSearch: String, tupleKey: String, tu
 
 		guard
 			let tuples = tuplesForPlists[plistPath],
-			let dictionary = tuples[tupleKey] as? Dictionary<String, Any>else {
+			let dictionary = tuples[tupleKey] as? Dictionary<String, Any> else {
 			return false
 		}
 
