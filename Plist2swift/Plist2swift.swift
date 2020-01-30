@@ -560,7 +560,7 @@ class KeyValueTuples {
 // MARK: Main
 
 let args = CommandLine.arguments
-var plists  = [String]()
+var plists = [String]()
 var enumName: String = ""
 
 if (args.count < 4) {
