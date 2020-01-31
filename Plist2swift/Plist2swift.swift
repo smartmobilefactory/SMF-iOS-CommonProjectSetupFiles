@@ -30,10 +30,10 @@ private func usage() {
 	exit(1)
 }
 
-private func tabs(intendBy: Int = 0) -> String {
+private func tabs(indentBy: Int = 0) -> String {
 	var tabsString = ""
 
-	intend(by: intendBy)
+	indent(by: indentBy)
 
 	for _ in 0..<countOfTabs {
 		tabsString += "\t"
@@ -42,7 +42,7 @@ private func tabs(intendBy: Int = 0) -> String {
 	return tabsString
 }
 
-private func intend(by indentationLevel: Int = 1) {
+private func indent(by indentationLevel: Int = 1) {
 	countOfTabs += indentationLevel
 }
 
@@ -83,9 +83,6 @@ private func generateHeader() {
 		""")
 }
 
-/**
-Checking the key is present in the Optional Dictionary
-*/
 private func isKeyPresentInOptionalDictionary(keyToSearch: String, tupleKey: String, optionalDictionary: [String: [String: String]]) -> Bool {
 	guard let optionalKeysAndTypes = optionalDictionary[keyToSearch] else {
 		return false
@@ -95,9 +92,6 @@ private func isKeyPresentInOptionalDictionary(keyToSearch: String, tupleKey: Str
 	return optionalArray.contains(tupleKey)
 }
 
-/**
-Checking the key is present in  all the plists
-*/
 private func isKeyAvailableInAllPlists(keyToSearch: String, tupleKey: String, tuplesForPlists: [String: KeyValueTuples]) -> Bool {
 	for plistPath in tuplesForPlists.keys {
 
@@ -115,17 +109,14 @@ private func isKeyAvailableInAllPlists(keyToSearch: String, tupleKey: String, tu
 	return true
 }
 
-/**
-Generate Protocol for the Tuples and return the optional dictionary
-*/
 private func generateProtocol(tuplesForPlists: [String: KeyValueTuples], allKeyValueTuples: [String: KeyValueTuples]) -> [String: [String: String]] {
-	var optionalDictionary = [String: [String: String]]()
+	var dictionaryWithOptionalValues = [String: [String: String]]()
 	for (tupleKey, tuples) in allKeyValueTuples {
 
 		let name = tupleKey.uppercaseFirst()
 		let protocolName = name.appending("Protocol")
 		print("protocol \(protocolName) {")
-		intend()
+		indent()
 
 		var optionalKeysAndTypes = [String: String]()
 		for tuple in tuples.tuples {
@@ -139,11 +130,11 @@ private func generateProtocol(tuplesForPlists: [String: KeyValueTuples], allKeyV
 			print("\(tabs())var \(tuple.key.lowercaseFirst()): \(type) { get }")
 		}
 
-		optionalDictionary[tupleKey] = optionalKeysAndTypes
-		print("\(tabs(intendBy: -1))}\n")
+		dictionaryWithOptionalValues[tupleKey] = optionalKeysAndTypes
+		print("\(tabs(indentBy: -1))}\n")
 	}
 
-	return optionalDictionary
+	return dictionaryWithOptionalValues
 }
 
 /**
@@ -158,14 +149,14 @@ private func generateProtocol(name: String, tuples: KeyValueTuples) -> String {
 
 	let protocolName = name.appending("Protocol")
 	print("protocol \(protocolName) {")
-	intend()
+	indent()
 
 	for tuple in tuples.tuples {
 		let type = typeForValue(tuple.value as Any)
 		print("\(tabs())var \(tuple.key.lowercaseFirst()): \(type) { get }")
 	}
 
-	print("\(tabs(intendBy: -1))}\n")
+	print("\(tabs(indentBy: -1))}\n")
 	return protocolName
 }
 
@@ -180,7 +171,7 @@ Generate the general protocol with class properties.
 */
 private func generateProtocol(name: String, commonKeys: [String], oddKeys: [String], keysAndTypes: [String:String]) {
 	print("\(tabs())protocol \(name) {")
-	intend()
+	indent()
 	print("\(tabs())// Common Keys")
 
 	for commonKey in commonKeys {
@@ -206,7 +197,7 @@ private func generateProtocol(name: String, commonKeys: [String], oddKeys: [Stri
 		}
 	}
 
-	print("\(tabs(intendBy: -1))}\n")
+	print("\(tabs(indentBy: -1))}\n")
 }
 
 /**
@@ -268,7 +259,7 @@ private func generateStructs(name key: String? = nil, tuples: KeyValueTuples, ke
 	}
 
 	print("\n\(tabs())internal struct \(structName)\(conformingToProtocol) {")
-	intend()
+	indent()
 
 	var availableKeys = [String]()
 	for tuple in tuples.tuples {
@@ -336,7 +327,7 @@ private func generateStructs(name key: String? = nil, tuples: KeyValueTuples, ke
 	guard
 		let key = key,
 		let optionalKeysAndTypes = optionalDictionary[key] else {
-		print("\(tabs(intendBy: -1))}\n")
+		print("\(tabs(indentBy: -1))}\n")
 		return
 	}
 
@@ -348,7 +339,7 @@ private func generateStructs(name key: String? = nil, tuples: KeyValueTuples, ke
 		print("\(tabs())internal var \(key.lowercaseFirst()): \(type) = nil")
 	}
 
-	print("\(tabs(intendBy: -1))}\n")
+	print("\(tabs(indentBy: -1))}\n")
 }
 
 /**
@@ -372,7 +363,7 @@ private func generateExtensions(enumName: String, protocolName: String, allTuple
 		let structName = caseName.uppercaseFirst()
 
 		print("\(tabs())extension \(enumName).\(structName): \(protocolName) {")
-		intend()
+		indent()
 
 		for oddKey in oddKeys {
 
@@ -390,8 +381,8 @@ private func generateExtensions(enumName: String, protocolName: String, allTuple
 			} else if (type.contains("Protocol")){
 				guard tuples[oddKey] != nil else {
 					print("\(tabs())var \(oddKey.lowercaseFirst()): \(type)? {")
-					print("\(tabs(intendBy: 1))return nil")
-					print("\(tabs(intendBy: -1))}")
+					print("\(tabs(indentBy: 1))return nil")
+					print("\(tabs(indentBy: -1))}")
 					continue
 				}
 
@@ -402,17 +393,17 @@ private func generateExtensions(enumName: String, protocolName: String, allTuple
 
 				generateStructs(name: oddKey, tuples: KeyValueTuples(tuples: sortedDictionary ?? []), oddKeys: oddKeys, protocolName: type, optionalDictionary: optionalDictionary)
 				print("\(tabs())var \(oddKey.lowercaseFirst()): \(type)? {")
-				print("\(tabs(intendBy: 1))return \(oddKey.uppercaseFirst())()")
-				print("\(tabs(intendBy: -1))}")
+				print("\(tabs(indentBy: 1))return \(oddKey.uppercaseFirst())()")
+				print("\(tabs(indentBy: -1))}")
 			} else { // String
 				print("\(tabs())var \(oddKey.lowercaseFirst()): \(type)? {")
-				intend()
+				indent()
 				let returnValue = tuples[oddKey] as? String
 				returnValue != nil ? print("\(tabs())return \"\(returnValue!)\"") : print("\(tabs())return nil")
-				print("\(tabs(intendBy: -1))}")
+				print("\(tabs(indentBy: -1))}")
 			}
 		}
-		print("\(tabs(intendBy: -1))}\n")
+		print("\(tabs(indentBy: -1))}\n")
 	}
 }
 
@@ -434,7 +425,7 @@ private func generateEnum(name enumName: String, protocolName: String, allTuples
 	}
 
 	print("\(tabs())internal enum \(enumName) {")
-	intend()
+	indent()
 
 	for caseName in cases {
 		print("\(tabs())case \(caseName.lowercaseFirst())")
@@ -447,7 +438,7 @@ private func generateEnum(name enumName: String, protocolName: String, allTuples
 	print("""
 		\(tabs())var configuration: \(protocolName) {
 
-		\(tabs(intendBy: 1))switch self {
+		\(tabs(indentBy: 1))switch self {
 		""")
 
 	for caseName in cases {
@@ -457,8 +448,8 @@ private func generateEnum(name enumName: String, protocolName: String, allTuples
 	}
 
 	print("\(tabs())}")
-	print("\(tabs(intendBy: -1))}")
-	print("\(tabs(intendBy: -1))}\n")
+	print("\(tabs(indentBy: -1))}")
+	print("\(tabs(indentBy: -1))}\n")
 	generateExtensions(enumName: enumName, protocolName: protocolName, allTuples: allTuples, keysAndTypes: keysAndTypes, oddKeys: oddKeys, optionalDictionary: optionalDictionary)
 }
 
