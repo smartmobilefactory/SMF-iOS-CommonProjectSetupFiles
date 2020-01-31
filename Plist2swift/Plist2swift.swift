@@ -97,7 +97,7 @@ private func isKeyAvailableInAllPlists(keyToSearch: String, tupleKey: String, tu
 		if
 			let tuples = tuplesForPlists[plistPath],
 			let dictionary = tuples[tupleKey] as? Dictionary<String, Any> {
-			
+
 			if (dictionary.keys.contains(keyToSearch) == false) {
 				return false
 			}
@@ -325,8 +325,8 @@ private func generateStructs(name key: String? = nil, tuples: KeyValueTuples, ke
 	guard
 		let key = key,
 		let optionalKeysAndTypes = optionalDictionary[key] else {
-		print("\(tabs(indentBy: -1))}\n")
-		return
+			print("\(tabs(indentBy: -1))}\n")
+			return
 	}
 
 	let keysAndTypesToAdd = optionalKeysAndTypes.filter { (key: String, type: String) in
