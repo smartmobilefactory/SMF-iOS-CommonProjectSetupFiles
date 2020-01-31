@@ -94,15 +94,13 @@ private func isKeyPresentInOptionalDictionary(keyToSearch: String, tupleKey: Str
 
 private func isKeyAvailableInAllPlists(keyToSearch: String, tupleKey: String, tuplesForPlists: [String: KeyValueTuples]) -> Bool {
 	for plistPath in tuplesForPlists.keys {
-
-		guard
+		if
 			let tuples = tuplesForPlists[plistPath],
-			let dictionary = tuples[tupleKey] as? Dictionary<String, Any>else {
-			return false
-		}
-
-		if (dictionary.keys.contains(keyToSearch) == false) {
-			return false
+			let dictionary = tuples[tupleKey] as? Dictionary<String, Any> {
+			
+			if (dictionary.keys.contains(keyToSearch) == false) {
+				return false
+			}
 		}
 	}
 
