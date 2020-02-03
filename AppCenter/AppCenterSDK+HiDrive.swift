@@ -58,11 +58,21 @@ class AppCenterSDK: NSObject {
 
 		self.delegate = AppCenterSDKDelegate(isLogUploadEnabled: configuration.isLogUploadEnabled)
 
+		var services = [AnyClass]()
+
 		#if !os(macOS)
-		let services = (configuration.isDistributionEnabled == true) ? [MSCrashes.self, MSDistribute.self] : [MSCrashes.self]
-		#else
-		let services = [MSCrashes.self]
+		if (configuration.isDistributionEnabled == true) {
+			services.append(MSDistribute.self)
+		}
 		#endif
+
+		if (configuration.isCrashReportEnabled == true) {
+			services.append(MSCrashes.self)
+		}
+
+		guard (services.isEmpty == false) else {
+			return
+		}
 
 		MSAppCenter.start(configuration.appSecret, withServices: services)
 		MSCrashes.setEnabled(configuration.isCrashReportEnabled)
