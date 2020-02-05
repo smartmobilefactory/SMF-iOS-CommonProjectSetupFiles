@@ -8,7 +8,6 @@
 
 import Foundation
 import AppCenter
-import AppCenterCrashes
 import AppCenterDistribute
 
 fileprivate enum AppCenterConstants {
@@ -36,7 +35,7 @@ class AppCenterSDK: NSObject {
 
 	// MARK: - Methods
 
-	/// This will setup the AppCenterSDK with the common base configuration. Crashes will be detected if the app is build with the release build type.
+	/// This will setup the AppCenterSDK with the common base configuration.
 	/// Distribution can be enabled using the configuration
 	///
 	/// - Parameters:
@@ -46,7 +45,7 @@ class AppCenterSDK: NSObject {
 			return
 		}
 
-		let services = (configuration.isDistributionEnabled == true) ? [MSCrashes.self, MSDistribute.self] : [MSCrashes.self]
+		let services = (configuration.isDistributionEnabled == true) ? [MSDistribute.self] : []
 
 		MSAppCenter.start(configuration.appSecret, withServices: services)
 	}
@@ -68,12 +67,6 @@ class AppCenterSDK: NSObject {
 	/// - Parameter enabled: Enable or Disable Distribtion
 	static func enableDistribution(enabled: Bool = true) {
 		MSDistribute.setEnabled(enabled)
-	}
-
-	/// This will create a `fatalError` to crash the app.
-	static func performTestCrash() {
-
-		MSCrashes.generateTestCrash()
 	}
 }
 
