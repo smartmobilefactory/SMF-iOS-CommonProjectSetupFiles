@@ -1,3 +1,5 @@
+#!/usr/bin/env xcrun --sdk macosx swift
+
 //
 //  main.swift
 //  plist2swift
