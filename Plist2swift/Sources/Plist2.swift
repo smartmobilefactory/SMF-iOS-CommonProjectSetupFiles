@@ -1,3 +1,5 @@
+#!/usr/bin/env xcrun --sdk macosx swift
+
 //
 //  main.swift
 //  plist2swift
@@ -620,22 +622,31 @@ for plistPath in plists {
 	}
 
 	for key in allKeys {
-		if (keysAndTypes[key] == nil) {
-			let type = typeForValue(tuples[key]!)
+		guard let tuple = tuples[key] else {
+			continue
+		}
+
+		let type = typeForValue(tuple)
+		if (type != "Dictionary<String, Any>") { // Just register the existence of primitive types
 			keysAndTypes[key] = type
-			// Generate protocols for Dictionary entries
-			if (type == "Dictionary<String, Any>") {
+		} else { // Generate protocols for Dictionary entries
+			var dictionary = tuples[key] as? Dictionary<String, Any> ?? [:]
 
-				let dictionary = tuples[key] as? Dictionary<String, Any>
-				let sortedDictionary = dictionary?.sorted { (pairOne, pairTwo) -> Bool in
-					return pairOne.key < pairTwo.key
+			// Merge sub-keys in dictionaries from current property list with already known sub-keys from dictionaries
+			// with the same name.
+			if let keyValueTuples = allKeyValueTuples[key] {
+				for knownKey in Set<String>(keyValueTuples.keys).subtracting(Set(dictionary.keys)) {
+					for (tupleKey, tupleValue) in keyValueTuples.tuples {
+						if (tupleKey == knownKey) {
+							dictionary[tupleKey] = tupleValue
+						}
+					}
 				}
-
-				allKeyValueTuples[key] = KeyValueTuples(tuples: sortedDictionary ?? [])
-				let name = key.uppercaseFirst()
-				let protocolName = name.appending("Protocol")
-				keysAndTypes[key] = protocolName
 			}
+
+			allKeyValueTuples[key] = KeyValueTuples(tuples: dictionary.sorted { $0.key < $1.key })
+			// Generate protocol name
+			keysAndTypes[key] = key.uppercaseFirst().appending("Protocol")
 		}
 	}
 
