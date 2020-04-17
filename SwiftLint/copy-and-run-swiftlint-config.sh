@@ -175,7 +175,7 @@ else
 	fi
 fi
 
-if [[ $isFramework == true ]]; then
+if [ $isFramework = true ]; then
 	# Merge with framework config
 	temporaryMergedSwiftLintConfigFilename="$temporarySwiftLintConfigFilename.merged"
 	cat "$temporarySwiftLintConfigFilename" "swiftlint+frameworks.yml" > "$temporaryMergedSwiftLintConfigFilename"
