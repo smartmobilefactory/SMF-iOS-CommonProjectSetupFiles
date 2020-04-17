@@ -1,0 +1,12 @@
+###
+# swiftlint+swiftUI.yml
+# For a swiftUI projects only
+#
+# This list of disabled rules gets appended to the swiftlint.yml when it gets copied into the root project directory.
+# You can add more "disabled_rules" here.
+
+# rule identifiers to exclude from running
+disabled_rules:
+  - multiple_closures_with_trailing_closure
+  - missing_closure_name
+  - missing_closure_datatype

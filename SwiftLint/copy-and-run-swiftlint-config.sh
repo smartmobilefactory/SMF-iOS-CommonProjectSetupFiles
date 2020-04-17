@@ -18,6 +18,7 @@ readonly temporarySwiftLintConfigFilename=".$(uuidgen)-swiftlint.yml"
 
 projectDir="$1"
 isFramework=$2
+swiftUI=$3
 
 #
 # Check requirements
@@ -83,12 +84,50 @@ function merge_commons_with_project_excluded_paths () {
 	return 0
 }
 
+function add_swiftUI_disabled_rules () {
+	disabled_pattern="disabled_rules:"
+	disabled_flag_1=false
+	disabled_flag_2=false
+
+	touch "$temporarySwiftLintConfigFilename"
+
+	while IFS= read -r line_1 || [[ -n "$line_1" ]]; do
+
+		if [[ $disabled_flag_1 == true ]]; then
+
+			while IFS= read -r line_2 || [[ -n "$line_2" ]]; do
+
+				if [[ $disabled_flag_2 == true ]]; then
+					echo "$line_2" >> "$temporarySwiftLintConfigFilename"
+				fi
+
+				if [[ $line_2 =~ $disabled_pattern ]]; then
+					disabled_flag_2=true
+				fi
+			done < "swiftlint+swiftUI.yml"
+			disabled_flag_1=false
+		fi
+
+		if [[ $line_1 =~ $disabled_pattern ]]; then
+			disabled_flag_1=true
+		fi
+		echo "$line_1" >> "$temporarySwiftLintConfigFilename"
+	done < "swiftlint.yml"
+
+	return 0
+}
+
 #
 # Logic
 #
 
 # Go the folder which contains this script
 cd "$scriptBaseFolderPath"
+
+# Disabled certain rules listet in swiftlint+swiftUI.yml if this is a swiftUI project
+if [ $swiftUI = true]; then
+	add_swiftUI_disabled_rules
+fi
 
 # Merge the excluded paths of the commons and the project specific configuration
 if [ -f "$projectDir/.project-swiftlint.yml" ]; then
