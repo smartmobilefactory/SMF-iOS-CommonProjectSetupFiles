@@ -125,7 +125,7 @@ function add_swiftUI_disabled_rules () {
 cd "$scriptBaseFolderPath"
 
 # Disabled certain rules listet in swiftlint+swiftUI.yml if this is a swiftUI project
-if [ $swiftUI = true]; then
+if [ $swiftUI = true ]; then
 	add_swiftUI_disabled_rules
 fi
 
