@@ -9,4 +9,3 @@
 disabled_rules:
   - multiple_closures_with_trailing_closure
   - missing_closure_name
-  - missing_closure_datatype
