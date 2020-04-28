@@ -17,6 +17,7 @@ readonly noXcodeCheck="--no-xcodecheck"
 readonly buildConfigurationFlag="--buildconfig"
 readonly targetTypeFlag="--targettype"
 readonly breakingInternalFrameworkVersioningFlag="--use-breaking-internal-framework-versioning"
+readonly swiftUIFlag="--SwiftUI"
 
 readonly scriptBaseFolderPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -33,6 +34,7 @@ callCodeClimate=true
 checkXcodeVersion=true
 projectDir="$(pwd)"
 isDebugConfiguration=false
+isSwiftUIProject=false
 
 #
 # Methods
@@ -45,6 +47,7 @@ function display_usage () {
 	echo -e "$noCodebeatFlag\t\t\t\t- Don't copy the default SMF codebeat configuration"
 	echo -e "$noCodeClimateFlag\t\t\t- Don't copy the default SMF Code Climate configuration"
 	echo -e "$breakingInternalFrameworkVersioningFlag\t -Use the \"BreakingInternal framework versioning system\" (only for frameworks)"
+	echo -e "$swiftUIFlag\t\t\t\t- Use custom SwiftLint rules for swift ui projects"
 	echo -e "\nUsage:\n$ $0 $noCodebeatFlag"
 	echo -e "or:\n$ $0 $noCodebeatFlag /Code/Project/Test"
 }
@@ -93,6 +96,11 @@ while test $# -gt 0; do
 			shift
 			# break
 			;;
+		$swiftUIFlag)
+			isSwiftUIProject=true
+			shift
+			# break
+			;;
 		$noCodeClimateFlag)
 			callCodeClimate=false
 			shift
@@ -123,7 +131,7 @@ cd "$scriptBaseFolderPath"
 #
 
 if [ $callSwiftlint = true ]; then
-	./SwiftLint/copy-and-run-swiftlint-config.sh "$projectDir" $isFramework || exit 1;
+	./SwiftLint/copy-and-run-swiftlint-config.sh "$projectDir" $isFramework $isSwiftUIProject || exit 1;
 fi
 
 if [ $callCodebeat = true ]; then

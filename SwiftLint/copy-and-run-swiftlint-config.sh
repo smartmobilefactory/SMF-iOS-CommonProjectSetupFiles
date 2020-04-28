@@ -18,6 +18,7 @@ readonly temporarySwiftLintConfigFilename=".$(uuidgen)-swiftlint.yml"
 
 projectDir="$1"
 isFramework=$2
+swiftUI=$3
 
 #
 # Check requirements
@@ -25,7 +26,7 @@ isFramework=$2
 
 # Check if project dir is provided. If not: Use the scripts base directory.
 if [  -z "$1" ]; then
-   	projectDir="$scriptBaseFolderPath"
+	projectDir="$scriptBaseFolderPath"
 fi
 
 # Contains the local SwiftLint settings (.project-swiftlint.yml). Global so we dont read it multiple times.
@@ -35,7 +36,7 @@ declare -a local_lines
 function read_local_settings() {
 	let i=0
 	while IFS=$'\n' read -r -a line_data; do
-   		local_lines[i]="${line_data}"
+		local_lines[i]="${line_data}"
 		((++i))
 	done < $1
 }
@@ -64,7 +65,7 @@ function write_local_settings() {
 	done
 }
 
-function merge_commons_with_project_excluded_paths () {
+function merge_commons_with_project_excluded_paths() {
 
 	read_local_settings "$projectDir/.project-swiftlint.yml"
 
@@ -83,6 +84,73 @@ function merge_commons_with_project_excluded_paths () {
 	return 0
 }
 
+# Adds disabled rules to diabled section and removes custom rules for the custom rules section
+function add_swiftUI_disabled_rules() {
+	disabled_pattern="disabled_rules:"
+	disabled_flag_1=false
+	disabled_flag_2=false
+	in_rule=false
+	temporarySwiftUILintConfigFilename=".$(uuidgen)-swiftlint-swift-ui.yml"
+	local base_file=$1
+
+	touch "$temporarySwiftUILintConfigFilename"
+
+	while IFS= read -r line_1 || [[ -n "$line_1" ]]; do
+
+		if [[ $disabled_flag_1 == true ]]; then
+
+			while IFS= read -r line_2 || [[ -n "$line_2" ]]; do
+
+				if [[ $disabled_flag_2 == true ]]; then
+					echo "$line_2" >> "$temporarySwiftUILintConfigFilename"
+				fi
+
+				if [[ $line_2 =~ $disabled_pattern ]]; then
+					disabled_flag_2=true
+				fi
+			done < "swiftlint+swiftUI.yml"
+			disabled_flag_1=false
+		fi
+
+		disabled_flag_2=false
+
+		if [[ $line_1 =~ $disabled_pattern ]]; then
+			disabled_flag_1=true
+			echo $line_1 >> "$temporarySwiftUILintConfigFilename"
+		else
+			while IFS= read -r line_2 || [[ -n "$line_2" ]]; do
+				if [[ $disabled_flag_2 == true ]]; then
+					if [[ $line_1 =~ ${line_2:3} ]]; then
+						in_rule=first
+					fi
+				fi
+
+				if [[ $line_2 =~ $disabled_pattern ]]; then
+					disabled_flag_2=true
+				fi
+			done < "swiftlint+swiftUI.yml"
+
+			if [[ $in_rule == false ]]; then
+				echo "$line_1" >> "$temporarySwiftUILintConfigFilename"
+			elif [[ $in_rule == first ]]; then
+				in_rule=true
+			elif [[ ${line_1:3:1} != " " ]]; then
+				echo "$line_1" >> "$temporarySwiftUILintConfigFilename"
+				in_rule=false
+			fi
+
+			if [[ $line_1 =~ $disabled_pattern ]]; then
+				disabled_flag_1=true
+			fi
+		fi
+
+	done < "$base_file"
+
+	cp "$temporarySwiftUILintConfigFilename" "$temporarySwiftLintConfigFilename"
+	rm "$temporarySwiftUILintConfigFilename"
+	return 0
+}
+
 #
 # Logic
 #
@@ -92,10 +160,19 @@ cd "$scriptBaseFolderPath"
 
 # Merge the excluded paths of the commons and the project specific configuration
 if [ -f "$projectDir/.project-swiftlint.yml" ]; then
-    merge_commons_with_project_excluded_paths
+	merge_commons_with_project_excluded_paths
+	
+	if [[ $swiftUI == true ]]; then
+		add_swiftUI_disabled_rules "$temporarySwiftLintConfigFilename"
+	fi
 else
-	# Copy the normal swiftlint file as tempoary one as this file is used later
-	cp "swiftlint.yml" "$temporarySwiftLintConfigFilename"
+	# Disabled certain rules listet in swiftlint+swiftUI.yml if this is a swiftUI project
+	if [[ $swiftUI == true ]]; then
+		add_swiftUI_disabled_rules "swiftlint.yml"
+	else
+		# Copy the normal swiftlint file as tempoary one as this file is used later
+		cp "swiftlint.yml" "$temporarySwiftLintConfigFilename"
+	fi
 fi
 
 if [ $isFramework = true ]; then
