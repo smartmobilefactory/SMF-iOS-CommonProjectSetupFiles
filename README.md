@@ -27,6 +27,13 @@ The script for an app should look like:
 ```
 "${SRCROOT}/Submodules/SMF-iOS-CommonProjectSetupFiles/setup-common-project-files.sh" --buildconfig "${CONFIGURATION}" --targettype "${PRODUCT_TYPE}"
 ```
+
+If the App uses SwiftUI, this call should be used:
+
+```
+"${SRCROOT}/Submodules/SMF-iOS-CommonProjectSetupFiles/setup-common-project-files.sh" --buildconfig "${CONFIGURATION}" --targettype "${PRODUCT_TYPE}" --SwiftUI
+```
+
 If you're developing on a framework use this line on the all of your Unit Test targets:
 
 ```
