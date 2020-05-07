@@ -109,7 +109,7 @@ private func isKeyAvailableInAllPlists(keyToSearch: String, tupleKey: String, tu
 	return true
 }
 
-private func generateProtocol(tuplesForPlists: [String: KeyValueTuples], allKeyValueTuples: [String: KeyValueTuples]) -> [String: [String: String]] {
+private func generateProtocol(tuplesForPlists: [String: KeyValueTuples], allKeyValueTuples: [(String, KeyValueTuples)]) -> [String: [String: String]] {
 	var dictionaryWithOptionalValues = [String: [String: String]]()
 	for (tupleKey, tuples) in allKeyValueTuples {
 
@@ -659,6 +659,7 @@ for plistPath in plists {
 	}
 }
 
-let optionalDictionary = generateProtocol(tuplesForPlists: tuplesForPlists, allKeyValueTuples: allKeyValueTuples)
+let allKeyValueTuplesSorted = allKeyValueTuples.sorted(by: { $0.0 < $1.0 })
+let optionalDictionary = generateProtocol(tuplesForPlists: tuplesForPlists, allKeyValueTuples: allKeyValueTuplesSorted)
 generateProtocol(name: protocolName, commonKeys: commonKeys, oddKeys: oddKeys, keysAndTypes: keysAndTypes)
 generateEnum(name: enumName, protocolName: protocolName, allTuples: allTuples, keysAndTypes: keysAndTypes, oddKeys: oddKeys, optionalDictionary: optionalDictionary)
