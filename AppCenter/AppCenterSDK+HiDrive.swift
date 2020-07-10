@@ -18,7 +18,7 @@ import SMFLogger
 fileprivate enum AppCenterConstants {
 
 	static let appSecretKey					= "AppCenterAppSecret"
-	static let smfLogUploadMaxSize	: Int	= 5000
+	static let smfLogUploadMaxCharCount		= 1_500_000 // With 1_500_000 chars we'll be at 1.5MB~
 	static let crashLogFileName				= "SMFLogger.log"
 }
 
@@ -191,7 +191,7 @@ private class AppCenterSDKDelegate	: NSObject, MSCrashesDelegate {
 	private var applicationLog: String {
 		guard
 			(self.isLogUploadEnabled == true),
-			let description = Logger.logFilesContent(maxSize: AppCenterConstants.smfLogUploadMaxSize),
+			let description = Logger.logFilesContent(maxSize: AppCenterConstants.smfLogUploadMaxCharCount),
 			(description.isEmpty == false) else {
 				return "No Log found"
 		}
