@@ -5,7 +5,7 @@
 //  Created by Konstantin Deichmann on 11.09.19.
 //  Copyright © 2019 SmartMobileFactory. All rights reserved.
 //
-
+#if os(iOS)
 import Foundation
 import AppCenter
 import AppCenterDistribute
@@ -109,3 +109,4 @@ extension AppCenterSDK {
 		}
 	}
 }
+#endif
