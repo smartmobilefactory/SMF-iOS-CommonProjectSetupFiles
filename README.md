@@ -15,7 +15,6 @@ Helpers which can be added manually to the Xcode project which should be used:
 Scripts which should be called during the build phase:
 
 - [SwiftLint](#swiftlint)
-- [Codebeat](#codebeat)
 - [Xcode version check](#xcode-version-check)
 
 ### Setup
@@ -25,19 +24,19 @@ Go to the the projects `Build Phases` configuration, add a `New Run Script Phase
 The script for an app should look like:
 
 ```
-"${SRCROOT}/Submodules/SMF-iOS-CommonProjectSetupFiles/setup-common-project-files.sh" --buildconfig "${CONFIGURATION}" --targettype "${PRODUCT_TYPE}"
+"${SRCROOT}/Submodules/SMF-iOS-CommonProjectSetupFiles/setup-common-project-files.sh" --targettype "${PRODUCT_TYPE}"
 ```
 
 If the App uses SwiftUI, this call should be used:
 
 ```
-"${SRCROOT}/Submodules/SMF-iOS-CommonProjectSetupFiles/setup-common-project-files.sh" --buildconfig "${CONFIGURATION}" --targettype "${PRODUCT_TYPE}" --SwiftUI
+"${SRCROOT}/Submodules/SMF-iOS-CommonProjectSetupFiles/setup-common-project-files.sh" --targettype "${PRODUCT_TYPE}" --SwiftUI
 ```
 
 If you're developing on a framework use this line on the all of your Unit Test targets:
 
 ```
-"${SRCROOT}/Submodules/SMF-iOS-CommonProjectSetupFiles/setup-common-project-files.sh" --buildconfig "${CONFIGURATION}" --targettype "com.apple.product-type.framework"
+"${SRCROOT}/Submodules/SMF-iOS-CommonProjectSetupFiles/setup-common-project-files.sh" --targettype "com.apple.product-type.framework"
 ```
 
 This will copy the Codebeat configuration files, copy the SwiftLint configuration and for DEBUG configuration run SwiftLint. In case either of them shouldn't be used in the project a flag can be used to opt out (see the readme below).
@@ -45,7 +44,7 @@ This will copy the Codebeat configuration files, copy the SwiftLint configuratio
 If you want to add more parameters, eg. to disable SwiftLint, you have to add them with separate `"`s. Otherwise the parameters will be interpreted as one string. Example with disabled SwiftLint:
 
 ```
-"${SRCROOT}/Submodules/SMF-iOS-CommonProjectSetupFiles/setup-common-project-files.sh" --buildconfig "${CONFIGURATION}" --targettype "${PRODUCT_TYPE}" "--no-swiftlint"
+"${SRCROOT}/Submodules/SMF-iOS-CommonProjectSetupFiles/setup-common-project-files.sh" --targettype "${PRODUCT_TYPE}" "--no-swiftlint"
 ```
 
 # Documentation
@@ -163,7 +162,7 @@ Multiple `#if canImport(LifetimeTracker)` checks make sure that targets with Lif
 
 ## Scripts to be called during Build phase
 
-###SwiftLint
+### SwiftLint
 
 Swiftlint is integrated in SMF-iOS-CommonProjectSetupFiles itself. The current version is 0.28.1.
 
@@ -186,15 +185,6 @@ excluded:
 
 #### Optional: Call the SwiftLint script without using the setup script
 If you want to copy the SwiftLint configuration and lint the code without integrating the setup script you can call `Submodules/SMF-iOS-CommonProjectSetupFiles/SwiftLint/copy-and-run-swiftlint-config.sh` directly.
-
-### Codebeat
-
-[Codebeat](http://codebeat.co) is a service which provides static code analysis. The integration isn't done in the repo itself. But ignore and configuration files should be added to customize rules and ignore unwanted code (like generated source files).
-
-The Codebeat configuration files copying is integrated in the [setup script](#setup). If it shouldn't be used you can pass the flag `--no-codebeat`.
-
-#### Optional: Call the Codebeat configuration script without using the setup script
-If you want to copy the Codebeat configuration files without integrating the setup script you can call `Submodules/SMF-iOS-CommonProjectSetupFiles/Codebeat/copy-codebeat-config.sh` directly.
 
 ### Xcode version check
 
