@@ -5,5 +5,5 @@
 # This files gets appended to the swiftlint.yml when it gets copied into the root project directory.
 # You can add more "opt_in_rules" rules here.
 
-opt_in_rules:
-  - explicit_top_level_acl
+#opt_in_rules:
+#  - explicit_top_level_acl
