@@ -29,6 +29,7 @@ excluded:
   - Database/Model
   - fastlane
 
+# optional rules that need to be manually opt-in to be used
 opt_in_rules:
   - force_unwrapping
   - conditional_returns_on_newline

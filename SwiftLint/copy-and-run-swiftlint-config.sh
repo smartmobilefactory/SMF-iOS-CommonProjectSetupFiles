@@ -2,8 +2,9 @@
 # Copies the Swiflint configuration to the projects base folder
 #
 # Author Hans Seiffert
+# Updated Kevin Delord
 #
-# Last revised 05/01/2017
+# Last revised 17/09/2020
 
 #
 # Constants
@@ -17,14 +18,14 @@ readonly temporarySwiftLintConfigFilename=".$(uuidgen)-swiftlint.yml"
 #
 
 projectDir="$1"
-isFramework=$2
-swiftUI=$3
+isFramework="$2"
+swiftUI="$3"
 
 #
 # Check requirements
 #
 
-# Check if project dir is provided. If not: Use the scripts base directory.
+# Check if project directory is provided. If not: Use the scripts base directory.
 if [  -z "$1" ]; then
 	projectDir="$scriptBaseFolderPath"
 fi
@@ -45,10 +46,10 @@ function read_local_settings() {
 function write_local_settings() {
 	# Variable which is true if we are in the excluded section
 	local is_in_matched_section=false
-	
+
 	# Section to look for
 	local matched_section=$1
-	
+
 	for project_line in "${local_lines[@]}"; do
 		# Determine if we are in the excluded section
 		if [[ "$project_line" == "$matched_section" ]]; then
@@ -60,38 +61,40 @@ function write_local_settings() {
 
 		# Copy the excluded path line if we are in the excluded section
 		if $is_in_matched_section; then
-			echo "$project_line" >> "$temporarySwiftLintConfigFilename"
+			echo "$project_line" >> "$2"
 		fi
 	done
 }
 
-function merge_commons_with_project_excluded_paths() {
+# Merge configuration files together
+# Parameters:
+# $1: The local/custom config file
+# $2: The base file in which the custom config should be merged into
+# $3: The output file with the merged configuration. Must not exist (or be empty).
+function merge_swiftlint_configuration() {
 
-	read_local_settings "$projectDir/.project-swiftlint.yml"
-
-	# Create the temporary file which will contain the merge from the commons and the projects swiftlint configuration
-	touch "$temporarySwiftLintConfigFilename"
+	read_local_settings "$1"
 
 	# Read the commons SwiftLint configuration file
 	while IFS= read -r global_line; do
 		# Copy the line first as this allows the script to directly copy the project depened paths if the excluded sections start was found
-		echo "$global_line" >> "$temporarySwiftLintConfigFilename"
-		if ([[ "$global_line" =~ (^excluded:) ]] || [[ "$global_line" =~ (^disabled_rules:) ]]) then
-			write_local_settings "$global_line"
+		echo "$global_line" >> "$3"
+		if ([[ "$global_line" =~ (^excluded:) ]] || [[ "$global_line" =~ (^disabled_rules:) ]] || [[ "$global_line" =~ (^opt_in_rules:) ]]) then
+			write_local_settings "$global_line" "$3"
 		fi
-	done < "swiftlint.yml"
-
-	return 0
+	done < "$2"
 }
 
-# Adds disabled rules to diabled section and removes custom rules for the custom rules section
-function add_swiftUI_disabled_rules() {
+# Adds disabled rules to disabled section and removes custom rules for the custom rules section
+function add_disabled_rules_from_config_file() {
+	local config_file_yml=$1
+	local base_file=$2
 	disabled_pattern="disabled_rules:"
 	disabled_flag_1=false
 	disabled_flag_2=false
 	in_rule=false
 	temporarySwiftUILintConfigFilename=".$(uuidgen)-swiftlint-swift-ui.yml"
-	local base_file=$1
+
 
 	touch "$temporarySwiftUILintConfigFilename"
 
@@ -108,7 +111,7 @@ function add_swiftUI_disabled_rules() {
 				if [[ $line_2 =~ $disabled_pattern ]]; then
 					disabled_flag_2=true
 				fi
-			done < "swiftlint+swiftUI.yml"
+			done < "$config_file_yml"
 			disabled_flag_1=false
 		fi
 
@@ -128,7 +131,7 @@ function add_swiftUI_disabled_rules() {
 				if [[ $line_2 =~ $disabled_pattern ]]; then
 					disabled_flag_2=true
 				fi
-			done < "swiftlint+swiftUI.yml"
+			done < "$config_file_yml"
 
 			if [[ $in_rule == false ]]; then
 				echo "$line_1" >> "$temporarySwiftUILintConfigFilename"
@@ -158,28 +161,35 @@ function add_swiftUI_disabled_rules() {
 # Go the folder which contains this script
 cd "$scriptBaseFolderPath"
 
+# Copy the normal swiftlint file as temporary one (for later use in this script).
+cp "swiftlint.yml" "$temporarySwiftLintConfigFilename"
+
 # Merge the excluded paths of the commons and the project specific configuration
 if [ -f "$projectDir/.project-swiftlint.yml" ]; then
-	merge_commons_with_project_excluded_paths
-	
-	if [[ $swiftUI == true ]]; then
-		add_swiftUI_disabled_rules "$temporarySwiftLintConfigFilename"
-	fi
+	# Merge the project specific configuration.
+	merge_swiftlint_configuration "$projectDir/.project-swiftlint.yml" "$temporarySwiftLintConfigFilename" "$temporarySwiftLintConfigFilename.project"
+	mv "$temporarySwiftLintConfigFilename.project" "$temporarySwiftLintConfigFilename"
 else
+	# Copy the project swiftlint configuration template to the repository.
+	cp "project-swiftlint.yml" "$projectDir/.project-swiftlint.yml"
+fi
+
+if [[ $swiftUI == true ]]; then
+	# Merge the SwiftUI specific configuration.
+	merge_swiftlint_configuration "swiftlint+swiftUI.yml" "$temporarySwiftLintConfigFilename" "$temporarySwiftLintConfigFilename.swiftUI"
+	mv "$temporarySwiftLintConfigFilename.swiftUI" "$temporarySwiftLintConfigFilename"
+
 	# Disabled certain rules listet in swiftlint+swiftUI.yml if this is a swiftUI project
-	if [[ $swiftUI == true ]]; then
-		add_swiftUI_disabled_rules "swiftlint.yml"
-	else
-		# Copy the normal swiftlint file as tempoary one as this file is used later
-		cp "swiftlint.yml" "$temporarySwiftLintConfigFilename"
-	fi
+	# TODO: delete custom rules?
+	# add_disabled_rules_from_config_file "swiftlint+swiftUI.yml" "$temporarySwiftLintConfigFilename"
 fi
 
 if [ $isFramework = true ]; then
-	# Merge with framework config
-	temporaryMergedSwiftLintConfigFilename="$temporarySwiftLintConfigFilename.merged"
-	cat "$temporarySwiftLintConfigFilename" "swiftlint+frameworks.yml" > "$temporaryMergedSwiftLintConfigFilename"
-	mv "$temporaryMergedSwiftLintConfigFilename" "$temporarySwiftLintConfigFilename"
+	# Merge the Frameworks specific configuration.
+	merge_swiftlint_configuration "swiftlint+frameworks.yml" "$temporarySwiftLintConfigFilename" "$temporarySwiftLintConfigFilename.frameworks"
+	mv "$temporarySwiftLintConfigFilename.frameworks" "$temporarySwiftLintConfigFilename"
+	# TODO: delete custom rules?
+	# add_disabled_rules_from_config_file "swiftlint+frameworks.yml" "$temporarySwiftLintConfigFilename"
 fi
 
 # Copy the Swiftlint file to the projects base folder
