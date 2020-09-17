@@ -35,6 +35,7 @@ declare -a local_lines
 
 # File to array keeping newlines.
 function read_local_settings() {
+	unset local_lines
 	let i=0
 	while IFS=$'\n' read -r -a line_data; do
 		local_lines[i]="${line_data}"
