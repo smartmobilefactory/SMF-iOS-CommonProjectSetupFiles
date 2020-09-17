@@ -10,4 +10,4 @@
 #  - missing_docs
 
 #missing_docs:
-#  warning: open, public, internal
+#  warning: open, public #, internal TODO: enable check for internal at some point
