@@ -109,7 +109,7 @@ function merge_swiftlint_configuration() {
 
 	read_local_settings "$1"
 
-	# Read the commons SwiftLint configuration file
+	# Read the commons SwiftLint configuration file based on the cached file (`read_local_settings`)
 	while IFS= read -r global_line; do
 		# Copy the line first as this allows the script to directly copy the project depened paths if the excluded sections start was found
 		echo "$global_line" >> "$4"
@@ -124,9 +124,6 @@ function merge_swiftlint_configuration() {
 # Parameters:
 # $1: The base configuration file to comment out the disabled custom rules from.
 function disable_custom_rules_declaration() {
-
-	# Read and cache the source file
-	read_local_settings "$1"
 
 	# Create output file
 	outputFile="$1.clean"
@@ -157,7 +154,7 @@ function disable_custom_rules_configuration() {
 	# Read and cache the source file
 	read_local_settings "$1"
 
-	# Extract a list of all disabled rules
+	# Extract a list of all disabled rules based on the cached file (`read_local_settings`)
 	while IFS= read -r line; do
 		if ([[ "$line" =~ (^disabled_rules:) ]]) then
 			extract_values_from_section "$line" "--match-and-store-rule"
