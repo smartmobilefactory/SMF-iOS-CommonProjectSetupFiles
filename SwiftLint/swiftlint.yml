@@ -116,7 +116,9 @@ large_tuple:
   error: 6
 
 missing_docs:
-  warning: open, public
+  warning:
+    - open
+    - public
 
 type_name:
   min_length: 3
