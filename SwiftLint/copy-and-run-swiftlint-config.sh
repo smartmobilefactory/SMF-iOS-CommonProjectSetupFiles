@@ -39,6 +39,8 @@ fi
 declare -a local_lines
 # Contains a list of disabled rules (strings)
 declare -a all_disabled_rules
+# Contains a list of the disabled CUSTOM rules only (strings)
+declare -a all_disabled_custom_rules
 
 # File to array keeping newlines.
 function read_local_settings() {
@@ -66,31 +68,31 @@ function extract_values_from_section() {
 	unset all_disabled_rules
 	let i=0
 
-	for project_line in "${local_lines[@]}"; do
+	for line in "${local_lines[@]}"; do
 
 		# Determine if we are in the excluded section
-		if [[ "$project_line" == "$matched_section" ]]; then
+		if [[ "$line" == "$matched_section" ]]; then
 			is_in_matched_section=true
 			continue
-		elif [[ "$project_line" =~ (^$) ]]; then
+		elif [[ "$line" =~ (^$) ]]; then
 			is_in_matched_section=false
 		fi
 
-		# If the current line is within the matched section
+		# IF the current line is within the matched section
 		if $is_in_matched_section; then
 			if [[ "$2" == "--write-to-file" ]]; then
-				# And if we should write to an output file THEN echo the line
-				echo "$project_line" >> "$3"
+				# AND IF the action is to "write to an output file" THEN echo the line
+				echo "$line" >> "$3"
 
 			elif [[ "$2" == "--match-and-store-rule" ]]; then
-				# And if we should match the rule and store it into an array.
-				if [[ $project_line =~ $regexFirstOccurenceRuleName ]]; then
+				# OR IF the action is to "match and store the rule" it into an array.
+				if [[ $line =~ $regexFirstOccurenceRuleName ]]; then
 					disabled_rule="${BASH_REMATCH[1]}"
 					# Apply new format as to better identify the custom rules.
 					# The declaration of a custom rule is always "  name_of_rule:"
+					# Format: { prefix: 2 whitespaces, sufix: ':' }
 					all_disabled_rules[i]="  $disabled_rule:"
 					((++i))
-					echo "Disabled rule: '$disabled_rule'"
 				fi
 			fi
 		fi
@@ -117,11 +119,40 @@ function merge_swiftlint_configuration() {
 	done < "$2"
 }
 
-# Delete the disabled custom rules from the configuration file.
+# An error message occurs when a custom rule is disabled but its declaration within the 'disbaled_rules'
+# section is still active. This function comments out the rule declaration declaration.
+# Parameters:
+# $1: The base configuration file to comment out the disabled custom rules from.
+function disable_custom_rules_declaration() {
+
+	# Read and cache the source file
+	read_local_settings "$1"
+
+	# Create output file
+	outputFile="$1.clean"
+	touch "$outputFile"
+
+	# Parse the source file and comment out the disabled custom rules
+	while IFS= read -r line; do
+		# If the current line contains the custom rule declaration (with the special formating)
+		# Then comment it out with a clear message.
+		# Format: { prefix: 2 whitespaces + '-' + 1 whitespace }
+		if [[ "${all_disabled_custom_rules[@]}" =~ $line ]]; then
+			echo "# [Disabled Custom Rule] $line" >> "$outputFile"
+		else
+			echo "$line" >> "$outputFile"
+		fi
+	done < "$1"
+
+	# Replace the source file by the new output file
+	mv "$outputFile" "$1"
+}
+
+# Comment out the disabled custom rules from the configuration file.
 # Without this logic the rule would still work even though it is listed in the section "disabled_rules:".
 # Parameters:
-# $1: The base configuration file to remove the disabled custom rules from.
-function delete_custom_disabled_rules() {
+# $1: The base configuration file to comment out the disabled custom rules from.
+function disable_custom_rules_configuration() {
 
 	# Read and cache the source file
 	read_local_settings "$1"
@@ -136,15 +167,26 @@ function delete_custom_disabled_rules() {
 	# Create output file
 	outputFile="$1.clean"
 	touch "$outputFile"
+	unset all_disabled_custom_rules
+	let i=0
 
-	# Parse the source file and remove disabled custom rule
+	# Parse the source file and comment out disabled custom rules
 	line_in_disabled_rule=false
 	while IFS= read -r line; do
 		# If the current line contains the custom rule declaration (with the special formating) then toggle the boolean.
+		# Format: { prefix: 2 whitespaces, sufix: ':' }
 		if [[ "${all_disabled_rules[@]}" =~ $line ]]; then
 			line_in_disabled_rule=true
-			echo "Disabled custom rule: $line"
 			echo "# [Disabled Custom Rule] $line" >> "$outputFile"
+			# Retain the name of the custom and disabled rules.
+			if [[ $line =~ $regexFirstOccurenceRuleName ]]; then
+				disabled_custom_rule="${BASH_REMATCH[1]}"
+				# Extract the raw name of the rule and apply the format of the rule declaration
+				# to match the content in the 'disabled_rules' section.
+				# Format: { prefix: 2 whitespaces + '-' + 1 whitespace }
+				all_disabled_custom_rules[i]="  - $disabled_custom_rule"
+				((++i))
+			fi
 
 		# If the current line is within a disabled custom rule then add a prefix to comment it out.
 		# This way we will stay transparent and have an eye on disabled rules, rathen than having them disappearing.
@@ -200,8 +242,10 @@ if [ $isFramework = true ]; then
 	mv "$tmpFile.frameworks" "$tmpFile"
 fi
 
-# Delete the disabled custom rules from the configuration file
-delete_custom_disabled_rules "$tmpFile"
+# Comment out the disabled custom rules from the configuration file
+# This way we keep the configuration clear and the process transparent (what we have / what is disabled)
+disable_custom_rules_configuration "$tmpFile"
+disable_custom_rules_declaration "$tmpFile"
 
 # Copy the Swiftlint file to the projects base folder
 cp "$tmpFile" "$projectDir/.swiftlint.yml"
