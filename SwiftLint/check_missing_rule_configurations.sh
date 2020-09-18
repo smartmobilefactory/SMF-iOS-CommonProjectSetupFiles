@@ -11,7 +11,7 @@
 #
 
 readonly scriptBaseFolderPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-readonly reportFile="swiftlint-rules-report.txt"
+readonly reportFileName="swiftlint-rules-report.txt"
 readonly regexFirstOccurenceRuleName="([A-Za-z_]+).*"
 readonly regexEnabledRuleInReport="([A-Za-z_]+)[ ]+(no|yes)[ ]+(no|yes)[ ]+(no|yes)"
 
@@ -20,20 +20,25 @@ readonly regexEnabledRuleInReport="([A-Za-z_]+)[ ]+(no|yes)[ ]+(no|yes)[ ]+(no|y
 #
 
 projectDir="$1"
-outputDir="$2"
+outputFile="$2"
 
 #
 # Check requirements
 #
 
 # Check if project directory is provided. If not: Use the scripts base directory.
-if [  -z "$1" ]; then
+if ( [[ -z "$1" ]] || [[ ! -d "$1" ]] ); then
 	projectDir="$scriptBaseFolderPath"
 fi
 
-# Check if the output directory is provided. If not: Use the scripts base directory.
-if [  -z "$2" ]; then
-	outputDir="$scriptBaseFolderPath"
+# Check if the output file is a directory
+if ( [[ ! -z "$2" ]] && [[ -d "$2" ]] ); then
+	outputFile="$2/$reportFileName"
+fi
+
+# Or check if the output file is not provided
+if ( [[ -z "$2" ]] ); then
+	outputFile="$projectDir/$reportFileName"
 fi
 
 #
@@ -93,8 +98,8 @@ function extract_values_from_section() {
 function remove_disabled_rules_from_report() {
 
 	# Create output file
-	outputFile="$1.clean"
-	touch "$outputFile"
+	tmpOutputFile="$1.clean"
+	touch "$tmpOutputFile"
 
 	# Parse the source file and comment out the disabled custom rules
 	while IFS= read -r line; do
@@ -102,23 +107,23 @@ function remove_disabled_rules_from_report() {
 			rule_name="${BASH_REMATCH[1]}"
 			# If the current line contains a disabled rule declaration then remove it from the report
 			if [[ ! " ${all_disabled_rules[@]} " =~ " ${rule_name} " ]]; then
-				echo "$line" >> "$outputFile"
+				echo "$line" >> "$tmpOutputFile"
 			fi
 		else
 			# It is not a rule but an decorative element of the report
-			echo "$line" >> "$outputFile"
+			echo "$line" >> "$tmpOutputFile"
 		fi
 	done < "$1"
 
 	# Replace the source file by the new output file
-	mv "$outputFile" "$1"
+	mv "$tmpOutputFile" "$1"
 }
 
 function remove_enabled_rules_from_report() {
 
 	# Create output file
-	outputFile="$1.clean"
-	touch "$outputFile"
+	tmpOutputFile="$1.clean"
+	touch "$tmpOutputFile"
 
 	# Parse the source file and comment out the disabled custom rules
 	while IFS= read -r line; do
@@ -128,16 +133,16 @@ function remove_enabled_rules_from_report() {
 			is_rule_enabled="${BASH_REMATCH[4]}"
 			if [[ $is_rule_enabled == "no" ]]; then
 				# If the rule is not enabled in the swiftlint config, add it to the report.
-				echo "$line" >> "$outputFile"
+				echo "$line" >> "$tmpOutputFile"
 			fi
 		else
 			# It is not a rule but an decorative element of the report
-			echo "$line" >> "$outputFile"
+			echo "$line" >> "$tmpOutputFile"
 		fi
 	done < "$1"
 
 	# Replace the source file by the new output file
-	mv "$outputFile" "$1"
+	mv "$tmpOutputFile" "$1"
 }
 
 #
@@ -151,14 +156,14 @@ cd "$projectDir"
 extract_values_from_section ".swiftlint.yml" "disabled_rules:"
 
 # Get the complete overview of the default swiftlint rules
-touch "$reportFile"
+touch "$outputFile"
 
 SWIFTLINT_EXECUTABLE="$scriptBaseFolderPath/portable_swiftlint/swiftlint"
 if [ -f "$SWIFTLINT_EXECUTABLE" ]; then
-	$SWIFTLINT_EXECUTABLE rules > $reportFile
+	$SWIFTLINT_EXECUTABLE rules > $outputFile
 elif which swiftlint >/dev/null; then
 	echo "found it"
-	swiftlint rules > $reportFile
+	swiftlint rules > $outputFile
 else
 	echo "SwiftLint does not exist, please add it to the Alpha target in your Podfile"
 	exit 1
@@ -169,10 +174,8 @@ if [ -e "$projectDir/Pods/SwiftLint" ]; then
 fi
 
 # Remove lines containing the disabled rules
-remove_disabled_rules_from_report $reportFile
+remove_disabled_rules_from_report $outputFile
 
 # Remove lines with "enabled in your config: yes"
-remove_enabled_rules_from_report $reportFile
+remove_enabled_rules_from_report $outputFile
 
-# Move the file report to the output directory
-mv "$reportFile" "$outputDir/"
