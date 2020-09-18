@@ -34,20 +34,8 @@ fi
 # Global Arrays
 #
 
-# Contains the lines of a read file
-declare -a local_lines
 # Contains a list of disabled rules (strings)
 declare -a all_disabled_rules
-
-# File to array keeping newlines.
-function read_local_settings() {
-	unset local_lines
-	let i=0
-	while IFS=$'\n' read -r -a line_data; do
-		local_lines[i]="${line_data}"
-		((++i))
-	done < $1
-}
 
 # Extract the values from a YML section.
 # Parameters:
@@ -57,13 +45,14 @@ function extract_values_from_section() {
 	local is_in_matched_section=false
 
 	# Section to look for
-	local matched_section=$1
+	local matched_section=$2
 
 	# Prepare storage
 	unset all_disabled_rules
 	let i=0
 
-	for line in "${local_lines[@]}"; do
+	while IFS= read -r line; do
+	# for line in "${local_lines[@]}"; do
 
 		# Determine if we are in the excluded section
 		if [[ "$line" == "$matched_section" ]]; then
@@ -88,7 +77,7 @@ function extract_values_from_section() {
 				((++i))
 			fi
 		fi
-	done
+	done < "$1"
 }
 
 # An error message occurs when a custom rule is disabled but its declaration within the 'disbaled_rules'
@@ -108,8 +97,6 @@ function remove_disabled_rules_from_report() {
 			# If the current line contains a disabled rule declaration then remove it from the report
 			if [[ ! " ${all_disabled_rules[@]} " =~ " ${rule_name} " ]]; then
 				echo "$line" >> "$outputFile"
-			else
-				echo "Disabled rule? $line"
 			fi
 		else
 			# It is not a rule but an decorative element of the report
@@ -133,10 +120,8 @@ function remove_enabled_rules_from_report() {
 		preformated_line="${line//|/ }"
 		if [[ $preformated_line =~ $regexEnabledRuleInReport ]]; then
 			is_rule_enabled="${BASH_REMATCH[4]}"
-			if [[ $is_rule_enabled == "yes" ]]; then
-				# If the rule is enabled in the swiftlint config, remove it from the report.
-				echo "[Enabled Rule]: ${BASH_REMATCH[1]}"
-			else
+			if [[ $is_rule_enabled == "no" ]]; then
+				# If the rule is not enabled in the swiftlint config, add it to the report.
 				echo "$line" >> "$outputFile"
 			fi
 		else
@@ -147,19 +132,6 @@ function remove_enabled_rules_from_report() {
 
 	# Replace the source file by the new output file
 	mv "$outputFile" "$1"
-}
-
-function extract_disabled_rules() {
-
-	# Read and cache the source file
-	read_local_settings "$1"
-
-	# Extract a list of all disabled rules
-	while IFS= read -r line; do
-		if ([[ "$line" =~ (^disabled_rules:) ]]) then
-			extract_values_from_section "$line"
-		fi
-	done < "$1"
 }
 
 #
@@ -173,7 +145,7 @@ function extract_disabled_rules() {
 cd "$projectDir"
 
 # Extract the list of disabled rules
-extract_disabled_rules ".swiftlint.yml"
+extract_values_from_section ".swiftlint.yml" "disabled_rules:"
 
 # Get the complete overview of the default swiftlint rules
 touch "$reportFile"
@@ -198,6 +170,3 @@ remove_disabled_rules_from_report $reportFile
 
 # Remove lines with "enabled in your config: yes"
 remove_enabled_rules_from_report $reportFile
-
-# Do something with the report
-# cp "$reportFile" "$projectDir/.swiftlint.yml"
