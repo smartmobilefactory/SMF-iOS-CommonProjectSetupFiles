@@ -141,16 +141,22 @@ function delete_custom_disabled_rules() {
 	line_in_disabled_rule=false
 	while IFS= read -r line; do
 		# If the current line contains the custom rule declaration (with the special formating) then toggle the boolean.
-		if [[ " ${all_disabled_rules[@]} " =~ $line ]]; then
+		if [[ "${all_disabled_rules[@]}" =~ $line ]]; then
 			line_in_disabled_rule=true
-			echo "Disabled (and removed) custom rule: $line"
+			echo "Disabled custom rule: $line"
+			echo "# [Disabled Custom Rule] $line" >> "$outputFile"
 
-		# If the current line is within a disabled custom rule then do not write to the new output file.
-		# The current line is not in the rule anymore WHEN it does not start with 3 whitespaces;
-		# in this case the line is a new rule declaration (that is not disabled).
-		elif ( [[ "$line_in_disabled_rule" = true ]] && [[ ! $line == "   "* ]] ); then
-			echo "$line" >> "$outputFile"
-			line_in_disabled_rule=false
+		# If the current line is within a disabled custom rule then add a prefix to comment it out.
+		# This way we will stay transparent and have an eye on disabled rules, rathen than having them disappearing.
+		elif [[ "$line_in_disabled_rule" = true ]]; then
+			# The current line is not in the rule declaration anymore WHEN it does not start with 3 whitespaces;
+			# in this case the current line is a new rule declaration (that is not disabled).
+			if [[ ! $line == "   "* ]]; then
+				echo "$line" >> "$outputFile"
+				line_in_disabled_rule=false
+			else
+				echo "# [Disabled Custom Rule] $line" >> "$outputFile"
+			fi
 
 		# Finally, if the line is not within a rule, simply write to the output file
 		elif [[ "$line_in_disabled_rule" = false ]]; then
