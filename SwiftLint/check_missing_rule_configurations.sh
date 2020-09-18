@@ -11,7 +11,7 @@
 #
 
 readonly scriptBaseFolderPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-readonly reportFile=".swiftlint-rules-report.txt"
+readonly reportFile="swiftlint-rules-report.txt"
 readonly regexFirstOccurenceRuleName="([A-Za-z_]+).*"
 readonly regexEnabledRuleInReport="([A-Za-z_]+)[ ]+(no|yes)[ ]+(no|yes)[ ]+(no|yes)"
 
@@ -20,6 +20,7 @@ readonly regexEnabledRuleInReport="([A-Za-z_]+)[ ]+(no|yes)[ ]+(no|yes)[ ]+(no|y
 #
 
 projectDir="$1"
+outputDir="$2"
 
 #
 # Check requirements
@@ -28,6 +29,11 @@ projectDir="$1"
 # Check if project directory is provided. If not: Use the scripts base directory.
 if [  -z "$1" ]; then
 	projectDir="$scriptBaseFolderPath"
+fi
+
+# Check if the output directory is provided. If not: Use the scripts base directory.
+if [  -z "$2" ]; then
+	outputDir="$scriptBaseFolderPath"
 fi
 
 #
@@ -138,9 +144,6 @@ function remove_enabled_rules_from_report() {
 # Logic
 #
 
-# Go the folder which contains this script
-# cd "$scriptBaseFolderPath"
-
 # Go to the project folder and run swiftlint from there
 cd "$projectDir"
 
@@ -170,3 +173,6 @@ remove_disabled_rules_from_report $reportFile
 
 # Remove lines with "enabled in your config: yes"
 remove_enabled_rules_from_report $reportFile
+
+# Move the file report to the output directory
+mv "$reportFile" "$outputDir/"
