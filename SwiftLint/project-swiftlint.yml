@@ -1,6 +1,6 @@
 ###
-# swiftlint+swiftUI.yml
-# For a swiftUI projects only
+# .project-frameworks.yml
+# For project specific rules
 #
 # This files gets merged to the swiftlint.yml at buildtime.
 # You can add more "disabled_rules" and "opt_in_rules" rules as well as paths to exclude during linting.
@@ -13,8 +13,6 @@
 
 # rule identifiers to exclude from running
 disabled_rules:
-  - multiple_closures_with_trailing_closure
-  - missing_closure_name
 
 # paths to ignore during linting. overridden by `included`.
 excluded:

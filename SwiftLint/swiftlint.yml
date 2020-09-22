@@ -29,6 +29,7 @@ excluded:
   - Database/Model
   - fastlane
 
+# optional rules that need to be manually opt-in to be used
 opt_in_rules:
   - force_unwrapping
   - conditional_returns_on_newline
@@ -47,7 +48,6 @@ opt_in_rules:
   - multiline_parameters
   - fatal_error_message
   - let_var_whitespace
-  - redundant_string_enum_value
   - required_enum_case
   - private_action
   - yoda_condition
@@ -114,6 +114,11 @@ type_body_length:
 large_tuple:
   warning: 4
   error: 6
+
+missing_docs:
+  warning:
+    - open
+    - public
 
 type_name:
   min_length: 3
