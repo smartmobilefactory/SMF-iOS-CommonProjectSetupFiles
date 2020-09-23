@@ -7,4 +7,4 @@ exclude = [
 ]
 
 ignore-throws = true
-
+ignore-returns = true
