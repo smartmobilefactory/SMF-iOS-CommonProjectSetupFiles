@@ -1,0 +1,10 @@
+include = [
+    'Core/**/*.swift',
+]
+
+exclude = [
+    '*/*.generated.swift',
+]
+
+ignore-throws = true
+
