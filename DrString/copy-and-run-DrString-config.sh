@@ -40,13 +40,6 @@ cp "drstring.toml" "$projectDir/.drstring.toml"
 cd "$projectDir"
 
 DRSTRING_EXECUTABLE="$scriptBaseFolderPath/drstring"
-echo "FOUND PIERRE $DRSTRING_EXECUTABLE"
-echo "PIERRE AGAIN $projectDir/.drstring.toml"
-
-
-theDir="$( pwd )"
-
-echo "PIERRE? $theDir"
 
 if [ -f "$DRSTRING_EXECUTABLE" ]; then
 	"$DRSTRING_EXECUTABLE" check --config-file $projectDir/.drstring.toml || true
