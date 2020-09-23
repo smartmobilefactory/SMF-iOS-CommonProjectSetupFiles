@@ -3,7 +3,7 @@ include = [
 ]
 
 exclude = [
-    '*/*.generated.swift',
+    'Core/**/*.generated.swift',
 ]
 
 ignore-throws = true
