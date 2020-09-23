@@ -1,7 +1,7 @@
 # SMF-iOS-CommonProjectSetupFiles
 
-[![Language: Swift 3.1](https://img.shields.io/badge/Swift-3.1-orange.svg)](https://swift.org)
-[![Xcode: Xcode 8.3.3](https://img.shields.io/badge/Xcode-8.3.3-orange.svg)](https://swift.org)
+[![Language: Swift 5.3](https://img.shields.io/badge/Swift-5.2-orange.svg)](https://swift.org)
+[![Xcode: Xcode 11.7](https://img.shields.io/badge/Xcode-11.7-orange.svg)](https://developer.apple.com/xcode)
 
 This Repo contains our common project setup files.
 
@@ -15,6 +15,7 @@ Helpers which can be added manually to the Xcode project which should be used:
 Scripts which should be called during the build phase:
 
 - [SwiftLint](#swiftlint)
+- [DrSwift](#drswift)
 - [Xcode version check](#xcode-version-check)
 
 ### Setup
@@ -166,13 +167,13 @@ Multiple `#if canImport(LifetimeTracker)` checks make sure that targets with Lif
 
 Swiftlint is integrated in SMF-iOS-CommonProjectSetupFiles itself. The current version is 0.28.1.
 
-### Integrate it into the project
+#### Integrate it into the project
 
-**Make sure that `/.swiftlint.yml` is added to the gitignore file as the this default SwiftLint configuration file be automatically copied from the repo into the projects base folder.**
+**Make sure that `/.swiftlint.yml` is added to the gitignore file as the default SwiftLint configuration file be automatically copied from the repo into the projects base folder.**
 
 The Swiftlint configuration and lint call is integrated in the [setup script](#setup). If it shouldn't be used you can pass the flag `--no-swiftlint`.
 
-#### Excluded files from litting
+##### Excluded files from litting
 
 You can declare excluded paths in the project specific swiftlint configuration file `.project-swiftlint.yml`. The file has to be placed in the same directoy as the copied `.swiftlint.yml` (usually the project root directory). The scripts *setup-common-project-files.sh* and *copy-and-run-swiftlint-config.sh* are automatically using the `.project-swiftlint.yml` file if it exists.
 
@@ -183,8 +184,18 @@ excluded:
 - App/HiDrive/Generated
 ```
 
-#### Optional: Call the SwiftLint script without using the setup script
+##### Optional: Call the SwiftLint script without using the setup script
 If you want to copy the SwiftLint configuration and lint the code without integrating the setup script you can call `Submodules/SMF-iOS-CommonProjectSetupFiles/SwiftLint/copy-and-run-swiftlint-config.sh` directly.
+
+### DrSwift
+
+[DrSwift](https://github.com/dduan/DrString) is integrated in SMF-iOS-CommonProjectSetupFiles itself. The current version is 0.4.2.
+
+#### Integrate it into the project
+
+DrString is configured to run when you execute `Submodules/SMF-iOS-CommonProjectSetupFiles/setup-common-project-files.sh` with [framework target configuration](#setup) parameters.
+
+**Make sure that `/.drstring.toml` is added to the gitignore file as the DrSwift configuration file be automatically copied from the repo into the projects base folder.**
 
 ### Xcode version check
 

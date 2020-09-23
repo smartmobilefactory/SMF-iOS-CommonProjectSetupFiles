@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copies the Swiflint configuration to the projects base folder
+# Copies the Swiftlint configuration to the projects base folder
 #
 # Author Hans Seiffert
 # Updated Kevin Delord
