@@ -130,6 +130,10 @@ if [ $callSwiftlint = true ]; then
 	./SwiftLint/copy-and-run-swiftlint-config.sh "$projectDir" $isFramework $isSwiftUIProject || exit 1;
 fi
 
+if [ $isFramework = true ]; then
+	./DrString/copy-and-run-DrString-config.sh "$projectDir" || exit 1;
+fi
+
 if [ $copyPRTemplate = true ]; then
 
 	mkdir -p "$projectDir/.github"

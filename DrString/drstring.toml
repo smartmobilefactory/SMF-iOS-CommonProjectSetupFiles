@@ -1,0 +1,6 @@
+include = [
+    'Core/**/*.swift',
+]
+
+ignore-throws = true
+ignore-returns = true
