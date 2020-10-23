@@ -8,9 +8,3 @@
 - [ ] **patch** (internal changes)
 - [ ] **minor** (public API changes)
 - [ ] **major** (major changes and refactorings)
-
-## Jira Ticket
-
-https://smartmobilefactory.atlassian.net/browse/
-
-- [ ] The status of the ticket is updated to `(in) review`
