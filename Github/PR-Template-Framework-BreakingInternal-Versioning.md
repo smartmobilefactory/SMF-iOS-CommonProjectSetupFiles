@@ -7,9 +7,3 @@
 - [ ] **current** (current version specified in podspec)
 - [ ] **internal** (internal changes)
 - [ ] **breaking** (public API changes)
-
-## Jira Ticket
-
-https://smartmobilefactory.atlassian.net/browse/
-
-- [ ] The status of the ticket is updated to `(in) review`
