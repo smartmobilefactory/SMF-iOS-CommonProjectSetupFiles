@@ -1,6 +1,6 @@
 ## What is this PR about?
 
-This pull request about ...
+This pull request is about ...
 
 Screenshots (optional): 
 
