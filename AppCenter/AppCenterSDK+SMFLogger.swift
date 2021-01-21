@@ -30,7 +30,7 @@ class AppCenterSDK: NSObject {
 	// MARK: - Public properties
 
 	static var wasInitialized				: Bool {
-		return MSAppCenter.isConfigured()
+		return AppCenter.isConfigured
 	}
 
 	// MARK: - Methods
@@ -45,14 +45,14 @@ class AppCenterSDK: NSObject {
 			return
 		}
 
-		let services = (configuration.isDistributionEnabled == true) ? [MSDistribute.self] : []
+		let services = (configuration.isDistributionEnabled == true) ? [Distribute.self] : []
 
-		MSAppCenter.start(configuration.appSecret, withServices: services)
+		AppCenter.start(withAppSecret: configuration.appSecret, services: services)
 	}
 
 	/// Returns True, if and only if the Service got started and is enabled.
 	static var isDistributionEnabled: Bool {
-		return MSDistribute.isEnabled()
+		return Distribute.enabled
 	}
 
 	/// Will enable or disable the Distribution Feature of AppCenter
@@ -66,7 +66,7 @@ class AppCenterSDK: NSObject {
 	///
 	/// - Parameter enabled: Enable or Disable Distribtion
 	static func enableDistribution(enabled: Bool = true) {
-		MSDistribute.setEnabled(enabled)
+		Distribute.enabled = enabled
 	}
 }
 
