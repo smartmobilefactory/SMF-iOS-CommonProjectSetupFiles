@@ -41,7 +41,7 @@ class AppCenterSDK: NSObject {
 	// MARK: - Public properties
 
 	static var wasInitialized				: Bool {
-		return MSAppCenter.isConfigured()
+		return AppCenter.isConfigured
 	}
 
 	// MARK: - Methods
@@ -62,27 +62,27 @@ class AppCenterSDK: NSObject {
 
 		#if !os(macOS)
 		if (configuration.isDistributionEnabled == true) {
-			services.append(MSDistribute.self)
+			services.append(Distribute.self)
 		}
 		#endif
 
 		if (configuration.isCrashReportEnabled == true) {
-			services.append(MSCrashes.self)
+			services.append(Crashes.self)
 		}
 
 		guard (services.isEmpty == false) else {
 			return
 		}
 
-		MSAppCenter.start(configuration.appSecret, withServices: services)
-		MSCrashes.setEnabled(configuration.isCrashReportEnabled)
-		MSCrashes.setDelegate(self.delegate)
+		AppCenter.start(withAppSecret: configuration.appSecret, services: services)
+		Crashes.enabled = configuration.isCrashReportEnabled
+		Crashes.delegate = self.delegate
 	}
 
 	#if !os(macOS)
 	/// Returns True, if and only if the Service got started and is enabled.
 	static var isDistributionEnabled: Bool {
-		return MSDistribute.isEnabled()
+		return Distribute.enabled
 	}
 
 	/// Will enable or disable the Distribution Feature of AppCenter
@@ -96,13 +96,13 @@ class AppCenterSDK: NSObject {
 	///
 	/// - Parameter enabled: Enable or Disable Distribtion
 	static func enableDistribution(enabled: Bool = true) {
-		MSDistribute.setEnabled(enabled)
+		Distribute.enabled = enabled
 	}
 	#endif
 
 	/// Returns True, if and only if Crash Reporting is enabled.
 	static var isCrashReportingEnabled: Bool {
-		return MSCrashes.isEnabled()
+		return Crashes.enabled
 	}
 
 	/// Will enable or disable the sending od crash reports to AppCenter
@@ -116,13 +116,13 @@ class AppCenterSDK: NSObject {
 	///
 	/// - Parameter enabled: Enable or Disable Distribtion
 	static func enableCrashReporting(enabled: Bool = true) {
-		MSCrashes.setEnabled(enabled)
+		Crashes.enabled = enabled
 	}
 
 	/// This will create a `fatalError` to crash the app.
 	static func performTestCrash() {
 
-		MSCrashes.generateTestCrash()
+		Crashes.generateTestCrash()
 	}
 }
 
@@ -172,7 +172,7 @@ extension AppCenterSDK {
 	}
 }
 
-private class AppCenterSDKDelegate	: NSObject, MSCrashesDelegate {
+private class AppCenterSDKDelegate	: NSObject, CrashesDelegate {
 
 	private var isLogUploadEnabled	: Bool
 
@@ -180,12 +180,12 @@ private class AppCenterSDKDelegate	: NSObject, MSCrashesDelegate {
 		self.isLogUploadEnabled = isLogUploadEnabled
 	}
 
-	func attachments(with crashes: MSCrashes!, for errorReport: MSErrorReport!) -> [MSErrorAttachmentLog]! {
+	func attachments(with crashes: Crashes, for errorReport: ErrorReport) -> [ErrorAttachmentLog]? {
 		guard (self.isLogUploadEnabled == true) else {
 			return []
 		}
 
-		return [MSErrorAttachmentLog.attachment(withText: self.applicationLog, filename: AppCenterConstants.crashLogFileName)]
+		return [ErrorAttachmentLog.attachment(withText: self.applicationLog, filename: AppCenterConstants.crashLogFileName)]
 	}
 
 	private var applicationLog: String {

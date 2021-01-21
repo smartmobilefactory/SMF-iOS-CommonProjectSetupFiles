@@ -14,11 +14,11 @@ fileprivate struct SentryConstants {
 	static let smfLogUploadMaxSizeDefault	= 5000
 }
 
-class SentrySDK: NSObject {
+class SMFSentrySDK: NSObject {
 
 	// MARK: - Private static properties
 
-	fileprivate static var shared			: SentrySDK?
+	fileprivate static var shared			: SMFSentrySDK?
 
 	fileprivate static let isDebugBuild		: Bool = {
 		#if DEBUG
@@ -36,7 +36,7 @@ class SentrySDK: NSObject {
 	// MARK: - Public properties
 
 	static var wasInitialized				: Bool {
-		return (SentrySDK.shared?.isInitialized ?? false)
+		return (SMFSentrySDK.shared?.isInitialized ?? false)
 	}
 
 	// MARK: - Initialization
@@ -44,7 +44,7 @@ class SentrySDK: NSObject {
 	override init() {
 		super.init()
 
-		SentrySDK.shared = self
+		SMFSentrySDK.shared = self
 	}
 
 	// MARK: - Methods
@@ -53,38 +53,30 @@ class SentrySDK: NSObject {
 	///
 	/// - Parameters:
 	///   - configuration: Configuration object
-	static func setup(configuration: SentrySDK.Configuration) {
+	static func setup(configuration: SMFSentrySDK.Configuration) {
 		guard (self.isDebugBuild == false || configuration.enableDebug == true) else {
 			return
 		}
 
-		let instance = (self.shared ?? SentrySDK())
+		let instance = (self.shared ?? SMFSentrySDK())
 
-		do {
-			Client.shared = try Client(dsn: configuration.sentryDSN)
-			Client.shared?.beforeSerializeEvent = { (event: Event) in
-				event.environment = SentrySDK.Configuration.environment
-
+		SentrySDK.start { (options: Options) in
+			options.dsn = configuration.sentryDSN
+			options.debug = configuration.enableDebug
+			options.beforeBreadcrumb = { (event: Breadcrumb?) in
 				if
-					(event.level != .debug),
+					(event?.level != .debug),
 					(configuration.enableSMFLogUpload == true),
 					let loggerContents = Logger.logFilesContent(maxSize: configuration.smfLogUploadMaxSize) {
-					event.message = loggerContents
+					event?.message = loggerContents
 				}
+
+				return event
 			}
-
-			if (configuration.enableBreadcrumbs == true) {
-				Client.shared?.enableAutomaticBreadcrumbTracking()
-			}
-
-			try Client.shared?.startCrashHandler()
-
-			instance.configuration = configuration
-
-			instance.isInitialized = true
-		} catch let error {
-			Log.Channel.Manager.sentry.error("Error initialising sentry: \(error.localizedDescription)")
 		}
+
+		instance.configuration = configuration
+		instance.isInitialized = true
 	}
 
 	/// This will create a `fatalError` to crash the app.
@@ -95,7 +87,7 @@ class SentrySDK: NSObject {
 			return
 		}
 
-		Client.shared?.reportUserException("TestCrash", reason: "Only testing crashes", language: "swift", lineOfCode: "23", stackTrace: [], logAllThreads: false, terminateProgram: true)
+		SentrySDK.crash()
 		fatalError("This is a test crash to trigger a crash report in Sentry Dashboard")
 	}
 
@@ -107,7 +99,7 @@ class SentrySDK: NSObject {
 	///		- additionalData		: dictionary of key/value pairs that will apear under Additional Data in Sentry
 	///		- includeLoggerData		: if the event should also include the last part of SMFLogger
 	///		- smfLogUploadMaxSize	: The max count of characters which should be uploaded
-	static func sendEvent(title: String, message: String, additionalData: [String: Any]? = nil, includeLoggerData: Bool = true, smfLogUploadMaxSize: Int = (SentrySDK.shared?.configuration?.smfLogUploadMaxSize ?? SentryConstants.smfLogUploadMaxSizeDefault)) {
+	static func sendEvent(title: String, message: String, additionalData: [String: Any]? = nil, includeLoggerData: Bool = true, smfLogUploadMaxSize: Int = (SMFSentrySDK.shared?.configuration?.smfLogUploadMaxSize ?? SentryConstants.smfLogUploadMaxSizeDefault)) {
 		let event = Event(level: .debug)
 
 		if (additionalData != nil) {
@@ -123,13 +115,13 @@ class SentrySDK: NSObject {
 			fullMessage.append(loggerContents)
 		}
 
-		event.message = fullMessage
+		event.message = SentryMessage(formatted: fullMessage)
 
-		Client.shared?.send(event: event, completion: nil)
+		SentrySDK.capture(event: event)
 	}
 }
 
-extension SentrySDK {
+extension SMFSentrySDK {
 
 	struct Configuration {
 
@@ -177,7 +169,7 @@ extension SentrySDK {
 			self.smfLogUploadMaxSize	= smfLogUploadMaxSize
 		}
 
-		static var `default`: SentrySDK.Configuration {
+		static var `default`: SMFSentrySDK.Configuration {
 			return Configuration()
 		}
 	}
