@@ -14,7 +14,7 @@ def extract_hunks(unified_diff):
 		if line == '---' or line == '+++':
 			continue
 		elif line.startswith('@@'):
-			if len(hunk) > 0 :
+			if len(hunk) > 0:
 				hunks.append(hunk)
 				hunk = []
 		else:
