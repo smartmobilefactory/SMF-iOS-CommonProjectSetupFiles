@@ -20,4 +20,4 @@ git config merge.podspec-merge-driver.driver "./Submodules/SMF-iOS-CommonProject
 git merge origin/$1/master --no-edit
 
 git config --unset merge.ours-driver.driver
-git config --unset merge.podspec-merge-driver
+git config --unset merge.podspec-merge-driver.driver
