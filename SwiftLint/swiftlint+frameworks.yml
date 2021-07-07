@@ -19,5 +19,5 @@ excluded:
 
 # optional rules that need to be manually opt-in to be used
 opt_in_rules:
-  - explicit_top_level_acl
+  - explicit_acl
   - missing_docs
