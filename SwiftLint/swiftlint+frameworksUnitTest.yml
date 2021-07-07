@@ -2,9 +2,8 @@
 # swiftlint+frameworks.yml
 # For a framework project only
 #
-# This files gets merged to the swiftlint.yml at buildtime.
-# You can add more "disabled_rules" and "opt_in_rules" rules as well as paths to exclude during linting.
-#
+# This file gets copied in Unit-Tests or UnitTests folder.
+# 
 # Important File Information:
 # - The order of the section is important and must be maintained (1-disabled_rules, 2-excluded, 3-opt_in_rules).
 # - There must be an empty line between each section.
@@ -13,11 +12,10 @@
 
 # rule identifiers to exclude from running
 disabled_rules:
+  - explicit_acl
 
 # paths to ignore during linting. overridden by `included`.
 excluded:
 
 # optional rules that need to be manually opt-in to be used
 opt_in_rules:
-  - explicit_acl
-  - missing_docs

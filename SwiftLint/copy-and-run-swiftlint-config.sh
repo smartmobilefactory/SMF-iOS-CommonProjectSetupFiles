@@ -237,6 +237,12 @@ if [ $isFramework = true ]; then
 	# Merge the Frameworks specific configuration.
 	merge_swiftlint_configuration "swiftlint+frameworks.yml" "$tmpFile" "--write-to-file" "$tmpFile.frameworks"
 	mv "$tmpFile.frameworks" "$tmpFile"
+
+	if [ -e "$projectDir/Unit-Tests" ]; then
+		cp "swiftlint+frameworksUnitTest.yml" "$projectDir/Unit-Tests/.swiftlint.yml"
+	elif [ -e "$projectDir/UnitTests" ]; then
+		cp "swiftlint+frameworksUnitTest.yml" "$projectDir/UnitTests/.swiftlint.yml"
+	fi
 fi
 
 # Comment out the disabled custom rules from the configuration file
