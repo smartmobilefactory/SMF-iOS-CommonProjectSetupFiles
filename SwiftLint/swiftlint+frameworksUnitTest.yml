@@ -13,6 +13,7 @@
 # rule identifiers to exclude from running
 disabled_rules:
   - explicit_acl
+  - large_tuple
 
 # paths to ignore during linting. overridden by `included`.
 excluded:
