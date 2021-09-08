@@ -79,7 +79,6 @@ opt_in_rules:
   - static_operator
   - toggle_bool
   - unowned_variable_capture
-  - unused_import
   - vertical_whitespace_closing_braces
   - single_test_class
   - strong_iboutlet
