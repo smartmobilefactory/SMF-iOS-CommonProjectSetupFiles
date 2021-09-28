@@ -246,8 +246,8 @@ if [ $isFramework = true ]; then
 	fi
 
 	if [ -e $unitTestDir ]; then
-		# Deals with swiftlint for unit tests
 		if [ -f "$unitTestDir/.project-swiftlint.yml" ]; then
+			# Deals with .project-swiftlint.yml for unit tests
 			rm "$unitTestDir/.swiftlint.yml"
 			merge_swiftlint_configuration "$unitTestDir/.project-swiftlint.yml" "swiftlint+frameworksUnitTest.yml" "--write-to-file" "$unitTestDir/.swiftlint.yml"
 		else
