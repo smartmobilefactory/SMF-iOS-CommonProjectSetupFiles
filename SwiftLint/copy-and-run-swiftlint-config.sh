@@ -238,10 +238,22 @@ if [ $isFramework = true ]; then
 	merge_swiftlint_configuration "swiftlint+frameworks.yml" "$tmpFile" "--write-to-file" "$tmpFile.frameworks"
 	mv "$tmpFile.frameworks" "$tmpFile"
 
+	unitTestDir="false"
+	# Find the unit test directory
 	if [ -e "$projectDir/Unit-Tests" ]; then
-		cp "swiftlint+frameworksUnitTest.yml" "$projectDir/Unit-Tests/.swiftlint.yml"
+		unitTestDir="$projectDir/Unit-Tests"
 	elif [ -e "$projectDir/UnitTests" ]; then
-		cp "swiftlint+frameworksUnitTest.yml" "$projectDir/UnitTests/.swiftlint.yml"
+		unitTestDir="$projectDir/UnitTests"
+	fi
+
+	if [ -e $unitTestDir ] && [ $unitTestDir != "false" ]; then
+		if [ -f "$unitTestDir/.project-swiftlint.yml" ]; then
+			# Deals with .project-swiftlint.yml for unit tests
+			rm "$unitTestDir/.swiftlint.yml"
+			merge_swiftlint_configuration "$unitTestDir/.project-swiftlint.yml" "swiftlint+frameworksUnitTest.yml" "--write-to-file" "$unitTestDir/.swiftlint.yml"
+		else
+			cp "swiftlint+frameworksUnitTest.yml" "$unitTestDir/.swiftlint.yml"
+		fi
 	fi
 fi
 
