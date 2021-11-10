@@ -117,11 +117,6 @@ large_tuple:
   warning: 4
   error: 6
 
-missing_docs:
-  warning:
-    - open
-    - public
-
 type_name:
   min_length: 3
   max_length: 60
