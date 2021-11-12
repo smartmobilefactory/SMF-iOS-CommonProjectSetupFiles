@@ -100,7 +100,7 @@ cyclomatic_complexity:
 nesting:
   type_level:
     warning: 6
-  statement_level:
+  function_level:
     warning: 6
 
 function_body_length:
