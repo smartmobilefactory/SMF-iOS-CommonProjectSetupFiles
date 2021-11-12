@@ -21,8 +21,3 @@ excluded:
 opt_in_rules:
   - explicit_acl
   - missing_docs
-
-missing_docs:
-  warning:
-    - open
-    - public
