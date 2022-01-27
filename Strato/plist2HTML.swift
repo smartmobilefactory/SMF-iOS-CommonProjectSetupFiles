@@ -10,11 +10,9 @@ enum Plist2HTML {
 	static let footerKey = "FooterText"
 
 	static func body(with content: String) -> String {
-
 		let color = Plist2HTML.blackHTMLColor
 		let fullBody = ("<body style=\"background-color:\(color);\">" + content + "</body>")
 
-		// Adding style this way to make it more readable and easier to be modified
 		let style = """
 		  <style> html, body { font-family: Calibri,\"PT Sans\",sans-serif; padding: 15px; }
 			  ol {
@@ -39,19 +37,16 @@ enum Plist2HTML {
 	}
 
 	static func header(with title: String) -> String {
-
 		let color = Plist2HTML.whiteHTMLColor
 		return ("<h1 style=\"color:\(color);\">" + title + "</h1>")
 	}
 
 	static func subheader(with subtitle: String) -> String {
-
 		let color = Plist2HTML.whiteHTMLColor
 		return ("<h3 style=\"color:\(color);\">" + subtitle + "</h3>")
 	}
 
 	static func paragraph(with text: String) -> String {
-
 		let color = Plist2HTML.whiteHTMLColor
 		return ("<p style=\"color:\(color);\">" + text + "</p>")
 	}
@@ -59,7 +54,6 @@ enum Plist2HTML {
 	/// Transforms the plist file containing the acknowledgments into an HTML
 	/// - Parameter url: URL pointing to acknowledgments file
 	static func transformPlistFile(from url: URL) -> String {
-
 		guard
 			let plistDict = NSDictionary(contentsOfFile: url.path),
 			let acknowledgmentsMultiList = plistDict[Plist2HTML.ackKey] as? NSArray else {
@@ -89,8 +83,6 @@ enum Plist2HTML {
 			htmlString += Plist2HTML.blankLine
 		}
 
-		let styledHTMLString = Plist2HTML.body(with: htmlString)
-
-		return styledHTMLString
+		return Plist2HTML.body(with: htmlString)
 	}
 }
