@@ -3,7 +3,6 @@ import Foundation
 struct Plist2HTML {
 
 	enum HTMLStyle: String {
-
 		case light
 		case dark
 	}
@@ -14,59 +13,21 @@ struct Plist2HTML {
 		self.style = style
 	}
 
+	private static let whiteHTMLColor = "white"
+	private static let blackHTMLColor = "black"
+
+	private static let blankLine = "<br>"
+	private static let ackKey = "PreferenceSpecifiers"
+	private static let titleKey = "Title"
+	private static let licenseKey = "License"
+	private static let footerKey = "FooterText"
+
 	private var textColor: String {
-		return (self.style == .light) ? self.blackHTMLColor : self.whiteHTMLColor
+		return (self.style == .light) ? Plist2HTML.blackHTMLColor : Plist2HTML.whiteHTMLColor
 	}
 
 	private var backgroundColor: String {
-		return (self.style == .light) ? self.whiteHTMLColor : self.blackHTMLColor
-	}
-
-	private let whiteHTMLColor = "white"
-	private let blackHTMLColor = "black"
-
-	static let blankLine = "<br>"
-	static let ackKey = "PreferenceSpecifiers"
-	static let titleKey = "Title"
-	static let licenseKey = "License"
-	static let footerKey = "FooterText"
-
-	func body(with content: String) -> String {
-		let fullBody = ("<body style=\"background-color:\(self.backgroundColor);\">" + content + "</body>")
-
-		let style = """
-		  <style> html, body { font-family: Calibri,\"PT Sans\",sans-serif; padding: 15px; }
-			  ol {
-				  padding-left: 15px;
-			  }
-			  li {
-				  font-size: 16px;
-			  }
-			  @media (prefers-color-scheme: dark) {
-				  body {
-					  background: #333;
-					  color: #fff;
-				  }
-				  a {
-					  color:#999;
-				  }
-			  }
-		  </style>
-		"""
-
-		return (fullBody + style)
-	}
-
-	func header(with title: String) -> String {
-		return ("<h1 style=\"color:\(self.textColor);\">" + title + "</h1>")
-	}
-
-	func subheader(with subtitle: String) -> String {
-		return ("<h3 style=\"color:\(self.textColor);\">" + subtitle + "</h3>")
-	}
-
-	func paragraph(with text: String) -> String {
-		return ("<p style=\"color:\(self.textColor);\">" + text + "</p>")
+		return (self.style == .light) ? Plist2HTML.whiteHTMLColor : Plist2HTML.blackHTMLColor
 	}
 
 	/// Transforms the plist file containing the acknowledgments into an HTML
@@ -102,5 +63,45 @@ struct Plist2HTML {
 		}
 
 		return self.body(with: htmlString)
+	}
+
+	// MARK: - Helpers
+
+	private func body(with content: String) -> String {
+		let fullBody = ("<body style=\"background-color:\(self.backgroundColor);\">" + content + "</body>")
+
+		let style = """
+		  <style> html, body { font-family: Calibri,"PT Sans",sans-serif; padding: 15px; }
+			  ol {
+				  padding-left: 15px;
+			  }
+			  li {
+				  font-size: 16px;
+			  }
+			  @media (prefers-color-scheme: dark) {
+				  body {
+					  background: #333;
+					  color: #fff;
+				  }
+				  a {
+					  color:#999;
+				  }
+			  }
+		  </style>
+		"""
+
+		return (fullBody + style)
+	}
+
+	private func header(with title: String) -> String {
+		return ("<h1 style=\"color:\(self.textColor);\">" + title + "</h1>")
+	}
+
+	private func subheader(with subtitle: String) -> String {
+		return ("<h3 style=\"color:\(self.textColor);\">" + subtitle + "</h3>")
+	}
+
+	private func paragraph(with text: String) -> String {
+		return ("<p style=\"color:\(self.textColor);\">" + text + "</p>")
 	}
 }
