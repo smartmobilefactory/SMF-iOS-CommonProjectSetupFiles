@@ -78,15 +78,6 @@ struct Plist2HTML {
 			  li {
 				  font-size: 16px;
 			  }
-			  @media (prefers-color-scheme: dark) {
-				  body {
-					  background: #333;
-					  color: #fff;
-				  }
-				  a {
-					  color:#999;
-				  }
-			  }
 		  </style>
 		"""
 
