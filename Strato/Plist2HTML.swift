@@ -1,20 +1,6 @@
 import Foundation
 
-struct Plist2HTML {
-
-	enum HTMLStyle: String {
-		case light
-		case dark
-	}
-
-	private let style: HTMLStyle
-
-	init(with style: HTMLStyle) {
-		self.style = style
-	}
-
-	private static let whiteHTMLColor = "white"
-	private static let blackHTMLColor = "black"
+enum Plist2HTML {
 
 	private static let blankLine = "<br>"
 	private static let ackKey = "PreferenceSpecifiers"
@@ -22,17 +8,9 @@ struct Plist2HTML {
 	private static let licenseKey = "License"
 	private static let footerKey = "FooterText"
 
-	private var textColor: String {
-		return (self.style == .light) ? Plist2HTML.blackHTMLColor : Plist2HTML.whiteHTMLColor
-	}
-
-	private var backgroundColor: String {
-		return (self.style == .light) ? Plist2HTML.whiteHTMLColor : Plist2HTML.blackHTMLColor
-	}
-
 	/// Transforms the plist file containing the acknowledgments into an HTML
 	/// - Parameter url: URL pointing to acknowledgments file
-	func transformPlistFile(from url: URL) -> String {
+	static func transformPlistFile(from url: URL) -> String {
 		guard
 			let plistDict = NSDictionary(contentsOfFile: url.path),
 			let acknowledgmentsMultiList = plistDict[Plist2HTML.ackKey] as? NSArray else {
@@ -48,51 +26,59 @@ struct Plist2HTML {
 			}
 
 			if let _title = ackDict[Plist2HTML.titleKey] as? String {
-				htmlString += self.header(with: _title)
+				htmlString += Plist2HTML.header(with: _title)
 			}
 
 			if let _license = ackDict[Plist2HTML.licenseKey] as? String {
-				htmlString += self.subheader(with: _license)
+				htmlString += Plist2HTML.subheader(with: _license)
 			}
 
 			if let _footerText = ackDict[Plist2HTML.footerKey] as? String {
-				htmlString += self.paragraph(with: _footerText.replacingOccurrences(of: "\n", with: Plist2HTML.blankLine))
+				htmlString += Plist2HTML.paragraph(with: _footerText.replacingOccurrences(of: "\n", with: Plist2HTML.blankLine))
 			}
 
 			htmlString += Plist2HTML.blankLine
 		}
 
-		return self.body(with: htmlString)
+		return Plist2HTML.body(with: htmlString)
 	}
 
 	// MARK: - Helpers
 
-	private func body(with content: String) -> String {
-		let fullBody = ("<body style=\"background-color:\(self.backgroundColor);\">" + content + "</body>")
+	private static func body(with content: String) -> String {
+		let fullBody = ("<body>" + content + "</body>")
 
 		let style = """
-		  <style> html, body { font-family: Calibri, "PT Sans", sans-serif; padding: 15px; }
-			  ol {
-				  padding-left: 15px;
-			  }
-			  li {
-				  font-size: 16px;
-			  }
-		  </style>
+		<style> html, body { font-family: Calibri, "PT Sans", sans-serif; padding: 15px; }
+			ol {
+				padding-left: 15px;
+			}
+			li {
+				font-size: 16px;
+			}
+			@media (prefers-color-scheme: dark) {
+				body {
+					background: #333;
+					color: #fff;
+				}
+				a {
+					color:#999;
+				}
+			}
+		</style>
 		"""
-
 		return (fullBody + style)
 	}
 
-	private func header(with title: String) -> String {
-		return ("<h1 style=\"color:\(self.textColor);\">" + title + "</h1>")
+	private static func header(with title: String) -> String {
+		return ("<h1>" + title + "</h1>")
 	}
 
-	private func subheader(with subtitle: String) -> String {
-		return ("<h3 style=\"color:\(self.textColor);\">" + subtitle + "</h3>")
+	private static func subheader(with subtitle: String) -> String {
+		return ("<h3>" + subtitle + "</h3>")
 	}
 
-	private func paragraph(with text: String) -> String {
-		return ("<p style=\"color:\(self.textColor);\">" + text + "</p>")
+	private static func paragraph(with text: String) -> String {
+		return ("<p>" + text + "</p>")
 	}
 }
