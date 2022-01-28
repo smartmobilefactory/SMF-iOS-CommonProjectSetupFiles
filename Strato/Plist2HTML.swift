@@ -71,7 +71,7 @@ struct Plist2HTML {
 		let fullBody = ("<body style=\"background-color:\(self.backgroundColor);\">" + content + "</body>")
 
 		let style = """
-		  <style> html, body { font-family: Calibri,"PT Sans",sans-serif; padding: 15px; }
+		  <style> html, body { font-family: Calibri, "PT Sans", sans-serif; padding: 15px; }
 			  ol {
 				  padding-left: 15px;
 			  }
