@@ -8,7 +8,7 @@ enum AcknowledgmentsPlistToHTML {
 	private static let licenseKey = "License"
 	private static let footerKey = "FooterText"
 
-	/// Transforms the plist file containing the acknowledgments into an HTML
+	/// Transforms the plist file containing the acknowledgments into an HTML string
 	/// - Parameter url: URL pointing to acknowledgments file
 	static func transformPlistFile(from url: URL) -> String {
 		guard
