@@ -2,6 +2,8 @@ require 'fileutils'
 
 class Licences
 
+	# target: pod target from the `Podfile`
+	# path: the files destionation path
 	def self.generateCleanAcknowledgementsPlist(target, path)
 		puts "Generating acknowledgements with dependencies from " + target.name
 
