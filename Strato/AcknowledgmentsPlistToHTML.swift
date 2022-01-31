@@ -1,6 +1,6 @@
 import Foundation
 
-enum Plist2HTML {
+enum AcknowledgmentsPlistToHTML {
 
 	private static let blankLine = "<br>"
 	private static let ackKey = "PreferenceSpecifiers"
@@ -13,7 +13,7 @@ enum Plist2HTML {
 	static func transformPlistFile(from url: URL) -> String {
 		guard
 			let plistDict = NSDictionary(contentsOfFile: url.path),
-			let acknowledgmentsMultiList = plistDict[Plist2HTML.ackKey] as? NSArray else {
+			let acknowledgmentsMultiList = plistDict[AcknowledgmentsPlistToHTML.ackKey] as? NSArray else {
 				return ""
 		}
 
@@ -25,22 +25,22 @@ enum Plist2HTML {
 				return
 			}
 
-			if let _title = ackDict[Plist2HTML.titleKey] as? String {
-				htmlString += Plist2HTML.header(with: _title)
+			if let _title = ackDict[AcknowledgmentsPlistToHTML.titleKey] as? String {
+				htmlString += AcknowledgmentsPlistToHTML.header(with: _title)
 			}
 
-			if let _license = ackDict[Plist2HTML.licenseKey] as? String {
-				htmlString += Plist2HTML.subheader(with: _license)
+			if let _license = ackDict[AcknowledgmentsPlistToHTML.licenseKey] as? String {
+				htmlString += AcknowledgmentsPlistToHTML.subheader(with: _license)
 			}
 
-			if let _footerText = ackDict[Plist2HTML.footerKey] as? String {
-				htmlString += Plist2HTML.paragraph(with: _footerText.replacingOccurrences(of: "\n", with: Plist2HTML.blankLine))
+			if let _footerText = ackDict[AcknowledgmentsPlistToHTML.footerKey] as? String {
+				htmlString += AcknowledgmentsPlistToHTML.paragraph(with: _footerText.replacingOccurrences(of: "\n", with: AcknowledgmentsPlistToHTML.blankLine))
 			}
 
-			htmlString += Plist2HTML.blankLine
+			htmlString += AcknowledgmentsPlistToHTML.blankLine
 		}
 
-		return Plist2HTML.body(with: htmlString)
+		return AcknowledgmentsPlistToHTML.body(with: htmlString)
 	}
 
 	// MARK: - Helpers
