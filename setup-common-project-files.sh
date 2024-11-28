@@ -32,7 +32,7 @@ isFramework=false
 useBreakingInternalFrameworkVersioning=false
 copyPRTemplate=true
 callSwiftlint=true
-checkXcodeVersion=true
+checkXcodeVersion=false
 projectDir="$(pwd)"
 isSwiftUIProject=false
 
