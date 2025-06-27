@@ -1,21 +1,17 @@
 # SMF-iOS-CommonProjectSetupFiles
 
-[![Language: Swift 5.3](https://img.shields.io/badge/Swift-5.2-orange.svg)](https://swift.org)
-[![Xcode: Xcode 11.7](https://img.shields.io/badge/Xcode-11.7-orange.svg)](https://developer.apple.com/xcode)
+[![Language: Swift 5.3](https://img.shields.io/badge/Swift-5.9-orange.svg)](https://swift.org)
+[![Xcode: Xcode 15](https://img.shields.io/badge/Xcode-15-orange.svg)](https://developer.apple.com/xcode)
 
 This Repo contains our common project setup files.
 
 Helpers which can be added manually to the Xcode project which should be used:
 
-- [HockeySDK.swift](#hockeyapp-sdk)
-- [SentrySDK.swift](#sentry-sdk)
-- [BuglifeSDK.swift](#buglife-sdk)
 - [LifetimeTrackerSDK](#lifetimetracker-sdk)
 
 Scripts which should be called during the build phase:
 
 - [SwiftLint](#swiftlint)
-- [DrSwift](#drswift)
 - [Xcode version check](#xcode-version-check)
 
 ### Setup
@@ -52,100 +48,7 @@ If you want to add more parameters, eg. to disable SwiftLint, you have to add th
 
 ## Helper classes
 
-### HockeyApp-SDK
 
-This repo contains the `HockeySDK` helper struct which takes care of the default HockeyApp SDK setup. The SDK will be initialized with the App ID and the Crash Manager started.
-
-### Sentry-SDK
-
-This repo contains the `SentrySKD` (plus the SMFLogger variant) helper struct which takes care of the default Sentry SDK setup. The SDK will be initialized with the Sentry DSN (in the info.plist).
-
-#### Integrate the HockeyApp SDK
-To use the HockeySDK.swift helper struct you have to manually add the HockeyApp SDK to your project first. Use the preferred way to do this - at this time it's [CocoaPods](https://cocoapods.org).
-
-#### Add the HockeyApp App ID to the info plists
-The helper struct will automatically read the App IDs from the info plists. It's mandatory to add these with the key `HockeyAppId` to all info plists in the project:
-
-```
-<key>HockeyAppId</key>
-<string>ABCDE...</string>
-```
-
-#### Add the HockeySDK.swift file to the project
-
-Once the SDK is properly integrated and the App IDs set you have to add the `HockeySDK.swift` file to the Xcode project:
-
-```
-Project navigator > Submodules > Add files to "SMF-iOS-CommonProjectSetupFiles" > Choose the folder "HockeyApp"
-```
-
-#### Use the HockeySDK.swift helper struct
-
-If all former steps are completed you can call the `HockeySDK.setup()` method during the `applicationDidFinishLaunching(_:)` in the app delegate:
-
-```
-func applicationDidFinishLaunching(_ application: UIApplication) {
-	HockeySDK.setup()
-}
-```
-
-#### Customiztion
-
-If you want to use a diferent `BITCrashManagerStatus` (the default is `.autoSend`) or want to enable crash reports also for debug builds you can send these as optional parameters:
-
-```
-HockeySDK.setup(withStatus: .alwaysAsk, configureHockeyAppAlsoForDebugBuildTypes: true)
-```
-
-#### Perform a test crash
-
-If you want to test if crash reports are working you can perform a test crash. This will trigger a `fatalError()`. Note: If you didn't set `configureHockeyAppAlsoForDebugBuildTypes` to `true` you have to build the app as release app in order to capture crashes!
-
-```
-HockeySDK.performTestCrash()
-```
-
-
-### Buglife-SDK
-
-This repo contains the `BuglifeSDK` helper struct which takes care of the default Buglife SDK setup with `Shake` as default invocation option to trigger the Buglife view controller.
-
-#### Integrate the Buglife SDK
-To use the BuglifeSDK.swift helper struct you have to manually add the Buglife SDK to your project first. Use the preferred way to do this - at this time it's [CocoaPods](https://cocoapods.org).
-
-#### Add the Buglife ID to the info plists
-The helper struct will automatically read the IDs from the info plists. It's mandatory to add these with the key `BuglifeId` to all info plists in the project:
-
-```
-<key>BuglifeId</key>
-<string>ABCDE...</string>
-```
-
-#### Add the BuglifeSDK.swift file to the project
-
-Once the SDK is properly integrated and the Buglife ID set you have to add the `BuglifeSDK .swift` file to the Xcode project:
-
-```
-Project navigator > Submodules > Add files to "SMF-iOS-CommonProjectSetupFiles" > Choose the folder "Buglife"
-```
-
-#### Use the BuglifeSDK.swift helper struct
-
-If all former steps are completed you can call the `BuglifeSDK.setup()` method during the `applicationDidFinishLaunching (_:)` in the app delegate:
-
-```
-func applicationDidFinishLaunching(_ application: UIApplication) {
-	BuglifeSDK.setup()
-}
-```
-
-#### Customiztion
-
-If you want to use a diferent `LIFEInvocationOptions` (the default is `.shake`) you can send it as optional parameter:
-
-```
-BuglifeSDK.setup(withOption: .screenshot)
-```
 
 ### LifetimeTracker-SDK
 
@@ -165,7 +68,7 @@ Multiple `#if canImport(LifetimeTracker)` checks make sure that targets with Lif
 
 ### SwiftLint
 
-Swiftlint is integrated in SMF-iOS-CommonProjectSetupFiles itself. The current version is 0.28.1.
+SwiftLint is integrated in SMF-iOS-CommonProjectSetupFiles itself. The current version is 0.59.1.
 
 #### Integrate it into the project
 
@@ -187,15 +90,6 @@ excluded:
 ##### Optional: Call the SwiftLint script without using the setup script
 If you want to copy the SwiftLint configuration and lint the code without integrating the setup script you can call `Submodules/SMF-iOS-CommonProjectSetupFiles/SwiftLint/copy-and-run-swiftlint-config.sh` directly.
 
-### DrSwift
-
-[DrSwift](https://github.com/dduan/DrString) is integrated in SMF-iOS-CommonProjectSetupFiles itself. The current version is 0.4.2.
-
-#### Integrate it into the project
-
-DrString is configured to run when you execute `Submodules/SMF-iOS-CommonProjectSetupFiles/setup-common-project-files.sh` with [framework target configuration](#setup) parameters.
-
-**Make sure that `/.drstring.toml` is added to the gitignore file as the DrSwift configuration file be automatically copied from the repo into the projects base folder.**
 
 ### Xcode version check
 
