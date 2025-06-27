@@ -1,7 +1,0 @@
-include = [
-    'Core/**/*.swift',
-    'Framework/**/*.swift'
-]
-
-ignore-throws = true
-ignore-returns = true
