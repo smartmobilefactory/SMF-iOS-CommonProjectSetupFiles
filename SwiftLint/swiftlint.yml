@@ -224,12 +224,12 @@ custom_rules:
     severity: warning
   missing_todo_link:
     name: "Missing TODO Link"
-    regex: '(?i-s)((//|\*)[\s]*?(TODO|FIXME)((?!https://smartmobilefactory.atlassian.net).)*$)'
+    regex: '(?i-s)((//|\*)[\s]*?(TODO|FIXME)((?!https://sosimple.atlassian.net).)*$)'
     message: "Missing Link to Jira for TODO"
     severity: warning
   missing_todo_message:
     name: "Missing TODO Message"
-    regex: '(?i-s)(//|\*)[\s]*?(TODO|FIXME)[:\s]+https://smartmobilefactory.atlassian.net'
+    regex: '(?i-s)(//|\*)[\s]*?(TODO|FIXME)[:\s]+https://sosimple.atlassian.net'
     message: "Missing TODO description"
     severity: warning
   missing_brackets_unwrap:
